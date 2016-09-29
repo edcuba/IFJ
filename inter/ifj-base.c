@@ -1,9 +1,21 @@
-#include <glib-object.h>
-#include "ifj-inter.h"
+/* ifj-base.c
+ *
+ * Copyright (C) 2016 SsYoloSwag41 Inc.
+ * Authors: Eduard Cuba <xcubae00@stud.fit.vutbr.cz>
+ */
 
-gint main (gint argc, gchar **argv)
+#include "ifj-inter.h"
+#include <stdio.h>
+
+#define check(arg) rc = arg; if(rc) return rc
+
+gint main ( gint argc,
+            gchar **argv)
 {
-    IfjInter *interpreter = ifj_inter_new();
+    gint rc;
+    ifjInter *inter = ifj_inter_new();
+    check( inter->load(argc, argv) );
+
 
     return 0;
 }

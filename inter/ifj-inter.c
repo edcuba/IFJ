@@ -6,29 +6,29 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <glib.h>
 #include "ifj-inter.h"
 //all modules included here
 
-static IfjInter* ifj_inter_construct()
+static ifjInter* _ifj_inter_construct()
 {
-    IfjInter *interpreter = (IfjInter*)malloc(sizeof(struct _IfjInter));
+    ifjInter *interpreter = (ifjInter*)malloc(sizeof(struct _ifjInter));
     if(!interpreter)
     {
-	fprintf(stderr,"ERROR: allocating interpreter!\n");
-	exit(-1);
+        fprintf(stderr,"ERROR: allocating interpreter!\n");
+        exit(-1);
     }
     return interpreter;
 }
 
-static void ifj_inter_init(IfjInter *self)
+static void ifj_inter_init( ifjInter *self )
 {
     self->debugMode = 0;
+    self->load = &ifj_load;
 }
 
-IfjInter* ifj_inter_new   ()
+ifjInter* ifj_inter_new   ()
 {
-    IfjInter *interpreter = ifj_inter_construct();
+    ifjInter *interpreter = _ifj_inter_construct();
     ifj_inter_init(interpreter);
     return interpreter;
 }
