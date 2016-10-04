@@ -7,21 +7,32 @@
 #ifndef IFJ_INTER_H
 #define IFJ_INTER_H
 
-#include <glib.h>
+typedef struct _token token;
+typedef struct _ifjInter ifjInter;
+typedef struct _symbol_table symbol_table;
 
-typedef struct _ifjInter
+#include "ifj-syna.h"
+#include "ifj-lexa.h"
+#include "ial.h"
+
+struct _token
 {
-    gboolean debugMode;
-    gint (*load)(gint, gchar**);
-    void (*lexa)(void);
-    void (*sema)(void);
-    void (*syma)(void);
+    void *ptr;
+};
 
-} ifjInter;
+struct _ifjInter
+{
+    char debugMode;
+    symbol_table *table;
+    int     ( *load )( int, char** );
+    token  *( *lexa )( ifjInter* );
+    int     ( *sema )( ifjInter* );
+    int     ( *syna )( ifjInter* );
+};
 
 ifjInter* ifj_inter_new();
 
-gint ifj_load   (   gint argc,
-                    gchar **argv);
+int ifj_load   (   int argc,
+                    char **argv);
 
 #endif

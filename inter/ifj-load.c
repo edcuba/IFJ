@@ -7,8 +7,8 @@
  #include "ifj-inter.h"
  #include <stdio.h>
 
-gint ifj_load ( gint argc,
-                gchar **argv)
+int ifj_load (  int argc,
+                char **argv)
 {
     if (argc != 2)
     {

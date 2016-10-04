@@ -9,13 +9,13 @@
 
 #define check(arg) rc = arg; if(rc) return rc
 
-gint main ( gint argc,
-            gchar **argv)
+int main (  int argc,
+            char **argv)
 {
-    gint rc;
+    int rc;
     ifjInter *inter = ifj_inter_new();
     check( inter->load(argc, argv) );
-
+    check( inter->syna(inter) );
 
     return 0;
 }
