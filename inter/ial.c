@@ -5,6 +5,8 @@
  */
 
  #include "ial.h"
+ #include <stdlib.h>
+ #include <stdio.h>
 
  /**
   * Symbol table constructor
@@ -38,6 +40,6 @@
  symbol_table *ial_symbol_table_new()
  {
      symbol_table *table = _ial_symbol_table_construct();
-     ial_symbol_table_new(table);
+     ial_symbol_table_init(table);
      return table;
  }
