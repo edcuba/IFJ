@@ -64,9 +64,9 @@ static void ial_symbol_table_init( symbol_table *self )
  *  - contains default methods + hash structure
  * @return  new symbol table
  */
- symbol_table *ial_symbol_table_new()
- {
-     symbol_table *table = _ial_symbol_table_construct();
-     ial_symbol_table_init(table);
-     return table;
- }
+symbol_table *ial_symbol_table_new()
+{
+    symbol_table *table = ial_symbol_table_construct();
+    ial_symbol_table_init(table);
+    return table;
+}
