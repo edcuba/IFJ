@@ -16,6 +16,7 @@ int main (  int argc,
     ifjInter *inter = ifj_inter_new();
     check( inter->load(argc, argv) );
     check( inter->syna(inter) );
+    //token *item = ifj_token_new();
 
     return 0;
 }

@@ -18,8 +18,9 @@ typedef struct _symbol_table symbol_table;
 struct _token
 {
     const char *name;
-    const int type;
+    int type;
     const void *value;
+    token *next;
 };
 
 struct _ifjInter
@@ -32,7 +33,8 @@ struct _ifjInter
     int     ( *syna )( ifjInter* );
 };
 
-ifjInter* ifj_inter_new();
+ifjInter    *ifj_inter_new();
+token       *ifj_token_new();
 
 int ifj_load   (   int argc,
                    char **argv);

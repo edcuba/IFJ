@@ -13,7 +13,7 @@
  * Interpeter constructor
  * @return new, uninitialised interpreter structure
  */
-static ifjInter* _ifj_inter_construct()
+static ifjInter* ifj_inter_construct()
 {
     ifjInter *interpreter = (ifjInter *) malloc ( sizeof( struct _ifjInter ));
     if(!interpreter)
@@ -37,7 +37,6 @@ static void ifj_inter_init( ifjInter *self )
     self->table = ial_symbol_table_new();
 }
 
-
 /**
  * Create new interpreter structure
  *  - contains default methods and attributes
@@ -45,7 +44,45 @@ static void ifj_inter_init( ifjInter *self )
  */
 ifjInter* ifj_inter_new   ()
 {
-    ifjInter *interpreter = _ifj_inter_construct();
+    ifjInter *interpreter = ifj_inter_construct();
     ifj_inter_init(interpreter);
     return interpreter;
+}
+
+/**
+ * token constructor
+ * @return new, uninitialised token structure
+ */
+static token* ifj_token_construct()
+{
+    token *item = (token *) malloc ( sizeof( struct _token ));
+    if(!item)
+    {
+        fprintf(stderr,"ERROR: allocating token!\n");
+        exit(99);
+    }
+    return item;
+}
+
+/**
+ * token initialiser
+ * @param self token
+ */
+static void ifj_token_init( token *self )
+{
+    self->name = NULL;
+    self->type = 0;
+    self->value = NULL;
+    self->next = NULL;
+}
+
+/**
+ * Create new token structure
+ * @return  token
+ */
+token * ifj_token_new   ()
+{
+    token *item = ifj_token_construct();
+    ifj_token_init(item);
+    return item;
 }
