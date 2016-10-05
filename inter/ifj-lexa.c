@@ -4,8 +4,8 @@
  * Authors:
  */
 
- #include "ifj-lexa.h"
- #include "ifj-inter.h"
+#include "ifj-lexa.h"
+#include "ifj-inter.h"
 
 token * lexa_next_token ( ifjInter *self )
 {

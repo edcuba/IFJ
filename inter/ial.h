@@ -4,17 +4,19 @@
  * Authors: Eduard Cuba <xcubae00@stud.fit.vutbr.cz>
  */
 
- #ifndef IAL_H
- #define IAL_H
+#ifndef IAL_H
+#define IAL_H
 
- #include "ifj-inter.h"
+#include "ifj-inter.h"
 
- struct _symbol_table
- {
-     void (*get_stg)();
-     void (*set_stg)();
- };
+struct _symbol_table
+{
+	unsigned int ( *hash_func	)();
+	const token *( *add_item	)( token* );
+	const token *( *get_item	)( const char*);
+	//prev/next???
+};
 
- symbol_table *ial_symbol_table_new();
+symbol_table *ial_symbol_table_new();
 
- #endif
+#endif
