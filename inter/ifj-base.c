@@ -6,16 +6,18 @@
 
 #include "ifj-inter.h"
 
-#define check(arg) rc = arg; if(rc) return rc
+
+#define check(arg) rc = arg; if(rc) return rc //exit when return code not 0
 
 int main (  int argc,
             char **argv)
 {
     int rc;
-    ifjInter *inter = ifj_inter_new();
-    check( inter->load(argc, argv, inter) );
-    check( inter->syna(inter) );
-    //token *item = ifj_token_new();
+    ifjInter *inter = ifj_inter_new(); //create new main struct
+    check( inter->load(argc, argv) ); //load input file
+    check( inter->syna(inter) ); //run syntactic analysis
+
+
 
     return 0;
 }
