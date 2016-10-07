@@ -9,6 +9,7 @@
 
 #include "ifj-inter.h"
 
+//struct for symbol table
 struct _symbol_table
 {
 	unsigned int size;
@@ -16,7 +17,6 @@ struct _symbol_table
 	unsigned int ( *hash_func	)();
 	const token *( *add_item	)( symbol_table*, token* );
 	const token *( *get_item	)( const char*);
-	//prev/next???
 };
 
 symbol_table *ial_symbol_table_new();

@@ -1,7 +1,7 @@
 /* ifj-load.c
  *
  * Copyright (C) 2016 SsYoloSwag41 Inc.
- * Authors: Eduard Cuba <xcubae00@stud.fit.vutbr.cz>
+ * Authors:
  */
 
 #include "ifj-inter.h"
