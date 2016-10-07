@@ -15,6 +15,9 @@ typedef struct _symbol_table symbol_table;
 #include "ifj-lexa.h"
 #include "ial.h"
 
+/**
+ * Struct for storing tokens in symbol table
+ */
 struct _token
 {
     const char *name;
@@ -23,6 +26,10 @@ struct _token
     token *next;
 };
 
+/**
+ * Main interpreter structure
+ * - you can store every variable used in multiple modules here
+ */
 struct _ifjInter
 {
     char debugMode;
@@ -31,6 +38,7 @@ struct _ifjInter
     token  *( *lexa )( ifjInter* );
     int     ( *sema )( ifjInter* );
     int     ( *syna )( ifjInter* );
+    //TODO double linked list for token pointers
 };
 
 ifjInter    *ifj_inter_new();
