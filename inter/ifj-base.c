@@ -5,7 +5,6 @@
  */
 
 #include "ifj-inter.h"
-#include <stdio.h>
 
 #define check(arg) rc = arg; if(rc) return rc
 
@@ -14,7 +13,7 @@ int main (  int argc,
 {
     int rc;
     ifjInter *inter = ifj_inter_new();
-    check( inter->load(argc, argv) );
+    check( inter->load(argc, argv, inter) );
     check( inter->syna(inter) );
     //token *item = ifj_token_new();
 

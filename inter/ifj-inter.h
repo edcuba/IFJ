@@ -11,6 +11,7 @@ typedef struct _token token;
 typedef struct _ifjInter ifjInter;
 typedef struct _symbol_table symbol_table;
 
+#include <stdio.h>
 #include "ifj-syna.h"
 #include "ifj-lexa.h"
 #include "ial.h"
@@ -26,8 +27,9 @@ struct _token
 struct _ifjInter
 {
     char debugMode;
+    FILE *inputFile;
     symbol_table *table;
-    int     ( *load )( int, char** );
+    int     ( *load )( int, char**, ifjInter* );
     token  *( *lexa )( ifjInter* );
     int     ( *sema )( ifjInter* );
     int     ( *syna )( ifjInter* );
@@ -36,7 +38,6 @@ struct _ifjInter
 ifjInter    *ifj_inter_new();
 token       *ifj_token_new();
 
-int ifj_load   (   int argc,
-                   char **argv);
+int ifj_load(int argc, char **argv, ifjInter* inter);
 
 #endif
