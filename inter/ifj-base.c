@@ -6,7 +6,6 @@
 
 #include "ifj-inter.h"
 
-
 #define check(arg) rc = arg; if(rc) return rc //exit when return code not 0
 
 int main (  int argc,
