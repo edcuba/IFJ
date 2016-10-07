@@ -10,10 +10,12 @@
 
 #define TABLE_ROWS 4241
 
-/**
+/** TODO
  * Add new item
  * - store pointer to token in hash table
- * - allows to access pointer later
+ * @param self symbol table
+ * @param item token
+ * @returns stored token pointer or NULL when unsuccessful
  */
 const token *ial_symbol_table_add_item	( 	symbol_table *self,
 	 										token *item )
@@ -21,8 +23,21 @@ const token *ial_symbol_table_add_item	( 	symbol_table *self,
 	return NULL;
 }
 
+/** TODO
+ * Get item by name
+ * - store pointer to token in hash table
+ * - allows to access pointer later
+ */
+const token *ial_symbol_table_get_item	( 	symbol_table *self,
+	 										const char *item )
+{
+	return NULL;
+}
+
 /**
  * sdbm hashing algorithm
+ * @param item token
+ * @returns hash table row
  */
 unsigned int ial_symbol_table_hash_func ( token *item )
 {
@@ -39,6 +54,16 @@ unsigned int ial_symbol_table_hash_func ( token *item )
 	}
 	printf("Hash:%u\n",hash);
 	return hash % TABLE_ROWS;
+}
+
+/** TODO
+ * Free all tokens and symbol table
+ * @param self symbol_table
+ * @returns 0 if successful
+ */
+int ial_symbol_table_drop ( symbol_table *self)
+{
+	return 0;
 }
 
 /**
@@ -71,6 +96,8 @@ static void ial_symbol_table_init( symbol_table *self )
 {
 	self->hash_func	= &ial_symbol_table_hash_func;
 	self->add_item	= &ial_symbol_table_add_item;
+	self->get_item = &ial_symbol_table_get_item;
+	self->drop = &ial_symbol_table_drop;
 	for( int i = 0; i < self->size; i++)
 	{
 		self->row[i] = NULL;

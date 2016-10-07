@@ -1,8 +1,8 @@
-CFLAGS=-Wmissing-declarations -Wreturn-type -Wunused-variable
+CFLAGS=-Wall -Wmissing-declarations -Wreturn-type -Wunused-variable
 SOURCES= ifj-base.c ifj-inter.c ifj-load.c ifj-lexa.c ifj-syna.c ial.c
+TEST_SOURCES= ifj-test.c ifj-inter.c ifj-load.c ifj-lexa.c ifj-syna.c ial.c
 HEADERS= ifj-inter.h ifj-lexa.h ifj-syna.h ial.h
 CC=gcc
 all: ifj16
 ifj16: $(SOURCES) $(HEADERS) ; $(CC) $(CFLAGS) $(SOURCES) -o ifj16
-clean:
-	rm ifj16
+test: $(TEST_SOURCES) $(HEADERS) ; $(CC) $(CFLAGS) $(TEST_SOURCES) -o test_ifj16
