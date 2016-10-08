@@ -29,9 +29,9 @@ const token *ial_symbol_table_add_item	( 	symbol_table *self,
 	 										token *item );
 
 const token *ial_symbol_table_get_item	( 	symbol_table *self,
-	 										const char *item );
+	 										const char *name );
 
-unsigned int ial_symbol_table_hash_func ( token *item );
+unsigned int ial_symbol_table_hash_func ( const char *name );
 
 
 #endif
