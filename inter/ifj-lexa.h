@@ -11,15 +11,32 @@
 #include "utils/htable.h"
 
 #define T_SEMICOLON ';'
+#define T_COLON ':'
 #define T_LPAREN '('
 #define T_RPAREN ')'
 #define T_LBLOCK '{'
 #define T_RBLOCK '}'
+#define T_LARRAY '['
+#define T_RARRAY ']'
 #define T_ASSIGN '='
 #define T_DIVIDE '/'
 #define T_MULTIPLY '*'
 #define T_SUBTRACT '-'
 #define T_ADD '+'
+#define T_LESS '<'
+#define T_GREATER '>'
+#define T_COMMA ','
+#define T_NOT '!'
+#define T_TERNARY '?'
+
+#define T_LESS_EQUAL 601
+#define T_GREATER_EQUAL 602
+#define T_EQUAL 603
+#define T_NOT_EQUAL 604
+#define T_AND 605
+#define T_OR 606
+#define T_INC 607
+#define T_DEC 608
 
 #define T_WHILE 300
 #define T_FOR 301
@@ -31,16 +48,17 @@
 #define T_RETURN 307
 #define T_VOID 308
 #define T_STATIC 309
+#define T_CLASS 310
+#define T_BOOLEAN 311
+#define T_INTEGER 312
+#define T_DOUBLE 313
+#define T_STRING 314
 
 #define T_IDENTIFIER 401
-#define T_BOOLEAN 402
-#define T_INTEGER 403
-#define T_DOUBLE 404
-#define T_STRING 405
-#define T_CLASS 406
-
-#define T_TRUE 407
-#define T_FALSE 408
+#define T_BOOLEAN_C 402
+#define T_INTEGER_C 403
+#define T_DOUBLE_C 404
+#define T_STRING_C 405
 
 #define T_END 501
 #define T_UNKNOWN 502
