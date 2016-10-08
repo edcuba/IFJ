@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TEST_TOKENS 100000
+#define TEST_TOKENS 1000000
 
 #define check(name,arg) rc = arg;   if(rc) {printf("[%d] ERROR: %s\n", rc, name); return rc;}\
                                     else printf("[%d] SUCCESS: %s\n", rc, name)
@@ -49,7 +49,7 @@ static int check_inter (ifjInter *self)
  */
 static char * generate_name ()
 {
-    int length = 3+( rand() % 10);
+    int length = 3+( rand() % 15);
     char *name = (char *) malloc(sizeof(char)*(length+1));
     for (int a = 0; a<length; ++a)
     {
@@ -111,17 +111,17 @@ static int check_symbol_table(ifjInter *self)
     printf("Lost %d\n",lost);
 
     //check for lost items
-    check_var_strict("items check", lost);
+    check_var_strict("items check", !(lost));
     printf("Checking items in table...\n");
 
     int tokens_in_table = self->table->count_items(self->table);
     int missing = pushed - tokens_in_table;
 
     printf("Tokens in table: %d | Missing: %d\n", tokens_in_table, missing);
-    check_var_strict("items check", missing);
+    check_var_strict("items check", !missing);
 
     //drop table and create new one
-    check_var_strict("drop table", self->table->drop(self->table));
+    check_var_strict("drop table", !self->table->drop(self->table));
     check_var_strict("reinit table", (self->table = ial_symbol_table_new()));
     return 0;
 }

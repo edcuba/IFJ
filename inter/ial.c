@@ -12,7 +12,7 @@
 
 #define TABLE_ROWS 4241
 
-/** TODO
+/**
  * Add new item
  * - store pointer to token in hash table
  * @param self symbol table
@@ -25,12 +25,12 @@ const token *ial_symbol_table_add_item	( 	symbol_table *self,
 	unsigned int hash = ial_symbol_table_hash_func(item->name);
 
 	item->next = self->row[hash];
-	self->row[hash]->next = item;
+	self->row[hash] = item;
 
 	return item;
 }
 
-/** TODO
+/**
  * Get item by name
  * - store pointer to token in hash table
  * - allows to access pointer later
@@ -80,12 +80,42 @@ unsigned int ial_symbol_table_hash_func ( const char *name )
 		hash = current + (hash << 6) + (hash << 16) - hash;
 	}
 
-	printf("Hash: %u\n", hash);
+	//printf("Hash: %u\n", hash);
 
 	return hash % TABLE_ROWS;
 }
 
-/** TODO
+/**
+ * Count items in symbol table
+ * @param self symbol_table
+ * @returns number of items
+*/
+int ial_symbol_table_count_items( symbol_table *self)
+{
+
+	int counter = 0;
+
+	for (unsigned int i = 0; i < self->size; ++i)
+	{
+
+		if (self->row[i] == NULL)
+		{
+			continue;
+		}
+
+		token *item = self->row[i];
+
+		while (item != NULL)
+		{
+			counter++;
+			item = item->next;
+		}
+	}
+
+	return counter;
+}
+
+/**
  * Free all tokens and symbol table
  * @param self symbol_table
  * @returns 0 if successful
@@ -95,6 +125,11 @@ int ial_symbol_table_drop ( symbol_table *self)
 
 	for (unsigned int i = 0; i < self->size; ++i)
 	{
+		if (self->row[i] == NULL)
+		{
+			continue;
+		}
+
 		token *item = self->row[i];
 
 		while (item != NULL)
@@ -157,6 +192,7 @@ static void ial_symbol_table_init( symbol_table *self )
 	self->hash_func	= &ial_symbol_table_hash_func;
 	self->add_item	= &ial_symbol_table_add_item;
 	self->get_item = &ial_symbol_table_get_item;
+	self->count_items = &ial_symbol_table_count_items;
 	self->drop = &ial_symbol_table_drop;
 
 	for( int i = 0; i < self->size; i++)
