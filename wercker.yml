@@ -1,0 +1,18 @@
+box: tinchou/envc
+
+build:
+  steps:
+    - script:
+      name: Build project
+      code: |
+        cmake .
+        make
+
+test:
+  steps:
+    - script:
+      name: Run tests
+      code: ./inter/ifj16test
+    - script:
+      name: Check memory leaks
+      code: valgrind --leak-check=full --track-origins=yes ./inter/ifj16test
