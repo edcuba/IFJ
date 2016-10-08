@@ -8,6 +8,22 @@
 #include <stdlib.h>
 #include "ifj-inter.h"
 
+/**
+ * Drop interpreter including all tables
+ * @param self interpreter
+ */
+void        ifj_inter_free(ifjInter *self)
+{
+    if(self->table)
+    {
+        self->table->drop(self->table);
+        if(self->table->row)
+            free(self->table->row);
+        free(self->table);
+    }
+    self->table = NULL;
+    free(self);
+}
 
 /**
  * Interpeter constructor
@@ -37,6 +53,7 @@ static void ifj_inter_init( ifjInter *self )
     self->table = ial_symbol_table_new();
 }
 
+
 /**
  * Create new interpreter structure
  *  - contains default methods and attributes
@@ -47,6 +64,25 @@ ifjInter* ifj_inter_new   ()
     ifjInter *interpreter = ifj_inter_construct();
     ifj_inter_init(interpreter);
     return interpreter;
+}
+
+
+/**
+ * Drop token not connected to hash structure
+ * @param item token
+ */
+void ifj_token_free( token *item)
+{
+    if( !item )
+        return;
+
+    if (item->name)
+        free( (char*) item->name);
+
+    if (item->value)
+        free( (void*) item->value);
+
+    free(item);
 }
 
 /**

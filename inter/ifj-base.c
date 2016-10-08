@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 
-#define check(arg) rc = arg; if(rc) return rc //exit when return code not 0
+#define check(arg) rc = arg; if(rc) do { ifj_inter_free(inter); return rc;} while(0) //exit when return code not 0
 
 int main (  int argc,
             char **argv)
@@ -19,6 +19,6 @@ int main (  int argc,
     check( inter->syna(inter) ); //run syntactic analysis
 
 
-
+    ifj_inter_free(inter);
     return 0;
 }

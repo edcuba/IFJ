@@ -72,7 +72,7 @@ unsigned int ial_symbol_table_hash_func ( const char *name )
 
 	unsigned int hash = 0;
 	unsigned char *begin = (unsigned char*)name;
-	int current;
+	int current = 0;
 
 	while( (current = *begin) )
 	{
@@ -122,6 +122,8 @@ int ial_symbol_table_count_items( symbol_table *self)
  */
 int ial_symbol_table_drop ( symbol_table *self)
 {
+	if (!self)
+		return 1;
 
 	for (unsigned int i = 0; i < self->size; ++i)
 	{

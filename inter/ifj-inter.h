@@ -42,7 +42,9 @@ struct _ifjInter
 };
 
 ifjInter    *ifj_inter_new();
+void        ifj_inter_free(ifjInter *self);
 token       *ifj_token_new();
+void        ifj_token_free( token *item);
 
 int ifj_load   (   int argc,
                    char **argv);

@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TEST_TOKENS 1000000
+#define TEST_TOKENS 100000
 
 #define check(name,arg) rc = arg;   if(rc) {printf("[%d] ERROR: %s\n", rc, name); return rc;}\
                                     else printf("[%d] SUCCESS: %s\n", rc, name)
@@ -98,6 +98,7 @@ static int check_symbol_table(ifjInter *self)
             else //just name generator problem
             {
                 generator_problems++;
+                ifj_token_free(item);
                 continue;
             }
         }
@@ -122,6 +123,8 @@ static int check_symbol_table(ifjInter *self)
 
     //drop table and create new one
     check_var_strict("drop table", !self->table->drop(self->table));
+    free(self->table->row);
+    free(self->table);
     check_var_strict("reinit table", (self->table = ial_symbol_table_new()));
     return 0;
 }
@@ -137,4 +140,6 @@ int main()
     check ( "inter struct", check_inter(inter)); //check structore initialization
     check ( "symbol table", check_symbol_table(inter)); //check symbol table functionality
     //just add tests for your modules here...
+
+    ifj_inter_free(inter);
 }
