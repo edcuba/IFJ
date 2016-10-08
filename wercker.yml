@@ -1,4 +1,4 @@
-box: tinchou/envc
+box: kubaj/cmake-valgrind
 
 build:
   steps:
