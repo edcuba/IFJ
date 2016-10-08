@@ -104,6 +104,7 @@ struct htab_listitem *htab_lookup_add(struct htab_t *t,
 
     strcpy(item->key, key);
     item->data = 1;
+    item->id = id;
     t->n++;
 
     return item;
@@ -245,4 +246,17 @@ void htab_free(struct htab_t *t) {
     /// Same as htab_clear but hash table is also freed
     htab_clear(t);
     free(t);
+}
+
+unsigned int hash_function(const char *str, unsigned htab_size) {
+
+    unsigned int h=0;
+    const unsigned char *p;
+
+    for(p=(const unsigned char*)str; *p!='\0'; p++) {
+
+        h = 65599*h + *p;
+    }
+
+    return h % htab_size;
 }
