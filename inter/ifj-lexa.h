@@ -8,6 +8,7 @@
 #define IFJ_LEXA_H
 
 #include "ifj-inter.h"
+#include "utils/htable.h"
 
 #define T_SEMICOLON ';'
 #define T_LPAREN '('
@@ -44,6 +45,51 @@
 #define T_END 501
 #define T_UNKNOWN 502
 
-token * lexa_next_token ( ifjInter *self );
+typedef struct _ifj_lexa ifj_lexa;
+
+struct _ifj_lexa {
+    struct htab_t *reserved_words;
+};
+
+/**
+ * Function initialize lexical analysis module structure
+ *
+ * @return Pointer to structure, NULL if error occurred
+ */
+ifj_lexa *ifj_lexa_init();
+
+/**
+ * Free lexical analysis unit structure
+ *
+ * @param l
+ */
+void ifj_lexa_free(ifj_lexa *l);
+
+/**
+ * Function adds word to table of reserved words
+ *
+ * @param l Lexical analysis structure
+ * @param word Pointer to word
+ * @param token_type Token type for word
+ */
+void ifj_lexa_add_reserved(ifj_lexa *l, char *word, int token_type);
+
+/**
+ * Function finds out if word is reserved word
+ *
+ * @param l Lexical analysis structure
+ * @param word Word to find out
+ * @return Token type if function is reserved, otherwise -1
+ */
+int ifj_lexa_is_reserved(ifj_lexa *l, char *word);
+
+/**
+ * Read next token from input file and process it
+ *
+ * @param l Lexical analysis structure
+ * @param self interpreter structure
+ * @returns next token
+ */
+token *lexa_next_token(ifj_lexa *l, ifjInter *self);
 
 #endif

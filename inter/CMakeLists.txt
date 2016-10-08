@@ -11,7 +11,7 @@ set(modules_sources
         ifj-load.c
         ifj-sema.c
         ifj-syna.c
-        ifj-syna.h)
+        ifj-syna.h utils/htable.h utils/htable.c)
 
 add_library(modules ${modules_sources})
 
