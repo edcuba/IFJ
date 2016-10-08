@@ -23,6 +23,8 @@ struct _symbol_table
 
 symbol_table *ial_symbol_table_new();
 
+int ial_symbol_table_count_items( symbol_table * self);
+
 int ial_symbol_table_drop ( symbol_table *self);
 
 const token *ial_symbol_table_add_item	( 	symbol_table *self,
