@@ -126,6 +126,52 @@ static int check_symbol_table(ifjInter *self)
     return 0;
 }
 
+/**
+ * Check reserved table functionality
+ * @param self ifjInter structure
+ * @returns 0 if successful
+ */
+static int check_reserved_table(ifjInter *self) {
+
+    printf("-------- Testing reserved table ---------\n");
+    ifj_lexa *lexa = ifj_lexa_init();
+    if (lexa == NULL) {
+        printf("Reserved table not initialized");
+        return 1;
+    }
+
+    ifj_lexa_add_reserved(lexa, "while", T_WHILE);
+    if (ifj_lexa_is_reserved(lexa, "while") != T_WHILE) {
+        printf("Reserved word \"while\" should be in table");
+        return 1;
+    }
+
+    if (ifj_lexa_is_reserved(lexa, "pes") != -1) {
+        printf("Reserved word \"pes\" should be in table");
+        return 1;
+    }
+
+    ifj_lexa_add_reserved(lexa, "if", T_IF);
+
+    if (ifj_lexa_is_reserved(lexa, "while") != T_WHILE) {
+        printf("Reserved word \"while\" should be in table");
+        return 1;
+    }
+
+    if (ifj_lexa_is_reserved(lexa, "if") != T_IF) {
+        printf("Reserved word \"if\" should be in table");
+        return 1;
+    }
+
+    if (ifj_lexa_is_reserved(lexa, "pes") != -1) {
+        printf("Reserved word \"pes\" should be in table");
+        return 1;
+    }
+
+    ifj_lexa_free(lexa);
+
+    return 0;
+}
 
 int main()
 {
@@ -136,5 +182,6 @@ int main()
     inter->debugMode = 1; //enable debug mode
     check ( "inter struct", check_inter(inter)); //check structore initialization
     check ( "symbol table", check_symbol_table(inter)); //check symbol table functionality
+    check ( "reserved table", check_reserved_table(inter));
     //just add tests for your modules here...
 }
