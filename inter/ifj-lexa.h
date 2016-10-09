@@ -9,6 +9,7 @@
 
 #include "ifj-inter.h"
 #include "utils/htable.h"
+#include "utils/buffer.h"
 
 #define T_SEMICOLON ';'
 #define T_COLON ':'
@@ -53,6 +54,8 @@
 #define T_INTEGER 312
 #define T_DOUBLE 313
 #define T_STRING 314
+#define T_FALSE 315
+#define T_TRUE 316
 
 #define T_IDENTIFIER 401
 #define T_BOOLEAN_C 402
@@ -63,10 +66,37 @@
 #define T_END 501
 #define T_UNKNOWN 502
 
+enum lexa_state {
+
+    LS_START,
+    LS_NUMBER,
+    LS_DOUBLE_NUMBER,
+    LS_WORD,
+    LS_DIV,
+    LS_COMPARE_LESS,
+    LS_COMPARE_GREATER,
+    LS_EQUAL,
+    LS_STRING,
+    LS_NEQ,
+    LS_AND,
+    LS_OR,
+    LS_PLUS,
+    LS_MINUS,
+    LS_MULTI_COMMENT,
+    LS_MULTI_COMMENT_END,
+    LS_COMMENT,
+    LS_ESCAPE,
+    LS_ESCAPE_OCTAL,
+    LS_EXPO_FIRST_NUMBER,
+    LS_EXPO
+};
+
 typedef struct _ifj_lexa ifj_lexa;
 
 struct _ifj_lexa {
     struct htab_t *reserved_words;
+    dyn_buffer *b_str;
+    dyn_buffer *b_num;
 };
 
 /**
