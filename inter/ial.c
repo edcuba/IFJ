@@ -231,3 +231,26 @@ symbol_table *ial_symbol_table_new()
 
     return table;
 }
+
+/**
+ * Find first occurrence of string search in string s1
+ * - use Knuth-Morris-Prattuv algorithm
+ * @param input string
+ * @param substring to be searched
+ * @returns -1 if search string is not found, index if successfully found
+*/
+int ifj_find ( const char *s1, const char *search)
+{
+	return 0;
+}
+
+/**
+ * Sort ordinary value of chars in inputString
+ * - use List-Merge sort
+ * @param input string
+ * @returns sorted string
+*/
+const char * ifj_sort ( const char *inputString )
+{
+	return NULL;
+}

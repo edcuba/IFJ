@@ -37,5 +37,9 @@ token *ial_symbol_table_get_item( 	symbol_table *self,
 
 unsigned int ial_symbol_table_hash_func ( const char *hashname );
 
+int ifj_find (	const char *s1,
+				const char *search );
+
+const char * ifj_sort ( const char *inputString );
 
 #endif
