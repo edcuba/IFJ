@@ -5,6 +5,7 @@
  */
 
 #include "ifj-inter.h"
+#include "tests/lexa.c"
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
@@ -183,5 +184,6 @@ int main()
     check ( "inter struct", check_inter(inter)); //check structore initialization
     check ( "symbol table", check_symbol_table(inter)); //check symbol table functionality
     check ( "reserved table", check_reserved_table(inter));
+    check ("Lexical analysis", check_lexical_analysis(inter));
     //just add tests for your modules here...
 }

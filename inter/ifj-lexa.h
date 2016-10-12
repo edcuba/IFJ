@@ -13,6 +13,7 @@
 
 #define T_SEMICOLON ';'
 #define T_COLON ':'
+#define T_DOT '.'
 #define T_LPAREN '('
 #define T_RPAREN ')'
 #define T_LBLOCK '{'
