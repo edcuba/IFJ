@@ -13,7 +13,9 @@ set(modules_sources
         ifj-syna.c
         ifj-syna.h
         ifj-token.c
-        ifj-token.h)
+        ifj-token.h
+        ifj-util.c
+        ifj-util.h)
 
 add_library(modules ${modules_sources})
 
