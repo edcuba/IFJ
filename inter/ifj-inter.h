@@ -13,6 +13,7 @@ typedef struct _symbol_table symbol_table;
 
 #include "ifj-syna.h"
 #include "ifj-lexa.h"
+#include "ifj-token.h"
 #include "ial.h"
 
 /**
@@ -20,7 +21,6 @@ typedef struct _symbol_table symbol_table;
  */
 struct _token
 {
-    const char *name;
     int type;
     const void *value;
     token *next;

@@ -5,7 +5,6 @@
  */
 
 #include "ifj-lexa.h"
-#include "ifj-inter.h"
 
 /**
  * Read next token from input file and process it

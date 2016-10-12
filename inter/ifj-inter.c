@@ -12,7 +12,7 @@
  * Drop interpreter including all tables
  * @param self interpreter
  */
-void        ifj_inter_free(ifjInter *self)
+void ifj_inter_free(ifjInter *self)
 {
     if(self->table)
     {
@@ -66,7 +66,6 @@ ifjInter* ifj_inter_new   ()
     return interpreter;
 }
 
-
 /**
  * Drop token not connected to hash structure
  * @param item token
@@ -75,9 +74,6 @@ void ifj_token_free( token *item)
 {
     if( !item )
         return;
-
-    if (item->name)
-        free( (char*) item->name);
 
     if (item->value)
         free( (void*) item->value);
@@ -106,7 +102,6 @@ static token* ifj_token_construct()
  */
 static void ifj_token_init( token *self )
 {
-    self->name = NULL;
     self->type = 0;
     self->value = NULL;
     self->next = NULL;
