@@ -58,6 +58,7 @@ token * ifj_generate_token_int ( symbol_table *table, int value )
 {
     char *hashname = ifj_generate_hashname_int(&value);
 
+    //get item - push table, hashname, type and hashing function for int
     token *item = table->get_item(table, hashname, T_INTEGER_C, (char *(*)(void*)) &ifj_generate_hashname_int);
     if (item)
     {
@@ -90,6 +91,7 @@ token * ifj_generate_token_double ( symbol_table *table, double value )
 {
     char *hashname = ifj_generate_hashname_double(&value);
 
+    //get item - push table, hashname, type and hashing function for double
     token *item = table->get_item(table, hashname, T_DOUBLE_C, (char *(*)(void*)) &ifj_generate_hashname_double);
     if (item)
     {
@@ -122,6 +124,7 @@ token * ifj_generate_token_str (symbol_table *table, char *value)
 {
     char * hashname = ifj_generate_hashname_str(value);
 
+    //get item - push table, hashname, type and hashing function for string
     token *item = table->get_item(table, hashname, T_STRING_C, (char *(*)(void*)) &ifj_generate_hashname_str);
     if (item)
     {
@@ -150,6 +153,7 @@ token * ifj_generate_token_str (symbol_table *table, char *value)
  */
 token * ifj_generate_token_id (symbol_table *table, char *value)
 {
+    //get item - push table, hashname, type and no hashing function
     token *item = table->get_item(table, value, T_IDENTIFIER, NULL);
     if (item)
     {

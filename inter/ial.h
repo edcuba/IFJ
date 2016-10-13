@@ -9,7 +9,16 @@
 
 #include "ifj-inter.h"
 
-//struct for symbol table
+/**
+ * struct for symbol table
+ * @param size rows in table
+ * @param row hash table structure - pointer to array of pointers to token
+ * @param add_item pointer to func add_item(table, item, hashname)
+ * @param get_item pointer to func get_item(table, hashname, type, &hash_func)
+ * hash_func pointer to func with return type char* with void pointer argument
+ * @param count_items - pointer to func returning count of active items in table
+ * @param drop pointer to func used to free all items in table
+ */
 struct _symbol_table
 {
 	unsigned int size;

@@ -18,6 +18,10 @@ typedef struct _symbol_table symbol_table;
 
 /**
  * Struct for storing tokens in symbol table
+ * acessing values:
+ * str/id: ((char* )item->value)
+ * int: *((int*) item->value)
+ * double: *((double*) item->value)
  */
 struct _token
 {
