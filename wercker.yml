@@ -15,4 +15,4 @@ test:
       code: ./inter/ifj16test
     - script:
       name: Check memory leaks
-      code: valgrind --leak-check=full --track-origins=yes --error-exitcode ./inter/ifj16test
+      code: valgrind --leak-check=full --track-origins=yes --error-exitcode=1 ./inter/ifj16test
