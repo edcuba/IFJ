@@ -46,8 +46,39 @@ char * ifj_generate_hashname_double(double *value)
     return hashname;
 }
 
-token * ifj_generate_token(symbol_table *table, int type) {
-
+/**
+ * Generate symbol token
+ * - if symbol is allready in symbol table, returns reference
+ * - when symbol is new, save it into symbol table
+ * @param table symbol table for current context
+ * @param value symbol to store
+ * @returns reference to token
+ */
+token * ifj_generate_token(symbol_table *table, int type)
+{
+    char * hashname = (char *) malloc (sizeof(char) * 3 );
+    if (type >= 65536)
+    {
+        fprintf(stderr, "Warning: symbol out of range %d\n", type);
+    }
+    hashname[0] = type % 256;
+    hashname[1] = type / 256;
+    hashname[2] = 0;
+    token *item = table->get_item(table, hashname, type, NULL);
+    if (item)
+    {
+        free(hashname);
+        return item;
+    }
+    else
+    {
+        item = ifj_token_new();
+        item->value = NULL;
+        item->type = type;
+        item = table->add_item(table, item, hashname);
+        free(hashname);
+        return item;
+    }
 }
 
 

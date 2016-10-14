@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define TABLE_ROWS 4241
+#define TABLE_ROWS 997
 
 /**
  * Add new item
@@ -70,6 +70,10 @@ token *ial_symbol_table_get_item	( 	symbol_table *self,
 				return item;
 			}
 			free(h_name);
+		}
+		else if (!item->value) //type with no value - symbol
+		{
+			return item;
 		}
 		else if (strlen((char *) item->value) == strlen (hashname) && !strcmp(item->value, hashname))
 		{
@@ -212,6 +216,7 @@ static void ial_symbol_table_init( symbol_table *self )
 	self->get_item = &ial_symbol_table_get_item;
 	self->count_items = &ial_symbol_table_count_items;
 	self->drop = &ial_symbol_table_drop;
+	self->parent = NULL;
 
 	for( int i = 0; i < self->size; i++)
 	{

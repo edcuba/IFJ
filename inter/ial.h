@@ -11,6 +11,7 @@
 
 /**
  * struct for symbol table
+ * @param parent parent table or NULL when global
  * @param size rows in table
  * @param row hash table structure - pointer to array of pointers to token
  * @param add_item pointer to func add_item(table, item, hashname)
@@ -21,6 +22,7 @@
  */
 struct _symbol_table
 {
+	symbol_table *parent;
 	unsigned int size;
 	token **row;
 	token 	*( *add_item	)( symbol_table*, token*, char*);

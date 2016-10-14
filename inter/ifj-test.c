@@ -11,7 +11,7 @@
 #include <string.h>
 #include "ifj-lexa.h"
 
-#define TEST_TOKENS 100000
+#define TEST_TOKENS 1000
 
 #define check(name,arg) rc = arg;   if(rc) {printf("[%d] ERROR: %s\n", rc, name); return rc;}\
                                     else printf("[%d] SUCCESS: %s\n", rc, name)
@@ -24,6 +24,7 @@
 #define check_token_str(var) if(var) printf("Token.value:%s | Token.type:%d\n", (char*)var->value, var->type); else return 1
 #define check_token_int(var) if(var) printf("Token.value:%d | Token.type:%d\n", *((int*)var->value), var->type); else return 1
 #define check_token_double(var) if(var) printf("Token.value:%f | Token.type:%d\n", *((double*)var->value), var->type); else return 1
+#define check_token_symbol(var) if(var) printf("Token.value:%c | Token.type:%d\n", var->type, var->type); else return 1
 
 
 /**
@@ -41,7 +42,7 @@ static int check_inter (ifjInter *self)
     }
     check_var("symbol table init", self->table);
     check_var("load func",self->load);
-    check_var("lexa func",self->lexa_module);
+    check_var("lexa module",self->lexa_module);
     check_var("syna func",self->syna);
     check_var("sema func",self->sema);
     return 0;
@@ -142,45 +143,62 @@ static int check_token_persistor (ifjInter *self)
 {
     printf("-------- Token persistor --------\n");
     char * str = "SsYoloSwag41";
-    printf("Creating string token: %s\n", str);
+    printf("\nCreating string token: %s\n", str);
     token * item = ifj_generate_token_str(self->table, str);
     check_token_str(item);
 
-    printf("Creating identifier token: %s\n", str);
+    printf("\nCreating identifier token: %s\n", str);
     token * item2 = ifj_generate_token_id(self->table, str);
     check_token_str(item2);
 
     check_var_strict("tokens differ", (item != item2));
 
-    printf("Creating another string token: %s\n", str);
+    printf("\nCreating another string token: %s\n", str);
     token * item3 = ifj_generate_token_str(self->table, str);
     check_token_str(item3);
     check_var_strict("tokens are equal", (item == item3));
 
-    printf("Creating another identifier token: %s\n", str);
+    printf("\nCreating another identifier token: %s\n", str);
     token * item4 = ifj_generate_token_id(self->table, str);
     check_token_str(item4);
     check_var_strict("tokens are equal", (item2 == item4));
 
     int num = 9;
-    printf("Creating int token: %d\n", num);
+    printf("\nCreating int token: %d\n", num);
     token * item5 = ifj_generate_token_int(self->table, num);
     check_token_int(item5);
 
     double numd = 9.42;
-    printf("Creating double token: %f\n", numd);
+    printf("\nCreating double token: %f\n", numd);
     token * item6 = ifj_generate_token_double(self->table, numd);
     check_token_double(item6);
 
-    printf("Creating another int token: %d\n", num);
+    printf("\nCreating another int token: %d\n", num);
     token * item7= ifj_generate_token_int(self->table, num);
     check_token_int(item7);
     check_var_strict("tokens are equal", (item5 == item7));
 
-    printf("Creating another double token: %f\n", numd);
+    printf("\nCreating another double token: %f\n", numd);
     token * item8= ifj_generate_token_double(self->table, numd);
     check_token_double(item8);
     check_var_strict("tokens are equal", (item8 == item6));
+
+    char symbol = '(';
+    printf("\nCreating symbol token: %c\n", symbol);
+    token * item9= ifj_generate_token(self->table, symbol);
+    check_token_symbol(item9);
+
+    char symbol2 = ')';
+    printf("\nCreating symbol token: %c\n", symbol2);
+    token * item10= ifj_generate_token(self->table, symbol2);
+    check_token_symbol(item10);
+    check_var_strict("tokens differ", (item != item2));
+
+    printf("\nCreating another symbol token: %c\n", symbol);
+    token * item11= ifj_generate_token(self->table, symbol);
+    check_token_symbol(item11);
+    check_var_strict("tokens are equal", (item9 == item11));
+
 
     return 0;
 }
