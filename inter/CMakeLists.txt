@@ -4,10 +4,10 @@ project (IFJ)
 set(modules_sources
         ial.c
         ial.h
-        ifj-inter.c
-        ifj-inter.h
         ifj-lexa.c
         ifj-lexa.h
+        ifj-inter.c
+        ifj-inter.h
         ifj-load.c
         ifj-sema.c
         ifj-syna.c

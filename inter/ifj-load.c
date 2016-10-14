@@ -25,8 +25,8 @@ int ifj_load(int argc, char **argv, ifjInter* inter) {
         return 99; //no file set
     }
 
-    inter->inputFile = fopen(argv[1], "r");
-    if (inter->inputFile == NULL) {
+    inter->lexa_module->inputFile = fopen(argv[1], "r");
+    if (inter->lexa_module->inputFile == NULL) {
         fprintf(stderr, "Error: Cannot open input file. \n");
         return 99;
     }

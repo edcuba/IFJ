@@ -11,6 +11,8 @@
 
 char * ifj_generate_hashname ( token *item);
 
+token * ifj_generate_token(symbol_table *table, int type);
+
 token * ifj_generate_token_int ( symbol_table *table, int value );
 
 token * ifj_generate_token_double ( symbol_table *table, double value );

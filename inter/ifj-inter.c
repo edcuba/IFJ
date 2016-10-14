@@ -47,9 +47,8 @@ static ifjInter* ifj_inter_construct()
 static void ifj_inter_init( ifjInter *self )
 {
     self->debugMode = 0;
-    self->inputFile = NULL;
+    self->lexa_module = ifj_lexa_init();
     self->load = &ifj_load;
-    self->lexa = &lexa_next_token;
     self->syna = &syna_run;
     self->table = ial_symbol_table_new();
 }

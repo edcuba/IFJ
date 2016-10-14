@@ -46,6 +46,11 @@ char * ifj_generate_hashname_double(double *value)
     return hashname;
 }
 
+token * ifj_generate_token(symbol_table *table, int type) {
+
+}
+
+
 /**
  * Generate token for constant int value
  * - if constant is allready in symbol table, returns reference

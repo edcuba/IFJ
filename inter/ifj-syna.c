@@ -13,6 +13,6 @@
  */
 int syna_run( ifjInter *self)
 {
-    self->lexa( self );
+    //self->lexa( self );
     return 0;
 }

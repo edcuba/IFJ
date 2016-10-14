@@ -7,9 +7,11 @@
 #ifndef IFJ_LEXA_H
 #define IFJ_LEXA_H
 
-#include "ifj-inter.h"
 #include "utils/htable.h"
 #include "utils/buffer.h"
+#include "ifj-token.h"
+#include "ifj-inter.h"
+#include <stdio.h>
 
 #define T_SEMICOLON ';'
 #define T_COLON ':'
@@ -92,9 +94,8 @@ enum lexa_state {
     LS_EXPO
 };
 
-typedef struct _ifj_lexa ifj_lexa;
-
 struct _ifj_lexa {
+    FILE *inputFile;
     struct htab_t *reserved_words;
     dyn_buffer *b_str;
     dyn_buffer *b_num;
@@ -139,6 +140,6 @@ int ifj_lexa_is_reserved(ifj_lexa *l, char *word);
  * @param self interpreter structure
  * @returns next token
  */
-token *lexa_next_token(ifj_lexa *l, ifjInter *self);
+token *lexa_next_token(ifj_lexa *l, symbol_table *table);
 
 #endif

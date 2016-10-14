@@ -41,7 +41,7 @@ static int check_inter (ifjInter *self)
     }
     check_var("symbol table init", self->table);
     check_var("load func",self->load);
-    check_var("lexa func",self->lexa);
+    check_var("lexa func",self->lexa_module);
     check_var("syna func",self->syna);
     check_var("sema func",self->sema);
     return 0;

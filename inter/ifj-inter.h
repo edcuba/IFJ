@@ -10,6 +10,7 @@
 typedef struct _token token;
 typedef struct _ifjInter ifjInter;
 typedef struct _symbol_table symbol_table;
+typedef struct _ifj_lexa ifj_lexa;
 
 #include <stdio.h>
 #include "ifj-syna.h"
@@ -38,10 +39,9 @@ struct _token
 struct _ifjInter
 {
     char debugMode;
-    FILE *inputFile;
     symbol_table *table;
+    ifj_lexa *lexa_module;
     int     ( *load )( int, char**, ifjInter* );
-    token  *( *lexa )( ifjInter* );
     int     ( *sema )( ifjInter* );
     int     ( *syna )( ifjInter* );
     //TODO double linked list for token pointers
