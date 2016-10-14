@@ -21,6 +21,7 @@ void ifj_inter_free(ifjInter *self)
             free(self->table->row);
         free(self->table);
     }
+    ifj_lexa_free(self->lexa_module);
     self->table = NULL;
     free(self);
 }
