@@ -24,7 +24,7 @@ set(modules_sources
 add_library(modules ${modules_sources})
 
 add_executable(ifj16 ifj-base.c)
-add_executable(ifj16test ifj-test.c tests/lexa.c)
+add_executable(ifj16test ifj-test.c)
 
 target_link_libraries(ifj16 modules)
 target_link_libraries(ifj16test modules)

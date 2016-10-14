@@ -79,39 +79,6 @@ token *ial_symbol_table_get_item	( 	symbol_table *self,
 		item = item->next;
 	}
 
-	unsigned int hash = ial_symbol_table_hash_func(item->name);
-
-	item->next = self->row[hash];
-	self->row[hash] = item;
-
-	return item;
-}
-
-/**
- * Get item by name
- * - store pointer to token in hash table
- * - allows to access pointer later
- * @param self symbol table
- * @param name token name
- * @returns token pointer or NULL when unsuccessful
- */
-const token *ial_symbol_table_get_item	( 	symbol_table *self,
-	 										const char *name )
-{
-	unsigned int hash = ial_symbol_table_hash_func(name);
-
-	token *item = self->row[hash];
-
-	while (item != NULL)
-	{
-		if (!strcmp(item->name, name))
-		{
-			return item;
-		}
-
-		item = item->next;
-	}
-
 	return NULL;
 }
 
@@ -192,78 +159,6 @@ int ial_symbol_table_drop ( symbol_table *self)
 		while (item != NULL)
 		{
 			token *itemNext = item->next;
-
-			if (item->value != NULL)
-			{
-				free((void *) item->value);
-			}
-
-			free(item);
-
-			item = itemNext;
-		}
-
-		self->row[i] = NULL;
-	}
-
-	return 0;
-}
-
-/**
- * Count items in symbol table
- * @param self symbol_table
- * @returns number of items
-*/
-int ial_symbol_table_count_items( symbol_table *self)
-{
-
-	int counter = 0;
-
-	for (unsigned int i = 0; i < self->size; ++i)
-	{
-
-		if (self->row[i] == NULL)
-		{
-			continue;
-		}
-
-		token *item = self->row[i];
-
-		while (item != NULL)
-		{
-			counter++;
-			item = item->next;
-		}
-	}
-
-	return counter;
-}
-
-/**
- * Free all tokens and symbol table
- * @param self symbol_table
- * @returns 0 if successful
- */
-int ial_symbol_table_drop ( symbol_table *self)
-{
-
-	for (unsigned int i = 0; i < self->size; ++i)
-	{
-		if (self->row[i] == NULL)
-		{
-			continue;
-		}
-
-		token *item = self->row[i];
-
-		while (item != NULL)
-		{
-			token *itemNext = item->next;
-
-			if (item->name != NULL)
-			{
-				free((char *) item->name);
-			}
 
 			if (item->value != NULL)
 			{

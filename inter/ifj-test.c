@@ -5,11 +5,13 @@
  */
 
 #include "ifj-inter.h"
-#include "tests/lexa.c"
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include "ifj-lexa.h"
+
+#define TEST_TOKENS 100000
 
 #define check(name,arg) rc = arg;   if(rc) {printf("[%d] ERROR: %s\n", rc, name); return rc;}\
                                     else printf("[%d] SUCCESS: %s\n", rc, name)
@@ -194,10 +196,8 @@ int main()
     check ( "inter struct", check_inter(inter)); //check structore initialization
     check ( "symbol table", check_symbol_table(inter)); //check symbol table functionality
     check ( "token persistor", check_token_persistor(inter)); //check functions for creating new tokens
-    check ( "reserved table", check_reserved_table(inter));
     //check ("Lexical analysis", check_lexical_analysis(inter));
+    //just add tests for your modules here...
 
     ifj_inter_free(inter);
-
-    //just add tests for your modules here...
 }

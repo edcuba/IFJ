@@ -7,6 +7,7 @@
  */
 
  #include "ifj-util.h"
+#include <stdlib.h>
 
 /**
  * Read integer from stdin
