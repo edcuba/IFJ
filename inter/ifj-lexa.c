@@ -148,8 +148,7 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                             t = ifj_generate_token(table, newChar);
                             return t;
                         default:
-                            t = ifj_generate_token(table, T_UNKNOWN);
-                            return t;
+                            return NULL;
 
                     }
                 }
@@ -287,8 +286,7 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                     return t;
                 } else {
                     ungetc(newChar, l->inputFile);
-                    t = ifj_generate_token(table, T_UNKNOWN);
-                    return t;
+                    return NULL;
                 }
             case LS_OR:
                 if (newChar == '|') {
@@ -296,8 +294,7 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                     return t;
                 } else {
                     ungetc(newChar, l->inputFile);
-                    t = ifj_generate_token(table, T_UNKNOWN);
-                    return t;
+                    return NULL;
                 }
             case LS_EQUAL:
                 if (newChar == '=') {
@@ -357,8 +354,7 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                     dyn_buffer_clear(l->b_str);
 
                     if (val > INT_MAX) {
-                        t = ifj_generate_token(table, T_UNKNOWN);
-                        return t;
+                        return NULL;
                     }
 
                     t = ifj_generate_token_int(table, (int) val);
@@ -400,7 +396,7 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                     ungetc(newChar, l->inputFile);
                     double val = strtod(dyn_buffer_get_content(l->b_str), NULL);
                     dyn_buffer_clear(l->b_str);
-                    if (errno == NULL) {
+                    if (errno == ERANGE) {
                         return NULL;
                     }
                     t = ifj_generate_token_double(table, val);

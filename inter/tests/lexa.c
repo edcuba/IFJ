@@ -142,4 +142,5 @@ static int check_lexical_analysis(ifjInter *interpret) {
     test(check_type(T_RBLOCK, lexa_next_token(lex_anal, interpret->table)));
     test(check_type(T_END, lexa_next_token(lex_anal, interpret->table)));
 
+    return 0;
 }
