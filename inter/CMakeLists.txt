@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.x)
-project (IFJ)
+project (IFJ C)
 
 set(modules_sources
         ial.c
