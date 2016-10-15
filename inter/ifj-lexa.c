@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <ctype.h>
+#include <errno.h>
 #include "utils/htable.h"
 #include "ifj-lexa.h"
 #include "limits.h"
@@ -350,9 +351,11 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                     ungetc(newChar, l->inputFile);
                     long val = strtol(dyn_buffer_get_content(l->b_str), NULL,
                                       10);
+                    if (errno == ERANGE) {
+                        return NULL;
+                    }
                     dyn_buffer_clear(l->b_str);
 
-                    // TODO: overflow prevention using errno
                     if (val > INT_MAX) {
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
@@ -374,8 +377,9 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                     ungetc(newChar, l->inputFile);
                     double val = strtod(dyn_buffer_get_content(l->b_str), NULL);
                     dyn_buffer_clear(l->b_str);
-                    // TODO: check overflowing
-
+                    if (errno == ERANGE) {
+                        return NULL;
+                    }
                     t = ifj_generate_token_double(table, val);
                     return t;
                 }
@@ -396,7 +400,9 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                     ungetc(newChar, l->inputFile);
                     double val = strtod(dyn_buffer_get_content(l->b_str), NULL);
                     dyn_buffer_clear(l->b_str);
-                    // TODO: check overflowing
+                    if (errno == NULL) {
+                        return NULL;
+                    }
                     t = ifj_generate_token_double(table, val);
                     return t;
                 }
