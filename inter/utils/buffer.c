@@ -21,6 +21,8 @@ dyn_buffer *dyn_buffer_init(int init_size) {
 
     buffer->size = init_size;
     buffer->top = -1;
+
+    return buffer;
 }
 
 dyn_buffer *dyn_buffer_append(dyn_buffer *b, char character) {
@@ -37,6 +39,7 @@ dyn_buffer *dyn_buffer_append(dyn_buffer *b, char character) {
 
     b->top++;
     b->buffer[b->top] = character;
+    return b;
 }
 
 char *dyn_buffer_get_content(dyn_buffer *b) {
