@@ -45,6 +45,7 @@ ifj_lexa *ifj_lexa_init() {
 }
 
 void ifj_lexa_free(ifj_lexa *l) {
+    fclose(l->inputFile);
     htab_free(l->reserved_words);
     dyn_buffer_free(l->b_str);
     dyn_buffer_free(l->b_num);
@@ -220,7 +221,7 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                 } else if (newChar == EOF) {
                     return NULL;
                 } else {
-                    state = LS_START;
+                    state = LS_STRING;
 
                     switch (newChar) {
                         case '\'':
@@ -232,10 +233,10 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                         case '\\':
                             dyn_buffer_append(l->b_str, '\\');
                             break;
-                        case '\n':
+                        case 'n':
                             dyn_buffer_append(l->b_str, '\n');
                             break;
-                        case '\t':
+                        case 't':
                             dyn_buffer_append(l->b_str, '\t');
                             break;
                         default:

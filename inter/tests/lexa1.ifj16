@@ -10,7 +10,11 @@ class Main
         if (a < 0) { // nacitani zaporneho cisla nemusite podporovat
             ifj16.print("Faktorial nelze spocitat!\n");
         }
-        else {
+        else {/*
+        tuto nejaky
+       uplne
+
+       rozbity koment :-D */
             vysl = 3.14 = 3.14e-13;
             while (a > 0) {
                 vysl = vysl * a;

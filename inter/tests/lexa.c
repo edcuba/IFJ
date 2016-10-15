@@ -21,7 +21,8 @@ static int check_and_destroy_string(int type, char *value, token *t) {
         fprintf(stderr, "Expected token value: %s\n", value);
         fprintf(stderr, "Got token value: %s\n", (char *) t->value);
     }
-    free(t);
+
+    return 0;
 }
 
 static int check_and_destroy_double(int type, double value, token *t) {
@@ -34,7 +35,7 @@ static int check_and_destroy_double(int type, double value, token *t) {
         fprintf(stderr, "Got token value: %f\n", *(double *) t->value);
     }
 
-    free(t);
+    return 0;
 }
 
 static int check_and_destroy_integer(int type, int value, token *t) {
@@ -47,7 +48,7 @@ static int check_and_destroy_integer(int type, int value, token *t) {
         fprintf(stderr, "Got token value: %d\n", *(int *)t->value);
     }
 
-    free(t);
+    return 0;
 }
 
 static int check_lexical_analysis(ifjInter *interpret) {
@@ -56,7 +57,6 @@ static int check_lexical_analysis(ifjInter *interpret) {
         fprintf(stderr, "Lexical analysis module not initialized\n");
         return 1;
     }
-    interpret->lexa_module->inputFile = fopen("/home/jakub/fit/ifj/IFJ/inter/tests/lexa1.ifj16", "r");
 
     if (interpret->lexa_module->inputFile == NULL) {
         fprintf(stderr, "Opening of input file failed\n");
@@ -91,6 +91,9 @@ static int check_lexical_analysis(ifjInter *interpret) {
     test(check_type(T_LPAREN, lexa_next_token(lex_anal, interpret->table)));
     test(check_type(T_RPAREN, lexa_next_token(lex_anal, interpret->table)));
     test(check_type(T_SEMICOLON, lexa_next_token(lex_anal, interpret->table)));
+    test(check_type(T_INTEGER, lexa_next_token(lex_anal, interpret->table)));
+    test(check_and_destroy_string(T_IDENTIFIER, "vysl", lexa_next_token(lex_anal, interpret->table)));
+    test(check_type(T_SEMICOLON, lexa_next_token(lex_anal, interpret->table)));
     test(check_type(T_IF, lexa_next_token(lex_anal, interpret->table)));
     test(check_type(T_LPAREN, lexa_next_token(lex_anal, interpret->table)));
     test(check_and_destroy_string(T_IDENTIFIER, "a", lexa_next_token(lex_anal, interpret->table)));
@@ -101,7 +104,8 @@ static int check_lexical_analysis(ifjInter *interpret) {
     test(check_and_destroy_string(T_IDENTIFIER, "ifj16", lexa_next_token(lex_anal, interpret->table)));
     test(check_type(T_DOT, lexa_next_token(lex_anal, interpret->table)));
     test(check_and_destroy_string(T_IDENTIFIER, "print", lexa_next_token(lex_anal, interpret->table)));
-    test(check_and_destroy_string(T_STRING_C, "Faktorial nelze spocitat!\\n", lexa_next_token(lex_anal, interpret->table)));
+    test(check_type(T_LPAREN, lexa_next_token(lex_anal, interpret->table)));
+    test(check_and_destroy_string(T_STRING_C, "Faktorial nelze spocitat!\n", lexa_next_token(lex_anal, interpret->table)));
     test(check_type(T_RPAREN, lexa_next_token(lex_anal, interpret->table)));
     test(check_type(T_SEMICOLON, lexa_next_token(lex_anal, interpret->table)));
     test(check_type(T_RBLOCK, lexa_next_token(lex_anal, interpret->table)));
@@ -138,5 +142,4 @@ static int check_lexical_analysis(ifjInter *interpret) {
     test(check_type(T_RBLOCK, lexa_next_token(lex_anal, interpret->table)));
     test(check_type(T_END, lexa_next_token(lex_anal, interpret->table)));
 
-    fclose(interpret->lexa_module->inputFile);
 }

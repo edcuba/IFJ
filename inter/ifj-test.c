@@ -205,13 +205,14 @@ static int check_token_persistor (ifjInter *self)
 }
 
 
-int main()
+int main(int argc, char **argv)
 {
     int rc;
     srand(time(NULL));
 
     ifjInter *inter = ifj_inter_new(); //create new main struct
     inter->debugMode = 1; //enable debug mode
+    check("File loading", inter->load(argc, argv, inter));
     check ( "inter struct", check_inter(inter)); //check structore initialization
     check ( "symbol table", check_symbol_table(inter)); //check symbol table functionality
     check ( "token persistor", check_token_persistor(inter)); //check functions for creating new tokens
