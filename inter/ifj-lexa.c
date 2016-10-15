@@ -35,7 +35,7 @@ ifj_lexa *ifj_lexa_init() {
     ifj_lexa_add_reserved(l, "static", T_STATIC);
     ifj_lexa_add_reserved(l, "class", T_CLASS);
     ifj_lexa_add_reserved(l, "boolean", T_BOOLEAN);
-    ifj_lexa_add_reserved(l, "integer", T_INTEGER);
+    ifj_lexa_add_reserved(l, "int", T_INTEGER);
     ifj_lexa_add_reserved(l, "double", T_DOUBLE);
     ifj_lexa_add_reserved(l, "string", T_STRING);
     ifj_lexa_add_reserved(l, "false", T_FALSE);
@@ -92,7 +92,7 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                 } else if (isspace(newChar)) {
                     break;
                 } else if (newChar == EOF) {
-                    token *t = ifj_generate_token(table, T_END);
+                    t = ifj_generate_token(table, T_END);
                     return t;
                 } else if (newChar == '/') {
                     state = LS_DIV;
@@ -142,6 +142,7 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                         case '*':
                         case ',':
                         case '?':
+                        case '.':
                             t = ifj_generate_token(table, newChar);
                             return t;
                         default:
@@ -170,7 +171,7 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                     state = LS_START;
                     break;
                 } else if (newChar == EOF) {
-                    ifj_generate_token(table, T_END);
+                    t = ifj_generate_token(table, T_END);
                     return t;
                 }
                 break;
@@ -199,7 +200,7 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                 break;
             case LS_STRING:
                 if (newChar == '\"') {
-                    token *t = ifj_generate_token_str(table, dyn_buffer_get_content(l->b_str));
+                    t = ifj_generate_token_str(table, dyn_buffer_get_content(l->b_str));
                     return t;
                 } else if (newChar == '\\') {
                     state = LS_ESCAPE;
@@ -262,74 +263,74 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                 break;
             case LS_COMPARE_GREATER:
                 if (newChar == '=') {
-                    ifj_generate_token(table, T_GREATER_EQUAL);
+                    t = ifj_generate_token(table, T_GREATER_EQUAL);
                     return t;
                 } else {
                     ungetc(newChar, l->inputFile);
-                    ifj_generate_token(table, T_GREATER);
+                    t = ifj_generate_token(table, T_GREATER);
                     return t;
                 }
             case LS_COMPARE_LESS:
                 if (newChar == '=') {
-                    ifj_generate_token(table, T_LESS_EQUAL);
+                    t = ifj_generate_token(table, T_LESS_EQUAL);
                     return t;
                 } else {
                     ungetc(newChar, l->inputFile);
-                    ifj_generate_token(table, T_LESS);
+                    t = ifj_generate_token(table, T_LESS);
                     return t;
                 }
             case LS_AND:
                 if (newChar == '&') {
-                    ifj_generate_token(table, T_AND);
+                    t = ifj_generate_token(table, T_AND);
                     return t;
                 } else {
                     ungetc(newChar, l->inputFile);
-                    ifj_generate_token(table, T_UNKNOWN);
+                    t = ifj_generate_token(table, T_UNKNOWN);
                     return t;
                 }
             case LS_OR:
                 if (newChar == '|') {
-                    ifj_generate_token(table, T_OR);
+                    t = ifj_generate_token(table, T_OR);
                     return t;
                 } else {
                     ungetc(newChar, l->inputFile);
-                    ifj_generate_token(table, T_UNKNOWN);
+                    t = ifj_generate_token(table, T_UNKNOWN);
                     return t;
                 }
             case LS_EQUAL:
                 if (newChar == '=') {
-                    ifj_generate_token(table, T_EQUAL);
+                    t = ifj_generate_token(table, T_EQUAL);
                     return t;
                 } else {
                     ungetc(newChar, l->inputFile);
-                    ifj_generate_token(table, T_ASSIGN);
+                    t = ifj_generate_token(table, T_ASSIGN);
                     return t;
                 }
             case LS_NEQ:
                 if (newChar == '=') {
-                    ifj_generate_token(table, T_NOT_EQUAL);
+                    t = ifj_generate_token(table, T_NOT_EQUAL);
                     return t;
                 } else {
                     ungetc(newChar, l->inputFile);
-                    ifj_generate_token(table, T_NOT);
+                    t = ifj_generate_token(table, T_NOT);
                     return t;
                 }
             case LS_PLUS:
                 if (newChar == '+') {
-                    ifj_generate_token(table, T_INC);
+                    t = ifj_generate_token(table, T_INC);
                     return t;
                 } else {
                     ungetc(newChar, l->inputFile);
-                    ifj_generate_token(table, T_ADD);
+                    t = ifj_generate_token(table, T_ADD);
                     return t;
                 }
             case LS_MINUS:
                 if (newChar == '-') {
-                    ifj_generate_token(table, T_DEC);
+                    t = ifj_generate_token(table, T_DEC);
                     return t;
                 } else {
                     ungetc(newChar, l->inputFile);
-                    ifj_generate_token(table, T_SUBTRACT);
+                    t = ifj_generate_token(table, T_SUBTRACT);
                     return t;
                 }
             case LS_NUMBER:
@@ -352,11 +353,11 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
 
                     // TODO: overflow prevention using errno
                     if (val > INT_MAX) {
-                        token *t = ifj_generate_token(table, T_UNKNOWN);
+                        t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
 
-                    token *t = ifj_generate_token_int(table, (int) val);
+                    t = ifj_generate_token_int(table, (int) val);
                     return t;
                 }
                 break;
@@ -374,7 +375,7 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                     dyn_buffer_clear(l->b_str);
                     // TODO: check overflowing
 
-                    token *t = ifj_generate_token_double(table, val);
+                    t = ifj_generate_token_double(table, val);
                     return t;
                 }
             case LS_EXPO_FIRST_NUMBER:
@@ -395,7 +396,7 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                     double val = strtod(dyn_buffer_get_content(l->b_str), NULL);
                     dyn_buffer_clear(l->b_str);
                     // TODO: check overflowing
-                    token *t = ifj_generate_token_double(table, val);
+                    t = ifj_generate_token_double(table, val);
                     return t;
                 }
                 break;
@@ -410,10 +411,10 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                     ungetc(newChar, l->inputFile);
 
                     if (tokenType != -1) {
-                        token *t = ifj_generate_token(table, tokenType);
+                        t = ifj_generate_token(table, tokenType);
                         return t;
                     } else {
-                        token *t = ifj_generate_token_id(
+                        t = ifj_generate_token_id(
                                 table, dyn_buffer_get_content(l->b_str));
                         return t;
                     }

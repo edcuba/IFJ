@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ifj-lexa.h"
+#include "tests/lexa.c"
 
 #define TEST_TOKENS 1000
 
@@ -214,7 +215,7 @@ int main()
     check ( "inter struct", check_inter(inter)); //check structore initialization
     check ( "symbol table", check_symbol_table(inter)); //check symbol table functionality
     check ( "token persistor", check_token_persistor(inter)); //check functions for creating new tokens
-    //check ("Lexical analysis", check_lexical_analysis(inter));
+    check ("Lexical analysis", check_lexical_analysis(inter));
     //just add tests for your modules here...
 
     ifj_inter_free(inter);

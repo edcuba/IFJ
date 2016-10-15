@@ -125,6 +125,7 @@ struct htab_listitem *htab_lookup(struct htab_t *t, char *key) {
         if (strcmp(item->key, key) == 0) {
             return item;
         }
+        item = item->next;
     }
 
     return NULL;
