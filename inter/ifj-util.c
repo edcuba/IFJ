@@ -7,7 +7,8 @@
  */
 
  #include "ifj-util.h"
-#include <stdlib.h>
+ #include <stdlib.h>
+ #include <string.h>
 
 /**
  * Read integer from stdin
@@ -55,7 +56,7 @@ void ifj_print ( const char *input )
 */
 int ifj_length ( const char *inputString )
 {
-	return 0;
+	return strlen(inputString);
 }
 
 /**
@@ -70,7 +71,25 @@ const char * ifj_substr (	const char *inputString,
 							int i,
 							int n )
 {
-	return NULL;
+	char *outputString = malloc(sizeof(*outputString) * (strlen(inputString) + 1));
+
+	if (outputString == NULL)
+	{
+		return NULL;
+	}
+
+	for (int j = i; j < i + n; ++j)
+	{
+		if (inputString[j] == '\0')
+		{
+			break;
+		}
+
+		outputString[j - i] = inputString[j];
+		outputString[j - i + 1] = '\0';
+	}
+
+	return outputString;
 }
 
 /**
@@ -83,5 +102,27 @@ const char * ifj_substr (	const char *inputString,
 int ifj_compare (	const char *s1,
 					const char *s2 )
 {
+	for (int i = 0; ; ++i)
+	{
+		if (s1[i] == s2[i])
+		{
+			if (s1[i] == '\0' || s2[i] == '\0')
+			{
+				break;
+			}
+
+			continue;
+		}
+		else
+		{
+			if (s1[i] == '\0' || s2[i] == '\0')
+			{
+				return ifj_length(s1) - ifj_length(s2) > 0 ? 1 : -1;
+			}
+
+			return s1[i] - s2[i] > 0 ? 1 : -1;
+		}
+	}
+
 	return 0;
 }

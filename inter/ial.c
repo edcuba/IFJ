@@ -250,12 +250,130 @@ int ifj_find ( const char *s1, const char *search)
 }
 
 /**
+ * Function sort input strings
+ * @param first input string
+ * @param second input string
+ * @returns sorted string or NULL if error
+*/
+static char * ifj_sort_help( char *l1, char *l2)
+{
+	char *output = malloc(sizeof(char) * (strlen(l1) + strlen(l2) + 1));
+
+	if (output == NULL)
+	{
+		return NULL;
+	}
+
+	unsigned int outLength = (strlen(l1) + strlen(l2)) - 1;
+	unsigned int counter = 0;
+
+	while (strlen(l1) != 0 && strlen(l2) != 0)
+	{
+		unsigned int l1Length = strlen(l1) - 1;
+		unsigned int l2Length = strlen(l2) - 1;
+
+		if (l1[l1Length] > l2[l2Length])
+		{
+			output[outLength - counter] = l1[l1Length];
+			l1[l1Length] = '\0';
+			counter++;
+		}
+		else
+		{
+			output[outLength - counter] = l2[l2Length];
+			l2[l2Length] = '\0';
+			counter++;
+		}
+	}
+
+	while (strlen(l1) != 0)
+	{
+		output[outLength - counter] = l1[strlen(l1) - 1];
+		l1[strlen(l1) - 1] = '\0';
+		counter++;
+	}
+
+	while (strlen(l2) != 0)
+	{
+		output[outLength - counter] = l2[strlen(l2) - 1];
+		l2[strlen(l2) - 1] = '\0';
+		counter++;
+	}
+
+	output[outLength + 1] = '\0';
+
+	free(l1);
+	free(l2);
+
+	return output;
+}
+
+/**
+ * Function divide string into elements
+ * @param input string
+ * @returns sorted string or NULL if error
+*/
+static char * ifj_sort_divide( const char *s1)
+{
+	if (strlen(s1) == 1)
+	{
+		return (char *) s1;
+	}
+
+	unsigned int halfLength = strlen(s1) / 2;
+
+	char *l1 = malloc(sizeof(char) * (halfLength + 1));
+	char *l2 = strlen(s1) % 2 == 1 ? malloc(sizeof(char) * (halfLength + 2)) : malloc(sizeof(char) * (halfLength + 1));
+
+	if (l1 == NULL || l2 == NULL)
+	{
+		return NULL;
+	}
+
+	for (unsigned int i = 0; i < halfLength; ++i)
+	{
+		l1[i] = s1[i];
+		l2[i] = s1[i + halfLength];
+	}
+
+	l1[halfLength] = '\0';
+	l2[halfLength] = '\0';
+
+	if (strlen(s1) % 2 == 1)
+	{
+		l2[halfLength] = s1[halfLength * 2];
+		l2[halfLength + 1] = '\0';
+	}
+
+	char *l1p = ifj_sort_divide(l1);
+	if (l1p != l1)
+	{
+		free(l1);
+	}
+
+	char *l2p = ifj_sort_divide(l2);
+	if (l2p != l2)
+	{
+		free(l2);
+	}
+
+	return ifj_sort_help(l1p, l2p);
+}
+
+/**
  * Sort ordinary value of chars in inputString
  * - use List-Merge sort
  * @param input string
- * @returns sorted string
+ * @returns sorted string or NULL if error
 */
-const char * ifj_sort ( const char *inputString )
+char * ifj_sort( const char *s1 )
 {
-	return NULL;
+	if (strlen(s1) == 1)
+	{	
+		return strdup(s1);
+	}
+	else
+	{
+		return ifj_sort_divide(s1);
+	}
 }

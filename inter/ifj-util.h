@@ -17,9 +17,9 @@ void ifj_print ( const char *input );
 
 int ifj_length ( const char *inputString );
 
-const char * ifj_substr (	const char *inputString,
-							int i,
-							int n );
+char * ifj_substr (	const char *inputString,
+					int i,
+					int n );
 
 int ifj_compare (	const char *s1,
 					const char *s2 );
