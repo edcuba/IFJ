@@ -67,9 +67,9 @@ int ifj_length ( const char *inputString )
  * @param length substring length
  * @returns
 */
-const char * ifj_substr (	const char *inputString,
-							int i,
-							int n )
+char * ifj_substr (	const char *inputString,
+					int i,
+					int n )
 {
 	char *outputString = malloc(sizeof(*outputString) * (strlen(inputString) + 1));
 
