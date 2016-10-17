@@ -12,7 +12,8 @@ test:
   steps:
     - script:
       name: Run tests
-      code: ./inter/ifj16test
+      code: ./inter/ifj16test $INPUT_FILE_PATH
     - script:
       name: Check memory leaks
-      code: valgrind --leak-check=full --track-origins=yes --error-exitcode=1 ./inter/ifj16test
+      code: valgrind --leak-check=full --track-origins=yes --error-exitcode=1 ./inter/ifj16test $INPUT_FILE_PATH
+
