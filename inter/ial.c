@@ -55,7 +55,7 @@ token *ial_symbol_table_get_item	( 	symbol_table *self,
 
 	while (item != NULL)
 	{
-		if(item->type != type)
+		if(type && item->type != type)
 		{
 			item = item->next;
 			continue;
@@ -71,7 +71,7 @@ token *ial_symbol_table_get_item	( 	symbol_table *self,
 			}
 			free(h_name);
 		}
-		else if (!item->value) //type with no value - symbol
+		else if (type && !item->value) //type with no value - symbol
 		{
 			return item;
 		}
@@ -369,7 +369,7 @@ static char * ifj_sort_divide( const char *s1)
 char * ifj_sort( const char *s1 )
 {
 	if (strlen(s1) == 1)
-	{	
+	{
 		return strdup(s1);
 	}
 	else

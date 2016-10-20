@@ -204,6 +204,31 @@ static int check_token_persistor (ifjInter *self)
     return 0;
 }
 
+static int check_reserved (ifjInter *self)
+{
+    printf("-------- Reserved symbols persistor --------\n");
+    char * str = "while";
+    printf("\nCreating reserved 42: %s\n", str);
+    token * item = ifj_generate_token_id(self->table, str);
+    item->type = 42;
+    check_token_str(item);
+    printf("\nGetting token\n");
+    token *got = self->table->get_item(self->table, str, 0, NULL);
+    check_token_str(got);
+
+    char * str2 = "do";
+    printf("\nCreating reserved 69: %s\n", str2);
+    token * item2 = ifj_generate_token_id(self->table, str2);
+    item2->type = 69;
+    check_token_str(item2);
+    printf("\nGetting token\n");
+    token *got2 = self->table->get_item(self->table, str2, 0, NULL);
+    check_token_str(got2);
+
+
+    return 0;
+}
+
 
 int main(int argc, char **argv)
 {
@@ -216,6 +241,7 @@ int main(int argc, char **argv)
     check ( "inter struct", check_inter(inter)); //check structore initialization
     check ( "symbol table", check_symbol_table(inter)); //check symbol table functionality
     check ( "token persistor", check_token_persistor(inter)); //check functions for creating new tokens
+    check ( "reserved symbols", check_reserved(inter)); //check reserved symbol table for lexa
     check ("Lexical analysis", check_lexical_analysis(inter));
     //just add tests for your modules here...
 
