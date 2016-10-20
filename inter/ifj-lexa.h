@@ -7,7 +7,6 @@
 #ifndef IFJ_LEXA_H
 #define IFJ_LEXA_H
 
-#include "utils/htable.h"
 #include "utils/buffer.h"
 #include "ifj-token.h"
 #include "ifj-inter.h"
@@ -96,7 +95,7 @@ enum lexa_state {
 
 struct _ifj_lexa {
     FILE *inputFile;
-    struct htab_t *reserved_words;
+    symbol_table *reserved_words;
     dyn_buffer *b_str;
     dyn_buffer *b_num;
 };

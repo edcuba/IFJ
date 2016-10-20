@@ -12,8 +12,6 @@ set(modules_sources
         ifj-sema.c
         ifj-syna.c
         ifj-syna.h
-        utils/htable.h
-        utils/htable.c
         utils/buffer.h
         utils/buffer.c
         ifj-token.c

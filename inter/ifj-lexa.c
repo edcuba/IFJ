@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
-#include "utils/htable.h"
 #include "ifj-lexa.h"
 #include "limits.h"
 
@@ -20,7 +19,7 @@ ifj_lexa *ifj_lexa_init() {
     l->inputFile = NULL;
 
     // 29 for minimalising colision in hash table
-    l->reserved_words = htab_init(29);
+    l->reserved_words = ial_symbol_table_new();
     l->b_str = dyn_buffer_init(64);
     l->b_num = dyn_buffer_init(16);
 
@@ -47,22 +46,23 @@ ifj_lexa *ifj_lexa_init() {
 
 void ifj_lexa_free(ifj_lexa *l) {
     fclose(l->inputFile);
-    htab_free(l->reserved_words);
+    ial_symbol_table_drop(l->reserved_words);
     dyn_buffer_free(l->b_str);
     dyn_buffer_free(l->b_num);
     free(l);
 }
 
 void ifj_lexa_add_reserved(ifj_lexa *l, char *word, int token_type) {
-    htab_lookup_add(l->reserved_words, word, (unsigned) token_type);
+    token *t = ifj_generate_token_id(l->reserved_words, word);
+    t->type = token_type;
 }
 
 int ifj_lexa_is_reserved(ifj_lexa *l, char *word) {
-    struct htab_listitem *item = htab_lookup(l->reserved_words, word);
+    token *item = l->reserved_words->get_item(l->reserved_words, word, 0, NULL);
     if (item == NULL) {
         return -1;
     } else {
-        return item->id;
+        return item->type;
     }
 }
 
