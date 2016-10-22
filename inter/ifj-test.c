@@ -256,6 +256,9 @@ static int check_linear_list(ifjInter *self)
     check_var_strict("Insert item to last position with token", inputList->first->data == tok);
     check_token_str(tok);
 
+    ifj_drop_list(inputList);
+    free(inputList);
+
 
     return 0;
 }
