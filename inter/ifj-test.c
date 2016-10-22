@@ -11,6 +11,7 @@
 #include <string.h>
 #include "ifj-lexa.h"
 #include "tests/lexa.c"
+#include "ifj-util.h"
 
 #define TEST_TOKENS 1000
 
@@ -229,6 +230,36 @@ static int check_reserved (ifjInter *self)
     return 0;
 }
 
+static int check_linear_list(ifjInter *self)
+{
+    printf("-------- Linear list --------\n");
+    linear_list *inputList = ifj_new_list();
+    check_var("List initialized", inputList != NULL);
+    ifj_insert_first(inputList, NULL);
+    check_var("First item inserted", inputList->first != NULL);
+    ifj_insert_last(inputList, NULL);
+    check_var("Insert item to last position", inputList->first->next != NULL);
+    ifj_set_active_first(inputList);
+    check_var("Set first item to active", inputList->active == inputList->first);
+    ifj_set_active_next(inputList);
+    check_var("Set next item to active", inputList->active == inputList->first->next);
+
+    linear_item *tempItem = inputList->first;
+    ifj_insert_first(inputList, NULL);
+    check_var("Input next item to first position", tempItem != inputList->first);
+    check_var_strict("Drop list", ifj_drop_list(inputList) == 0);
+    free(inputList);
+
+    token *tok = ifj_generate_token_id(self->table, "number");
+    inputList = ifj_new_list();
+    ifj_insert_last(inputList, tok);
+    check_var_strict("Insert item to last position with token", inputList->first->data == tok);
+    check_token_str(tok);
+
+
+    return 0;
+}
+
 
 int main(int argc, char **argv)
 {
@@ -237,12 +268,13 @@ int main(int argc, char **argv)
 
     ifjInter *inter = ifj_inter_new(); //create new main struct
     inter->debugMode = 1; //enable debug mode
-    check("File loading", inter->load(argc, argv, inter));
+    check ( "File loading", inter->load(argc, argv, inter));
     check ( "inter struct", check_inter(inter)); //check structore initialization
     check ( "symbol table", check_symbol_table(inter)); //check symbol table functionality
     check ( "token persistor", check_token_persistor(inter)); //check functions for creating new tokens
     check ( "reserved symbols", check_reserved(inter)); //check reserved symbol table for lexa
-    check ("Lexical analysis", check_lexical_analysis(inter));
+    check ( "Lexical analysis", check_lexical_analysis(inter));
+    check ( "Linear list", check_linear_list(inter));
     //just add tests for your modules here...
 
     ifj_inter_free(inter);
