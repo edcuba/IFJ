@@ -57,11 +57,12 @@ static int check_inter (ifjInter *self)
 static char * generate_value ()
 {
     int length = 3+( rand() % 15);
-    char *value = (char *) malloc(sizeof(char)*(length+1));
+    char *value = (char *) malloc( (length+1) * sizeof(char));
     for (int a = 0; a<length; ++a)
     {
         value[a] = (rand() % 25) + 97;
     }
+    value[length] = 0;
     return value;
 }
 
@@ -129,8 +130,6 @@ static int check_symbol_table(ifjInter *self)
 
     //drop table and create new one
     check_var_strict("drop table", !self->table->drop(self->table));
-    free(self->table->row);
-    free(self->table);
     check_var_strict("reinit table", (self->table = ial_symbol_table_new()));
     return 0;
 }
@@ -253,7 +252,7 @@ static int check_linear_list(ifjInter *self)
     token *tok = ifj_generate_token_id(self->table, "number");
     inputList = ifj_new_list();
     ifj_insert_last(inputList, tok);
-    check_var_strict("Insert item to last position with token", inputList->first->data == tok);
+    check_var_strict("Insert item to last position with token", (inputList->first->data == tok));
     check_token_str(tok);
 
     ifj_drop_list(inputList);
@@ -269,7 +268,8 @@ int main(int argc, char **argv)
     int rc;
     srand(time(NULL));
 
-    ifjInter *inter = ifj_inter_new(); //create new main struct
+    ifjInter *inter = NULL;
+    inter = ifj_inter_new(); //create new main struct
     inter->debugMode = 1; //enable debug mode
     check ( "File loading", inter->load(argc, argv, inter));
     check ( "inter struct", check_inter(inter)); //check structore initialization

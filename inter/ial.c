@@ -177,62 +177,47 @@ int ial_symbol_table_drop ( symbol_table *self)
 		self->row[i] = NULL;
 	}
 
+	free(self->row);
+	free(self);
+	self = NULL;
+
 	return 0;
 }
 
 /**
- * Symbol table constructor
- * @return new uninitialised symbol_table
- */
-static symbol_table* ial_symbol_table_construct()
-{
-    symbol_table *table = (symbol_table*) malloc ( sizeof( struct _symbol_table ));
-
-    if(!table)
-    {
-        fprintf(stderr,"ERROR: allocating symbol table structure!\n");
-        exit(99);
-    }
-
-	table->size = TABLE_ROWS;
-	table->row = (token**) malloc ( sizeof( token*) * table->size );
-
-	if(!table->row)
-    {
-        fprintf(stderr,"ERROR: allocating symbol table!\n");
-        exit(99);
-    }
-
-    return table;
-}
-
-/**
- * Symbol table initializer
- * @param self symbol_table
- */
-static void ial_symbol_table_init( symbol_table *self )
-{
-	self->add_item	= &ial_symbol_table_add_item;
-	self->get_item = &ial_symbol_table_get_item;
-	self->count_items = &ial_symbol_table_count_items;
-	self->drop = &ial_symbol_table_drop;
-	self->parent = NULL;
-
-	for( int i = 0; i < self->size; i++)
-	{
-		self->row[i] = NULL;
-	}
-}
-
-/**
  * Create new symbol table structure
- *  - contains default methods + hash structure
- * @return  new symbol table
+ *  - contains initialized default methods and hash structure
+ * @return new symbol table
  */
 symbol_table *ial_symbol_table_new()
 {
-    symbol_table *table = ial_symbol_table_construct();
-    ial_symbol_table_init(table);
+	symbol_table *table = calloc(1, sizeof(symbol_table));
+
+	if(!table)
+	{
+		fprintf(stderr,"ERROR: allocating symbol table structure!\n");
+		exit(99);
+	}
+
+	table->size = TABLE_ROWS;
+	table->row = (token**) malloc ( table->size * sizeof( token*) );
+
+	if(!table->row)
+	{
+		fprintf(stderr,"ERROR: allocating symbol table!\n");
+		exit(99);
+	}
+
+	table->add_item	= &ial_symbol_table_add_item;
+	table->get_item = &ial_symbol_table_get_item;
+	table->count_items = &ial_symbol_table_count_items;
+	table->drop = &ial_symbol_table_drop;
+	table->parent = NULL;
+
+	for( int i = 0; i < table->size; i++)
+	{
+		table->row[i] = NULL;
+	}
 
     return table;
 }

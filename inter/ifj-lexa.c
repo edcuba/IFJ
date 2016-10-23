@@ -11,7 +11,7 @@
 #include "limits.h"
 
 ifj_lexa *ifj_lexa_init() {
-    ifj_lexa *l = malloc(sizeof(ifj_lexa));
+    ifj_lexa *l = calloc(1,sizeof(ifj_lexa));
     if (l == NULL) {
         return NULL;
     }
@@ -47,8 +47,6 @@ ifj_lexa *ifj_lexa_init() {
 void ifj_lexa_free(ifj_lexa *l) {
     fclose(l->inputFile);
     ial_symbol_table_drop(l->reserved_words);
-    free(l->reserved_words->row);
-    free(l->reserved_words);
     dyn_buffer_free(l->b_str);
     dyn_buffer_free(l->b_num);
     free(l);
@@ -429,4 +427,3 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
     }
 
 }
-

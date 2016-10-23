@@ -17,9 +17,6 @@ void ifj_inter_free(ifjInter *self)
     if(self->table)
     {
         self->table->drop(self->table);
-        if(self->table->row)
-            free(self->table->row);
-        free(self->table);
     }
     ifj_lexa_free(self->lexa_module);
     self->table = NULL;
@@ -27,44 +24,24 @@ void ifj_inter_free(ifjInter *self)
 }
 
 /**
- * Interpeter constructor
- * @return new, uninitialised interpreter structure
+ * Create new interpreter structure
+ *  - contains initialized default methods and attributes
+ * @return interpreter
  */
-static ifjInter* ifj_inter_construct()
+ifjInter* ifj_inter_new   ()
 {
-    ifjInter *interpreter = (ifjInter *) malloc ( sizeof( struct _ifjInter ));
-    if(!interpreter)
+    ifjInter *self = calloc ( 1, sizeof( ifjInter ));
+    if(!self)
     {
         fprintf(stderr,"ERROR: allocating interpreter!\n");
         exit(99);
     }
-    return interpreter;
-}
-
-/**
- * interpreter initialiser
- * @param self interpreter
- */
-static void ifj_inter_init( ifjInter *self )
-{
     self->debugMode = 0;
     self->lexa_module = ifj_lexa_init();
     self->load = &ifj_load;
     self->syna = &syna_run;
     self->table = ial_symbol_table_new();
-}
-
-
-/**
- * Create new interpreter structure
- *  - contains default methods and attributes
- * @return  interpreter
- */
-ifjInter* ifj_inter_new   ()
-{
-    ifjInter *interpreter = ifj_inter_construct();
-    ifj_inter_init(interpreter);
-    return interpreter;
+    return self;
 }
 
 /**
@@ -83,38 +60,19 @@ void ifj_token_free( token *item)
 }
 
 /**
- * token constructor
- * @return new, uninitialised token structure
+ * Create new initialized token structure
+ * @return token
  */
-static token* ifj_token_construct()
+token * ifj_token_new   ()
 {
-    token *item = (token *) malloc ( sizeof( struct _token ));
+    token *item = calloc (1, sizeof( token ));
     if(!item)
     {
         fprintf(stderr,"ERROR: allocating token!\n");
         exit(99);
     }
-    return item;
-}
-
-/**
- * token initialiser
- * @param self token
- */
-static void ifj_token_init( token *self )
-{
-    self->type = 0;
-    self->value = NULL;
-    self->next = NULL;
-}
-
-/**
- * Create new token structure
- * @return  token
- */
-token * ifj_token_new   ()
-{
-    token *item = ifj_token_construct();
-    ifj_token_init(item);
+    item->type = 0;
+    item->value = NULL;
+    item->next = NULL;
     return item;
 }

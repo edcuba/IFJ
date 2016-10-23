@@ -29,7 +29,7 @@ char * ifj_generate_hashname_str(char * value)
  */
 char * ifj_generate_hashname_int(int *value)
 {
-    char * hashname = (char *) malloc (sizeof(char) * 16);
+    char * hashname = (char *) malloc (sizeof(char)*16);
     snprintf(hashname, 16, "//int%d", *value);
     return hashname;
 }
@@ -41,7 +41,7 @@ char * ifj_generate_hashname_int(int *value)
  */
 char * ifj_generate_hashname_double(double *value)
 {
-    char * hashname = (char *) malloc (sizeof(char) * 32);
+    char * hashname = (char *) malloc (sizeof(char)*32);
     snprintf(hashname, 32, "//double%f", *value);
     return hashname;
 }
@@ -56,7 +56,7 @@ char * ifj_generate_hashname_double(double *value)
  */
 token * ifj_generate_token(symbol_table *table, int type)
 {
-    char * hashname = (char *) malloc (sizeof(char) * 3 );
+    char * hashname = (char *) malloc (sizeof(char)*3);
     if (type >= 65536)
     {
         fprintf(stderr, "Warning: symbol out of range %d\n", type);
