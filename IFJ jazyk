@@ -1,0 +1,79 @@
+<start>   <class_dek>  <class_inside>  <next>
+<next> epsilon
+<next> <class_dek> <class_inside> <next>
+<next> <funkcion_dek><funkcion_inside><next>
+<class_dek> class id 
+<class_inside> {  <class_inside1> }
+<class_inside1>  epsilon
+<class_inside1>  <funkcion_dek>  <funkcion_inside><class_inside1>
+<class_inside1>  <id_dek><class_inside1>
+<id_dek>   static  <type> <id0> ;
+<id_dek1>   <static>   <type> <id0> ;
+<static>   static
+<static>   epsilon 
+<type> void
+<type>  int 
+<type> str
+<type>  double
+<id0>  id <id1>
+<id1>  ;
+<id1>   = <id2>
+<id2>    id ;
+<id2>   int_premenna ; 
+<id2>   str_premenna ; 
+<id2>   double_premenna ; 
+
+<funkcion_dek>   static   <type>  id  <funkcion_parameters>
+<funkcion_parameters>  ( <funk_p> )
+<funk_p>   <id_dek1>  <next_funk_p>
+<next_funk_p>  epsilon
+<next_funk_p>    ,   <id_dek>  <next_funk_p>
+<funkcion_inside>   {  <funk_inside1>   }
+<funk_inside1>  epsilon
+<funk_inside1>  <statement>   <funk_inside1>
+<funk_inside1>  <expression> <funk_inside1>
+<funk_inside1>  <funk_call> <funk_inside1>
+<funk_inside1>   <bodka> <bunk_inside1>
+<statement>  <while>
+<statement>  <if_else>
+<statement>  <return>
+<return>   <id2>
+<while>   while ( <vyraz> ) < funkcion_inside >     ?????????
+<vyraz>  <id2> <relacny_operator>  <id2>
+<vyraz>  <id2>  ???????
+<relacny_operator>   >
+<relacny_operator>  <
+<relacny_operator>   ==
+<relacny_operator>   >=
+<relacny_operator>   <=
+<relacny_operator>   !=
+<if_else>     if (<vyraz>) < funkcion_inside >    else   < funkcion_inside >     
+<funk_call>     id    <funkcion_parameters>      ;
+<expression>   id  = <exp> 
+<exp>    <funk_call>
+<exp>  <E>
+<E>     <E>  + <E> 
+<E>     <E>   /  <E> 
+<E>  <E>  * <E>
+<E>    <E>  - <E>
+<E>      (  <E>  )
+<E>     terminal
+<bodka>   <s_priradenim>
+<bodka>    id . id  <priadenie_v>
+<bodka>  id . id   <funkcion_parameters>      ;
+<priradenie_v>   =  id  <sbodkou>
+<priradenie_v   = id  <funkcion_parameters>      ;
+<sbodkou>  =  .  id  <funkcion_parameters>      ;
+
+
+
+
+
+
+
+
+   
+
+
+
+
