@@ -15,7 +15,7 @@
  * Initialize and allocate new linear_list
  * @return allocated linear_list
 */
-linear_list *ifj_new_list ()
+linear_list *ifj_list_new ()
 {
 	linear_list *newList = malloc(sizeof(linear_list));
 

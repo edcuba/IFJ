@@ -232,7 +232,7 @@ static int check_reserved (ifjInter *self)
 static int check_linear_list(ifjInter *self)
 {
     printf("-------- Linear list --------\n");
-    linear_list *inputList = ifj_new_list();
+    linear_list *inputList = ifj_list_new();
     check_var("List initialized", inputList != NULL);
     ifj_insert_first(inputList, NULL);
     check_var("First item inserted", inputList->first != NULL);
@@ -250,14 +250,13 @@ static int check_linear_list(ifjInter *self)
     free(inputList);
 
     token *tok = ifj_generate_token_id(self->table, "number");
-    inputList = ifj_new_list();
+    inputList = ifj_list_new();
     ifj_insert_last(inputList, tok);
     check_var_strict("Insert item to last position with token", (inputList->first->data == tok));
     check_token_str(tok);
 
     ifj_drop_list(inputList);
     free(inputList);
-
 
     return 0;
 }

@@ -23,7 +23,7 @@ typedef struct
 	linear_item *first;
 } linear_list;
 
-linear_list *ifj_new_list ();
+linear_list *ifj_list_new ();
 int ifj_insert_first (	linear_list *list,
 						token *item );
 int ifj_insert_last (	linear_list *list,

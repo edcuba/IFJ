@@ -44,7 +44,6 @@ struct _ifjInter
     int     ( *load )( int, char**, ifjInter* );
     int     ( *sema )( ifjInter* );
     int     ( *syna )( ifjInter* );
-    //TODO double linked list for token pointers
 };
 
 ifjInter    *ifj_inter_new();

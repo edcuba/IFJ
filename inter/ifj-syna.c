@@ -35,7 +35,7 @@
                 printf("double: %f\n", *((double *)active->value));
                 break;
             case T_STRING_C:
-                printf("id: %s\n", (char *)active->value);
+                printf("string: %s\n", (char *)active->value);
                 break;
             default:
                 printf("symbol: %d\n", active->type);
