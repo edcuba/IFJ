@@ -36,7 +36,7 @@ struct _token
 };
 
 /**
- * Struct for stroring 3-address instruction 
+ * Struct for stroring 3-address instruction
  * Used in instruction list generated in parser
  * @type instruction type
  * @op1 address of first operand
@@ -73,5 +73,6 @@ void        ifj_token_free( token *item);
 instruction * ifj_instruction_new   ();
 
 int ifj_load(int argc, char **argv, ifjInter* inter);
+char *strdup (const char *s1); //form POSIX
 
 #endif

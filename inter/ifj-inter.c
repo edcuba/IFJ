@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ifj-inter.h"
+#include <string.h>
 
 /**
  * Drop interpreter including all tables
@@ -96,4 +97,15 @@ instruction * ifj_instruction_new   ()
     item->op2 = NULL;
     item->op3 = NULL;
     return item;
+}
+
+char *strdup (const char *s1)
+{
+    if(!s1)
+        return NULL;
+    size_t len = strlen(s1);
+    char *dupl = malloc((len + 1) * sizeof(char));
+    memcpy(dupl, s1, len);
+    dupl[len] = 0; //null terminator
+    return dupl;
 }

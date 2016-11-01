@@ -170,7 +170,7 @@ token * ifj_generate_token_str (symbol_table *table, char *value)
     else
     {
         item = ifj_token_new();
-        item->value = (void *)strndup(value, strlen(value));
+        item->value = (void *)strdup(value);
 
         item->type = T_STRING_C;
         item = table->add_item(table, item, hashname);
@@ -198,7 +198,7 @@ token * ifj_generate_token_id (symbol_table *table, char *value)
     else
     {
         item = ifj_token_new();
-        item->value = (void *)strndup(value, strlen(value));
+        item->value = (void *)strdup(value);
 
         item->type = T_IDENTIFIER;
         item = table->add_item(table, item, NULL);
