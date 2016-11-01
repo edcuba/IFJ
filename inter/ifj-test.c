@@ -247,7 +247,6 @@ static int check_linear_list(ifjInter *self)
     ifj_insert_first(inputList, NULL);
     check_var("Input next item to first position", tempItem != inputList->first);
     check_var_strict("Drop list", ifj_drop_list(inputList) == 0);
-    free(inputList);
 
     token *tok = ifj_generate_token_id(self->table, "number");
     instruction *ins = ifj_instruction_new();
@@ -260,7 +259,7 @@ static int check_linear_list(ifjInter *self)
     check_token_str(tok);
 
     ifj_drop_list(inputList);
-    free(inputList);
+    free(ins);
 
     return 0;
 }

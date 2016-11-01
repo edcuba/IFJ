@@ -19,6 +19,7 @@ void ifj_inter_free(ifjInter *self)
         self->table->drop(self->table);
     }
     ifj_lexa_free(self->lexa_module);
+    ifj_drop_list(self->code);
     self->table = NULL;
     free(self);
 }

@@ -118,6 +118,8 @@ int ifj_drop_list ( linear_list *list )
 		tempItem = nextItem;
 	}
 
+    free(list);
+
 	return 0;
 }
 
