@@ -33,11 +33,11 @@ linear_list *ifj_list_new ()
 /**
  * Add new item at first place in linear_list
  * @param list linear_list
- * @param token stored in variable data in item
+ * @param instruction stored in variable data in item
  * @return 0, -1 when unsuccessful
 */
 int ifj_insert_first (	linear_list *list,
-						token *item )
+						instruction *item )
 {
 	linear_item *newItem = malloc(sizeof(linear_item));
 
@@ -57,11 +57,11 @@ int ifj_insert_first (	linear_list *list,
 /**
  * Add new item at last place in linear_list
  * @param list linear_list
- * @param token stored in variable data in item
+ * @param instruction stored in variable data in item
  * @return 0, -1 when unsuccessful
 */
 int ifj_insert_last (	linear_list *list,
-						token *item )
+						instruction *item )
 {
 	linear_item *newItem = malloc(sizeof(linear_item));
 
@@ -94,7 +94,6 @@ int ifj_insert_last (	linear_list *list,
  * Free all items in list and set
  * pointer in list to NULL
  * @param list linear_list
- * @param token stored in variable data in item
  * @return 0
 */
 int ifj_drop_list ( linear_list *list )

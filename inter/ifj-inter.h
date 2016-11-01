@@ -11,12 +11,15 @@ typedef struct _token token;
 typedef struct _ifjInter ifjInter;
 typedef struct _symbol_table symbol_table;
 typedef struct _ifj_lexa ifj_lexa;
+typedef struct _instruction instruction;
+typedef struct _linear_list linear_list;
 
 #include <stdio.h>
 #include "ifj-syna.h"
 #include "ifj-lexa.h"
 #include "ifj-token.h"
 #include "ial.h"
+#include "ifj-util.h"
 
 /**
  * Struct for storing tokens in symbol table
@@ -33,6 +36,22 @@ struct _token
 };
 
 /**
+ * Struct for stroring 3-address instruction 
+ * Used in instruction list generated in parser
+ * @type instruction type
+ * @op1 address of first operand
+ * @op2 address of second operand
+ * @op3 addres of third operand
+ */
+struct _instruction
+{
+    int type;
+    void *op1;
+    void *op2;
+    void *op3;
+};
+
+/**
  * Main interpreter structure
  * - you can store every variable used in multiple modules here
  */
@@ -41,6 +60,7 @@ struct _ifjInter
     char debugMode;
     symbol_table *table;
     ifj_lexa *lexa_module;
+    linear_list *code;
     int     ( *load )( int, char**, ifjInter* );
     int     ( *sema )( ifjInter* );
     int     ( *syna )( ifjInter* );
@@ -50,6 +70,7 @@ ifjInter    *ifj_inter_new();
 void        ifj_inter_free(ifjInter *self);
 token       *ifj_token_new();
 void        ifj_token_free( token *item);
+instruction * ifj_instruction_new   ();
 
 int ifj_load(int argc, char **argv, ifjInter* inter);
 

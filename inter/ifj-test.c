@@ -250,9 +250,13 @@ static int check_linear_list(ifjInter *self)
     free(inputList);
 
     token *tok = ifj_generate_token_id(self->table, "number");
+    instruction *ins = ifj_instruction_new();
+    ins->type = 1;
+    ins->op1 = (void *)tok;
     inputList = ifj_list_new();
-    ifj_insert_last(inputList, tok);
-    check_var_strict("Insert item to last position with token", (inputList->first->data == tok));
+    ifj_insert_last(inputList, ins);
+    check_var_strict("Insert item with instruction to the last position", (inputList->first->data == ins));
+    tok = (token *)ins->op1;
     check_token_str(tok);
 
     ifj_drop_list(inputList);

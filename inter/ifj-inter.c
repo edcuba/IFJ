@@ -41,6 +41,7 @@ ifjInter* ifj_inter_new   ()
     self->load = &ifj_load;
     self->syna = &syna_run;
     self->table = ial_symbol_table_new();
+    self->code = ifj_list_new();
     return self;
 }
 
@@ -74,5 +75,24 @@ token * ifj_token_new   ()
     item->type = 0;
     item->value = NULL;
     item->next = NULL;
+    return item;
+}
+
+/**
+ * Create new initialized instruction structure
+ * @return instruction
+ */
+instruction * ifj_instruction_new   ()
+{
+    instruction *item = calloc (1, sizeof( instruction ));
+    if(!item)
+    {
+        fprintf(stderr,"ERROR: allocating instruction!\n");
+        exit(99);
+    }
+    item->type = 0;
+    item->op1 = NULL;
+    item->op2 = NULL;
+    item->op3 = NULL;
     return item;
 }
