@@ -72,7 +72,15 @@ enum lexa_state {
 
     LS_START,
     LS_NUMBER,
+    LS_NUMBER_BIN,
+    LS_NUMBER_HEX,
+    LS_NUMBER_ZERO,
     LS_DOUBLE_NUMBER,
+    LS_DOUBLE_NUMBER_HEX,
+    LS_EXPO_FIRST_NUMBER,
+    LS_EXPO_FIRST_NUMBER_HEX,
+    LS_EXPO,
+    LS_EXPO_HEX,
     LS_WORD,
     LS_DIV,
     LS_COMPARE_LESS,
@@ -88,9 +96,7 @@ enum lexa_state {
     LS_MULTI_COMMENT_END,
     LS_COMMENT,
     LS_ESCAPE,
-    LS_ESCAPE_OCTAL,
-    LS_EXPO_FIRST_NUMBER,
-    LS_EXPO
+    LS_ESCAPE_OCTAL
 };
 
 struct _ifj_lexa {

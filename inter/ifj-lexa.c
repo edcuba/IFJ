@@ -66,6 +66,15 @@ int ifj_lexa_is_reserved(ifj_lexa *l, char *word) {
     }
 }
 
+static int ishexadigit(int character) {
+    if (isdigit(character) || (character >= 65 && character <= 70)
+        || (character >= 97 && character <= 102)) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
 
     int newChar = 0;
@@ -83,7 +92,11 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
 
         switch (state) {
             case LS_START:
-                if (isdigit(newChar)) {
+                if (newChar == '0') {
+                    dyn_buffer_append(l->b_str, newChar);
+                    state = LS_NUMBER_ZERO;
+                    break;
+                } else if (isdigit(newChar)) {
                     dyn_buffer_append(l->b_str, newChar);
                     state = LS_NUMBER;
                     break;
@@ -332,6 +345,22 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                     t = ifj_generate_token(table, T_SUBTRACT);
                     return t;
                 }
+            case LS_NUMBER_ZERO:
+                if (newChar == 'b') {
+                    state = LS_NUMBER_BIN;
+                } else if (newChar == 'x') {
+                    dyn_buffer_append(l->b_str, newChar);
+                    state = LS_NUMBER_HEX;
+                } else if (isdigit(newChar)) {
+                    ungetc(newChar, l->inputFile);
+                    state = LS_NUMBER;
+                } else {
+                    ungetc(newChar, l->inputFile);
+                    state = LS_START;
+                    t = ifj_generate_token_int(table, 0);
+                    return t;
+                }
+                break;
             case LS_NUMBER:
                 if (isdigit(newChar)) {
                     dyn_buffer_append(l->b_str, newChar);
@@ -343,6 +372,8 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                 } else if (newChar == 'e' || newChar == 'E') {
                     dyn_buffer_append(l->b_str, newChar);
                     state = LS_EXPO_FIRST_NUMBER;
+                    break;
+                } else if (newChar == '_') {
                     break;
                 } else {
                     ungetc(newChar, l->inputFile);
@@ -361,6 +392,59 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                     return t;
                 }
                 break;
+            case LS_NUMBER_HEX:
+                if (ishexadigit(newChar)) {
+                    dyn_buffer_append(l->b_str, newChar);
+                    break;
+                } else if (newChar == '.') {
+                    dyn_buffer_append(l->b_str, newChar);
+                    state = LS_DOUBLE_NUMBER_HEX;
+                    break;
+                } else if (newChar == 'p' || newChar == 'P') {
+                    dyn_buffer_append(l->b_str, newChar);
+                    state = LS_EXPO_FIRST_NUMBER_HEX;
+                    break;
+                } else if (newChar == '_') {
+                    break;
+                } else {
+                    ungetc(newChar, l->inputFile);
+                    long val = strtol(dyn_buffer_get_content(l->b_str), NULL,
+                                      16);
+                    if (errno == ERANGE) {
+                        return NULL;
+                    }
+                    dyn_buffer_clear(l->b_str);
+
+                    if (val > INT_MAX) {
+                        return NULL;
+                    }
+
+                    t = ifj_generate_token_int(table, (int) val);
+                    return t;
+                }
+                break;
+            case LS_NUMBER_BIN:
+                if (newChar == '0' || newChar == '1') {
+                    dyn_buffer_append(l->b_str, newChar);
+                    break;
+                } else if (newChar == '_') {
+                    break;
+                } else {
+                    ungetc(newChar, l->inputFile);
+                    long val = strtol(dyn_buffer_get_content(l->b_str), NULL,
+                                      2);
+                    if (errno == ERANGE) {
+                        return NULL;
+                    }
+                    dyn_buffer_clear(l->b_str);
+
+                    if (val > INT_MAX) {
+                        return NULL;
+                    }
+
+                    t = ifj_generate_token_int(table, (int) val);
+                    return t;
+                }
             case LS_DOUBLE_NUMBER:
                 if (isdigit(newChar)) {
                     dyn_buffer_append(l->b_str, newChar);
@@ -381,6 +465,11 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                 }
             case LS_EXPO_FIRST_NUMBER:
                 if (newChar == '+' || newChar == '-') {
+                    newChar = getc(l->inputFile);
+                    if (!isdigit(newChar)) {
+                        return NULL;
+                    }
+                    ungetc(newChar, l->inputFile);
                     dyn_buffer_append(l->b_str, newChar);
                     state = LS_EXPO;
                     break;
@@ -423,7 +512,56 @@ token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
                     }
                 }
                 break;
+            case LS_DOUBLE_NUMBER_HEX:
+                if (ishexadigit(newChar)) {
+                    dyn_buffer_append(l->b_str, newChar);
+                    break;
+                } else if (newChar == 'p' || newChar == 'P') {
+                    dyn_buffer_append(l->b_str, 'p');
+                    state = LS_EXPO_FIRST_NUMBER_HEX;
+                    break;
+                } else {
+                    ungetc(newChar, l->inputFile);
+                    double val = strtod(dyn_buffer_get_content(l->b_str), NULL);
+                    dyn_buffer_clear(l->b_str);
+                    if (errno == ERANGE) {
+                        return NULL;
+                    }
+                    t = ifj_generate_token_double(table, val);
+                    return t;
+                }
+                break;
+            case LS_EXPO_FIRST_NUMBER_HEX:
+                if (newChar == '+' || newChar == '-') {
+                    newChar = getc(l->inputFile);
+                    if (!ishexadigit(newChar)) {
+                        return NULL;
+                    }
+                    ungetc(newChar, l->inputFile);
+                    dyn_buffer_append(l->b_str, newChar);
+                    state = LS_EXPO_HEX;
+                    break;
+                } else {
+                    return NULL;
+                }
+                break;
+            case LS_EXPO_HEX:
+                if (ishexadigit(newChar)) {
+                    dyn_buffer_append(l->b_str, newChar);
+                    break;
+                } else {
+                    ungetc(newChar, l->inputFile);
+                    double val = strtod(dyn_buffer_get_content(l->b_str), NULL);
+                    dyn_buffer_clear(l->b_str);
+                    if (errno == ERANGE) {
+                        return NULL;
+                    }
+                    t = ifj_generate_token_double(table, val);
+                    return t;
+                }
+                break;
         }
     }
 
 }
+
