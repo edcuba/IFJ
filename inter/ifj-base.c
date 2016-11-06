@@ -15,6 +15,8 @@ int main (  int argc,
 {
     int rc;
     ifjInter *inter = ifj_inter_new(); //create new main struct
+    //XXX
+    inter->debugMode = 1;
     check( inter->load(argc, argv, inter) ); //load input file
     check( inter->syna(inter) ); //run syntactic analysis
 

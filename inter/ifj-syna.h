@@ -38,7 +38,7 @@ int statement_inside(ifjInter *self);
 int statement_inside1(ifjInter *self);
 
 int condition(ifjInter *self);
-int sth_next(ifjInter self*);
+int sth_next(ifjInter *self);
 int fce(ifjInter *self);
 int method_call(ifjInter *self);
 int function_parameters(ifjInter *self);
@@ -47,6 +47,8 @@ int next_function_parameters(ifjInter *self);
 int tell_me_type_with_void(ifjInter *self);
 int tell_me_type_without_void(ifjInter *self);
 int rel_operator(ifjInter *self);
+
+int expresion(ifjInter *self);
 
 int syna_run( ifjInter *self);
 #endif
