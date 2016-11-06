@@ -1,15 +1,101 @@
 /* ifj-util.c
  *
  * Copyright (C) 2016 SsYoloSwag41 Inc.
- * Authors: Robert Kolcun <xcubae00@stud.fit.vutbr.cz>
+ * Authors: Robert Kolcun <xkolcu00@stud.fit.vutbr.cz>
  *          Jan Demcak < DOPISAT >
  *          Ondrej Kurak < DOPISAT >
  */
 
- #include "ifj-util.h"
- #include <stdlib.h>
- #include <string.h>
+#include "ifj-util.h"
+#include <stdlib.h>
+#include <string.h>
 
+
+/**
+ * Initialize and allocate new token_stack
+ * @return allocated token_stack
+*/
+token_stack *ifj_stack_new ()
+{
+	token_stack *newStack = malloc(sizeof(token_stack));
+	if (newStack == NULL)
+	{
+		return NULL;
+	}
+
+	newStack->elements = malloc(32 * sizeof(token *));
+	if (newStack->elements == NULL)
+	{
+		free(newStack);
+		return NULL;
+	}
+
+	newStack->top = -1;
+	newStack->size = 32;
+
+	return newStack;
+}
+
+/**
+ * Add input token to the stack
+ * Memory reallocated if stack is full
+ * @param stack token_stack
+ * @param token this token is added to the stack
+*/
+void ifj_stack_push (	token_stack *inStack,
+						token *inToken )
+{
+	if (ifj_stack_full(inStack))
+	{
+		inStack->size += 32;
+	    inStack->elements = realloc(inStack->elements, inStack->size * sizeof(token *));
+	}
+
+	inStack->top++;
+	inStack->elements[inStack->top] = inToken;
+}
+
+/**
+ * Pop token from top of stack
+ * @param stack token_stack
+ * @return token top token of the stack
+*/
+token *ifj_stack_pop ( token_stack *inStack )
+{
+	if (ifj_stack_empty(inStack))
+	{
+		return NULL;
+	}
+
+	return inStack->elements[inStack->top--];
+}
+
+/**
+ * Get if stack is full
+ * @return true/false
+*/
+bool ifj_stack_full ( token_stack *inStack )
+{
+	return inStack->top == (inStack->size - 1) ? true : false;
+}
+
+/**
+ * Get if stack is empty
+ * @return true/false
+*/
+bool ifj_stack_empty ( token_stack *inStack )
+{
+	return inStack->top == -1 ? true : false;
+}
+
+/**
+ * Free input stack
+*/
+void ifj_stack_drop ( token_stack *inStack )
+{
+	free(inStack->elements);
+	free(inStack);
+}
 
 /**
  * Initialize and allocate new linear_list

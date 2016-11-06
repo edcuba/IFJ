@@ -264,6 +264,27 @@ static int check_linear_list(ifjInter *self)
     return 0;
 }
 
+static int check_stack(ifjInter * self)
+{
+    printf("-------- Stack --------\n");
+    token_stack *newStack = ifj_stack_new();
+    printf("Inserting 34 tokens\n");
+    for (int i = 0; i < 34; ++i)
+    {
+        token *tok = ifj_generate_token_id(self->table, "number");
+        ifj_stack_push(newStack, tok);
+    }
+
+    for (int i = 0; i < 34; ++i)
+    {
+        ifj_stack_pop(newStack);
+    }
+
+    check_var_strict("Pop them all and check if stack is empty", ifj_stack_empty(newStack));
+    ifj_stack_drop(newStack);
+    
+    return 0;
+}
 
 int main(int argc, char **argv)
 {
@@ -280,6 +301,7 @@ int main(int argc, char **argv)
     check ( "reserved symbols", check_reserved(inter)); //check reserved symbol table for lexa
     check ( "Lexical analysis", check_lexical_analysis(inter));
     check ( "Linear list", check_linear_list(inter));
+    check ( "Stack", check_stack(inter));
     //just add tests for your modules here...
 
     ifj_inter_free(inter);
