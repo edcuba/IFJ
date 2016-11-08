@@ -75,7 +75,7 @@ static int ishexadigit(int character) {
     }
 }
 
-token *lexa_next_token(ifj_lexa *l, symbol_table *table) {
+token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
 
     int newChar = 0;
 

@@ -20,28 +20,28 @@
  * @param count_items - pointer to func returning count of active items in table
  * @param drop pointer to func used to free all items in table
  */
-struct _symbol_table
+struct _symbolTable
 {
-	symbol_table *parent;
+	symbolTable *parent;
 	unsigned int size;
 	token **row;
-	token 	*( *add_item	)( symbol_table*, token*, char*);
-	token	*( *get_item	)( symbol_table*, const char*, int, char *(*)(void*));
-	int 	( *count_items	)( symbol_table*);
-	int		( *drop			)( symbol_table*);
+	token 	*( *add_item	)( symbolTable *, token*, char*);
+	token	*( *get_item	)( symbolTable *, const char*, int, char *(*)(void*));
+	int 	( *count_items	)( symbolTable *);
+	int		( *drop			)( symbolTable *);
 };
 
-symbol_table *ial_symbol_table_new();
+symbolTable *ial_symbol_table_new();
 
-int ial_symbol_table_count_items( symbol_table * self);
+int ial_symbol_table_count_items( symbolTable * self);
 
-int ial_symbol_table_drop ( symbol_table *self);
+int ial_symbol_table_drop ( symbolTable *self);
 
-token *ial_symbol_table_add_item( 	symbol_table *self,
+token *ial_symbol_table_add_item( 	symbolTable *self,
 	 								token *item,
 									char * hashname);
 
-token *ial_symbol_table_get_item( 	symbol_table *self,
+token *ial_symbol_table_get_item( 	symbolTable *self,
 	 								const char *hashname,
 									int type,
 									char *(*generate_hashname)(void*));

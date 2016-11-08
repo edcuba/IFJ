@@ -19,7 +19,7 @@
  * @param item token
  * @returns stored token pointer or NULL when unsuccessful
  */
-token *ial_symbol_table_add_item	( 	symbol_table *self,
+token *ial_symbol_table_add_item	( 	symbolTable *self,
 	 									token *item,
 										char *hashname)
 {
@@ -44,7 +44,7 @@ token *ial_symbol_table_add_item	( 	symbol_table *self,
  * @param generate_hashname function generating hashname for target type
  * @returns token pointer or NULL when unsuccessful
  */
-token *ial_symbol_table_get_item	( 	symbol_table *self,
+token *ial_symbol_table_get_item	( 	symbolTable *self,
 	 									const char *hashname,
 										int type,
 										char *(*generate_hashname)(void*))
@@ -113,10 +113,10 @@ unsigned int ial_symbol_table_hash_func ( const char *hashname )
 
 /**
  * Count items in symbol table
- * @param self symbol_table
+ * @param self symbolTable
  * @returns number of items
 */
-int ial_symbol_table_count_items( symbol_table *self)
+int ial_symbol_table_count_items( symbolTable *self)
 {
 
 	int counter = 0;
@@ -143,10 +143,10 @@ int ial_symbol_table_count_items( symbol_table *self)
 
 /**
  * Free all tokens and symbol table
- * @param self symbol_table
+ * @param self symbolTable
  * @returns 0 if successful
  */
-int ial_symbol_table_drop ( symbol_table *self)
+int ial_symbol_table_drop ( symbolTable *self)
 {
 	if (!self)
 		return 1;
@@ -189,9 +189,9 @@ int ial_symbol_table_drop ( symbol_table *self)
  *  - contains initialized default methods and hash structure
  * @return new symbol table
  */
-symbol_table *ial_symbol_table_new()
+symbolTable *ial_symbol_table_new()
 {
-	symbol_table *table = calloc(1, sizeof(symbol_table));
+	symbolTable *table = calloc(1, sizeof(symbolTable));
 
 	if(!table)
 	{

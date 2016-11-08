@@ -27,7 +27,7 @@ int start(ifjInter *self)
         //take 2. token , this mean ID and save it to the class table like class ID
         // make table for new class
 
-        /*symbol_table * class_table = ial_symbol_table_new(self);
+        /*symbolTable * class_table = ial_symbol_table_new(self);
         class_table->parent = self->table;
         token->child = class_table;*/
     }

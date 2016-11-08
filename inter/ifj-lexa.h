@@ -101,7 +101,7 @@ enum lexa_state {
 
 struct _ifj_lexa {
     FILE *inputFile;
-    symbol_table *reserved_words;
+    symbolTable *reserved_words;
     dyn_buffer *b_str;
     dyn_buffer *b_num;
 };
@@ -145,6 +145,6 @@ int ifj_lexa_is_reserved(ifj_lexa *l, char *word);
  * @param self interpreter structure
  * @returns next token
  */
-token *lexa_next_token(ifj_lexa *l, symbol_table *table);
+token *lexa_next_token(ifj_lexa *l, symbolTable *table);
 
 #endif

@@ -11,15 +11,15 @@
 
 char * ifj_generate_hashname ( token *item);
 
-token * ifj_generate_token(symbol_table *table, int type);
+token * ifj_generate_token(symbolTable *table, int type);
 
-token * ifj_generate_token_int ( symbol_table *table, int value );
+token * ifj_generate_token_int ( symbolTable *table, int value );
 
-token * ifj_generate_token_double ( symbol_table *table, double value );
+token * ifj_generate_token_double ( symbolTable *table, double value );
 
-token * ifj_generate_token_str ( symbol_table *table, char *value);
+token * ifj_generate_token_str ( symbolTable *table, char *value);
 
-token * ifj_generate_token_id ( symbol_table *table, char *value);
+token * ifj_generate_token_id ( symbolTable *table, char *value);
 
 char * ifj_generate_hashname_str(char * value);
 char * ifj_generate_hashname_int(int *value);

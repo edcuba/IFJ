@@ -54,7 +54,7 @@ char * ifj_generate_hashname_double(double *value)
  * @param value symbol to store
  * @returns reference to token
  */
-token * ifj_generate_token(symbol_table *table, int type)
+token * ifj_generate_token(symbolTable *table, int type)
 {
     char * hashname = (char *) malloc (sizeof(char)*3);
     if (type >= 65536)
@@ -90,7 +90,7 @@ token * ifj_generate_token(symbol_table *table, int type)
  * @param value value to store
  * @returns reference to stored token
  */
-token * ifj_generate_token_int ( symbol_table *table, int value )
+token * ifj_generate_token_int ( symbolTable *table, int value )
 {
     char *hashname = ifj_generate_hashname_int(&value);
 
@@ -123,7 +123,7 @@ token * ifj_generate_token_int ( symbol_table *table, int value )
  * @param value value to store
  * @returns reference to stored token
  */
-token * ifj_generate_token_double ( symbol_table *table, double value )
+token * ifj_generate_token_double ( symbolTable *table, double value )
 {
     char *hashname = ifj_generate_hashname_double(&value);
 
@@ -156,7 +156,7 @@ token * ifj_generate_token_double ( symbol_table *table, double value )
  * @param value value to store
  * @returns reference to stored token
  */
-token * ifj_generate_token_str (symbol_table *table, char *value)
+token * ifj_generate_token_str (symbolTable *table, char *value)
 {
     char * hashname = ifj_generate_hashname_str(value);
 
@@ -181,27 +181,16 @@ token * ifj_generate_token_str (symbol_table *table, char *value)
 
 /**
  * Generate token for identifier
- * - if identifier is allready in symbol table, returns reference
- * - when identifier is new, save it into symbol table
+ * - does NOT save token into symbol table
  * @param table symbol table for current context
  * @param value identifier
  * @returns reference to stored token
  */
-token * ifj_generate_token_id (symbol_table *table, char *value)
+token *ifj_generate_token_id (symbolTable *table, char *value)
 {
-    //get item - push table, hashname, type and no hashing function
-    token *item = table->get_item(table, value, T_IDENTIFIER, NULL);
-    if (item)
-    {
-        return item;
-    }
-    else
-    {
-        item = ifj_token_new();
-        item->value = (void *)strdup(value);
+    token *item = ifj_token_new();
+    item->value = (void *)strdup(value);
+    item->type = T_IDENTIFIER;
+    return item;
 
-        item->type = T_IDENTIFIER;
-        item = table->add_item(table, item, NULL);
-        return item;
-    }
 }

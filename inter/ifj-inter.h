@@ -9,7 +9,7 @@
 
 typedef struct _token token;
 typedef struct _ifjInter ifjInter;
-typedef struct _symbol_table symbol_table;
+typedef struct _symbolTable symbolTable ;
 typedef struct _ifj_lexa ifj_lexa;
 typedef struct _instruction instruction;
 typedef struct _linear_list linear_list;
@@ -20,6 +20,7 @@ typedef struct _linear_list linear_list;
 #include "ifj-token.h"
 #include "ial.h"
 #include "ifj-util.h"
+#include "ifj-sema.h"
 
 /**
  * Struct for storing tokens in symbol table
@@ -58,7 +59,7 @@ struct _instruction
 struct _ifjInter
 {
     char debugMode;
-    symbol_table *table;
+    symbolTable *table;
     ifj_lexa *lexa_module;
     linear_list *code;
     int     ( *load )( int, char**, ifjInter* );
