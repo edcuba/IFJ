@@ -52,9 +52,8 @@ void ifj_lexa_free(ifj_lexa *l) {
     free(l);
 }
 
-void ifj_lexa_add_reserved(ifj_lexa *l, char *word, int token_type) {
-    token *t = ifj_generate_token_id(l->reserved_words, word);
-    t->type = token_type;
+inline void ifj_lexa_add_reserved(ifj_lexa *l, char *word, int token_type) {
+    ifj_generate_reserved(l->reserved_words, word, token_type);
 }
 
 int ifj_lexa_is_reserved(ifj_lexa *l, char *word) {
@@ -507,7 +506,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                         return t;
                     } else {
                         t = ifj_generate_token_id(
-                                table, dyn_buffer_get_content(l->b_str));
+                                dyn_buffer_get_content(l->b_str));
                         return t;
                     }
                 }
@@ -564,4 +563,3 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
     }
 
 }
-

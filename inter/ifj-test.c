@@ -32,7 +32,7 @@
 /**
  * Check default interpreter attributes
  * @param self interpreter
- * @returns 0 if successful
+ * @return 0 if successful
  */
 static int check_inter (ifjInter *self)
 {
@@ -52,7 +52,7 @@ static int check_inter (ifjInter *self)
 
 /**
  * Generate some 3-13 char string for testing purposes
- * @returns generated string
+ * @return generated string
  */
 static char * generate_value ()
 {
@@ -69,7 +69,7 @@ static char * generate_value ()
 /**
  * Check symbol table functionality
  * @param self ifjInter structure
- * @returns 0 if successful
+ * @return 0 if successful
  */
 static int check_symbol_table(ifjInter *self)
 {
@@ -138,7 +138,7 @@ static int check_symbol_table(ifjInter *self)
 /**
  * Check token persistor functionality
  * @param self interpreter structure
- * @returns 0 if successful
+ * @return 0 if successful
  */
 static int check_token_persistor (ifjInter *self)
 {
@@ -149,8 +149,10 @@ static int check_token_persistor (ifjInter *self)
     check_token_str(item);
 
     printf("\nCreating identifier token: %s\n", str);
-    token * item2 = ifj_generate_token_id(self->table, str);
+    token * item2 = ifj_generate_token_id(str);
     check_token_str(item2);
+
+    resolve_identifier(self->table, &item2, 1);
 
     check_var_strict("tokens differ", (item != item2));
 
@@ -160,8 +162,11 @@ static int check_token_persistor (ifjInter *self)
     check_var_strict("tokens are equal", (item == item3));
 
     printf("\nCreating another identifier token: %s\n", str);
-    token * item4 = ifj_generate_token_id(self->table, str);
+    token * item4 = ifj_generate_token_id(str);
     check_token_str(item4);
+
+    resolve_identifier(self->table, &item4, 0);
+
     check_var_strict("tokens are equal", (item2 == item4));
 
     int num = 9;
@@ -209,18 +214,15 @@ static int check_reserved (ifjInter *self)
     printf("-------- Reserved symbols persistor --------\n");
     char * str = "while";
     printf("\nCreating reserved 42: %s\n", str);
-    token * item = ifj_generate_token_id(self->table, str);
-    item->type = 42;
-    check_token_str(item);
+    ifj_generate_reserved(self->table, str, 42);
     printf("\nGetting token\n");
     token *got = self->table->get_item(self->table, str, 0, NULL);
     check_token_str(got);
 
     char * str2 = "do";
     printf("\nCreating reserved 69: %s\n", str2);
-    token * item2 = ifj_generate_token_id(self->table, str2);
-    item2->type = 69;
-    check_token_str(item2);
+    ifj_generate_reserved(self->table, str2, 69);
+
     printf("\nGetting token\n");
     token *got2 = self->table->get_item(self->table, str2, 0, NULL);
     check_token_str(got2);
@@ -248,7 +250,8 @@ static int check_linear_list(ifjInter *self)
     check_var("Input next item to first position", tempItem != inputList->first);
     check_var_strict("Drop list", ifj_drop_list(inputList) == 0);
 
-    token *tok = ifj_generate_token_id(self->table, "number");
+    token *tok = ifj_generate_token_id("number");
+    resolve_identifier(self->table, &tok, 1);
     instruction *ins = ifj_instruction_new();
     ins->type = 1;
     ins->op1 = (void *)tok;
@@ -271,7 +274,7 @@ static int check_stack(ifjInter * self)
     printf("Inserting 34 tokens\n");
     for (int i = 0; i < 34; ++i)
     {
-        token *tok = ifj_generate_token_id(self->table, "number");
+        token *tok = ifj_generate_token_str(self->table, "number");
         ifj_stack_push(newStack, tok);
     }
 
@@ -282,7 +285,7 @@ static int check_stack(ifjInter * self)
 
     check_var_strict("Pop them all and check if stack is empty", ifj_stack_empty(newStack));
     ifj_stack_drop(newStack);
-    
+
     return 0;
 }
 

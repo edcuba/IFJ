@@ -143,7 +143,7 @@ int ifj_lexa_is_reserved(ifj_lexa *l, char *word);
  *
  * @param l Lexical analysis structure
  * @param self interpreter structure
- * @returns next token
+ * @return next token
  */
 token *lexa_next_token(ifj_lexa *l, symbolTable *table);
 

@@ -17,7 +17,7 @@
  * - store pointer to token in hash table
  * @param self symbol table
  * @param item token
- * @returns stored token pointer or NULL when unsuccessful
+ * @return stored token pointer or NULL when unsuccessful
  */
 token *ial_symbol_table_add_item	( 	symbolTable *self,
 	 									token *item,
@@ -42,7 +42,7 @@ token *ial_symbol_table_add_item	( 	symbolTable *self,
  * @param hashname token value or generated hashname
  * @param type target type
  * @param generate_hashname function generating hashname for target type
- * @returns token pointer or NULL when unsuccessful
+ * @return token pointer or NULL when unsuccessful
  */
 token *ial_symbol_table_get_item	( 	symbolTable *self,
 	 									const char *hashname,
@@ -89,7 +89,7 @@ token *ial_symbol_table_get_item	( 	symbolTable *self,
 /**
  * sdbm hashing algorithm
  * @param item token
- * @returns hash table row
+ * @return hash table row
  */
 unsigned int ial_symbol_table_hash_func ( const char *hashname )
 {
@@ -114,7 +114,7 @@ unsigned int ial_symbol_table_hash_func ( const char *hashname )
 /**
  * Count items in symbol table
  * @param self symbolTable
- * @returns number of items
+ * @return number of items
 */
 int ial_symbol_table_count_items( symbolTable *self)
 {
@@ -144,7 +144,7 @@ int ial_symbol_table_count_items( symbolTable *self)
 /**
  * Free all tokens and symbol table
  * @param self symbolTable
- * @returns 0 if successful
+ * @return 0 if successful
  */
 int ial_symbol_table_drop ( symbolTable *self)
 {
@@ -227,7 +227,7 @@ symbolTable *ial_symbol_table_new()
  * - use Knuth-Morris-Prattuv algorithm
  * @param input string
  * @param substring to be searched
- * @returns -1 if search string is not found, index if successfully found
+ * @return -1 if search string is not found, index if successfully found
 */
 int ifj_find ( const char *s1, const char *search)
 {
@@ -238,7 +238,7 @@ int ifj_find ( const char *s1, const char *search)
  * Function sort input strings
  * @param first input string
  * @param second input string
- * @returns sorted string or NULL if error
+ * @return sorted string or NULL if error
 */
 static char * ifj_sort_help( char *l1, char *l2)
 {
@@ -296,7 +296,7 @@ static char * ifj_sort_help( char *l1, char *l2)
 /**
  * Function divide string into elements
  * @param input string
- * @returns sorted string or NULL if error
+ * @return sorted string or NULL if error
 */
 static char * ifj_sort_divide( const char *s1)
 {
@@ -349,7 +349,7 @@ static char * ifj_sort_divide( const char *s1)
  * Sort ordinary value of chars in inputString
  * - use List-Merge sort
  * @param input string
- * @returns sorted string or NULL if error
+ * @return sorted string or NULL if error
 */
 char * ifj_sort( const char *s1 )
 {

@@ -12,7 +12,7 @@
 /**
  * Generate hashname for string constant
  * @param pointer to string
- * @returns string hashname
+ * @return string hashname
  */
 char * ifj_generate_hashname_str(char * value)
 {
@@ -25,7 +25,7 @@ char * ifj_generate_hashname_str(char * value)
 /**
  * Generate hashname for integer constant
  * @param pointer to integer
- * @returns integer hashname
+ * @return integer hashname
  */
 char * ifj_generate_hashname_int(int *value)
 {
@@ -37,7 +37,7 @@ char * ifj_generate_hashname_int(int *value)
 /**
  * Generate hashname for double constant
  * @param pointer to double
- * @returns double hashname
+ * @return double hashname
  */
 char * ifj_generate_hashname_double(double *value)
 {
@@ -52,7 +52,7 @@ char * ifj_generate_hashname_double(double *value)
  * - when symbol is new, save it into symbol table
  * @param table symbol table for current context
  * @param value symbol to store
- * @returns reference to token
+ * @return reference to token
  */
 token * ifj_generate_token(symbolTable *table, int type)
 {
@@ -88,7 +88,7 @@ token * ifj_generate_token(symbolTable *table, int type)
  * - when constant is new, save it into symbol table
  * @param table symbol table for current context
  * @param value value to store
- * @returns reference to stored token
+ * @return reference to stored token
  */
 token * ifj_generate_token_int ( symbolTable *table, int value )
 {
@@ -121,7 +121,7 @@ token * ifj_generate_token_int ( symbolTable *table, int value )
  * - when constant is new, save it into symbol table
  * @param table symbol table for current context
  * @param value value to store
- * @returns reference to stored token
+ * @return reference to stored token
  */
 token * ifj_generate_token_double ( symbolTable *table, double value )
 {
@@ -154,7 +154,7 @@ token * ifj_generate_token_double ( symbolTable *table, double value )
  * - when string is new, save it into symbol table
  * @param table symbol table for current context
  * @param value value to store
- * @returns reference to stored token
+ * @return reference to stored token
  */
 token * ifj_generate_token_str (symbolTable *table, char *value)
 {
@@ -184,13 +184,31 @@ token * ifj_generate_token_str (symbolTable *table, char *value)
  * - does NOT save token into symbol table
  * @param table symbol table for current context
  * @param value identifier
- * @returns reference to stored token
+ * @return reference to stored token
  */
-token *ifj_generate_token_id (symbolTable *table, char *value)
+token *ifj_generate_token_id (char *value)
 {
     token *item = ifj_token_new();
     item->value = (void *)strdup(value);
     item->type = T_IDENTIFIER;
     return item;
+}
 
+/**
+* Generate reserved keyword for lexical analysis
+* - save new keyword into symbol table
+* @param table symbol table for reserved keywords
+* @param value identifier
+*/
+void ifj_generate_reserved (symbolTable *table, char *value, int type)
+{
+    token *item = table->get_item(table, value, type, NULL);
+    if (!item)
+    {
+        item = ifj_token_new();
+        item->value = (void *)strdup(value);
+
+        item->type = type;
+        item = table->add_item(table, item, NULL);
+    }
 }

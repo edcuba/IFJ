@@ -255,7 +255,7 @@ void ifj_set_active_next ( linear_list *list )
 
 /**
  * Read integer from stdin
- * @returns integer number
+ * @return integer number
 */
 int ifj_read_int ()
 {
@@ -264,7 +264,7 @@ int ifj_read_int ()
 
 /**
  * Read double from stdin
- * @returns floating point number
+ * @return floating point number
 */
 double ifj_read_double ()
 {
@@ -273,7 +273,7 @@ double ifj_read_double ()
 
 /**
  * Read string from stdin
- * @returns string
+ * @return string
 */
 const char * ifj_read_string ()
 {
@@ -285,7 +285,7 @@ const char * ifj_read_string ()
  * - int convert to string
  * - double convert to string and print by '%g'
  * @param input string
- * @returns void
+ * @return void
 */
 void ifj_print ( const char *input )
 {
@@ -308,7 +308,7 @@ int ifj_length ( const char *inputString )
  * @param string inputString
  * @param index beginning of substring
  * @param length substring length
- * @returns
+ * @return
 */
 char * ifj_substr (	const char *inputString,
 					int i,
@@ -340,7 +340,7 @@ char * ifj_substr (	const char *inputString,
  * - simulate function compareTo from Java
  * @param first input string
  * @param second input string
- * @returns 0 - s1 and s2 are same, 1 - s1 is greater than s2, -1 - another situation
+ * @return 0 - s1 and s2 are same, 1 - s1 is greater than s2, -1 - another situation
 */
 int ifj_compare (	const char *s1,
 					const char *s2 )

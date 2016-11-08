@@ -13,7 +13,7 @@
 
 /**
 * Run syntactic analysis
-* @returns 0 when successful
+* @return 0 when successful
 */
 int start(ifjInter *self)
 {
