@@ -82,6 +82,7 @@ enum lexa_state {
     LS_EXPO,
     LS_EXPO_HEX,
     LS_WORD,
+    LS_WORD_D,
     LS_DIV,
     LS_COMPARE_LESS,
     LS_COMPARE_GREATER,
