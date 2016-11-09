@@ -33,6 +33,7 @@ struct _token
 {
     int type;
     const void *value;
+    symbolTable *childTable;
     token *next;
 };
 

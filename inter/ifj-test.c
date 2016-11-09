@@ -152,7 +152,7 @@ static int check_token_persistor (ifjInter *self)
     token * item2 = ifj_generate_token_id(str);
     check_token_str(item2);
 
-    resolve_identifier(self->table, &item2, 1);
+    resolve_identifier(self, self->table, &item2, 1);
 
     check_var_strict("tokens differ", (item != item2));
 
@@ -165,7 +165,7 @@ static int check_token_persistor (ifjInter *self)
     token * item4 = ifj_generate_token_id(str);
     check_token_str(item4);
 
-    resolve_identifier(self->table, &item4, 0);
+    resolve_identifier(self, self->table, &item4, 0);
 
     check_var_strict("tokens are equal", (item2 == item4));
 
@@ -251,7 +251,7 @@ static int check_linear_list(ifjInter *self)
     check_var_strict("Drop list", ifj_drop_list(inputList) == 0);
 
     token *tok = ifj_generate_token_id("number");
-    resolve_identifier(self->table, &tok, 1);
+    resolve_identifier(self, self->table, &tok, 1);
     instruction *ins = ifj_instruction_new();
     ins->type = 1;
     ins->op1 = (void *)tok;

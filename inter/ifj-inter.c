@@ -77,6 +77,7 @@ token * ifj_token_new   ()
     item->type = 0;
     item->value = NULL;
     item->next = NULL;
+    item->childTable = NULL;
     return item;
 }
 

@@ -156,7 +156,6 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                         case '*':
                         case ',':
                         case '?':
-                        case '.':
                             t = ifj_generate_token(table, newChar);
                             return t;
                         default:
@@ -492,7 +491,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                 }
                 break;
             case LS_WORD:
-                if (isalnum(newChar) || newChar == '_') {
+                if (isalnum(newChar) || newChar == '_' || newChar == '.') {
                     dyn_buffer_append(l->b_str, newChar);
                     break;
                 } else {
