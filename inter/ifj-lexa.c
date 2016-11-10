@@ -354,7 +354,6 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     state = LS_NUMBER;
                 } else {
                     ungetc(newChar, l->inputFile);
-                    state = LS_START;
                     t = ifj_generate_token_int(table, 0);
                     return t;
                 }
@@ -491,7 +490,36 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                 }
                 break;
             case LS_WORD:
-                if (isalnum(newChar) || newChar == '_' || newChar == '.') {
+                if (isalnum(newChar) || newChar == '_') {
+                    dyn_buffer_append(l->b_str, newChar);
+                    break;
+                } else if (newChar == '.') {
+                    dyn_buffer_append(l->b_str, newChar);
+                    newChar = getc(l->inputFile);
+                    if (!isalnum(newChar)) {
+                        return NULL;
+                    }
+                    ungetc(newChar, l->inputFile);
+                    state = LS_WORD_D;
+                    break;
+                } else {
+                    char *value = dyn_buffer_get_content(l->b_str);
+                    int tokenType = ifj_lexa_is_reserved(l, value);
+
+                    ungetc(newChar, l->inputFile);
+
+                    if (tokenType != -1) {
+                        t = ifj_generate_token(table, tokenType);
+                        return t;
+                    } else {
+                        t = ifj_generate_token_id(
+                                table, dyn_buffer_get_content(l->b_str));
+                        return t;
+                    }
+                }
+                break;
+            case LS_WORD_D:
+                if (isalnum(newChar) || newChar == '_') {
                     dyn_buffer_append(l->b_str, newChar);
                     break;
                 } else {
