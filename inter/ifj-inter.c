@@ -26,6 +26,53 @@ void ifj_inter_free(ifjInter *self)
 }
 
 /**
+* Initialize global symbol table. Add prebuild functions into class ifj16.
+* @param self default interpreter structure with empty symbol table.
+*/
+void ifj_global_symbol_table_init(ifjInter *self)
+{
+    if(!self || !self->table)
+    {
+        if(self->debugMode)
+            fprintf(stderr, "Internal error: global symbol table not initialized\n");
+        return;
+    }
+
+    //create token for ifj16 class
+    token *class = ifj_generate_token_id("ifj16");
+
+    //save class into global table
+    self->table->add_item(self->table, class, NULL);
+
+    class->childTable = ial_symbol_table_new();
+
+    //bind
+    class->childTable->parent = self->table;
+
+    //here we have symbol table for ifj16 class
+    symbolTable *ifj16 = class->childTable;
+
+    //add methods
+    ifj_generate_reserved(ifj16, "print", T_IDENTIFIER, IFJ16_PRINT);
+
+    ifj_generate_reserved(ifj16, "readInt", T_IDENTIFIER, IFJ16_READINT);
+
+    ifj_generate_reserved(ifj16, "readDouble", T_IDENTIFIER, IFJ16_READDOUBLE);
+
+    ifj_generate_reserved(ifj16, "readString", T_IDENTIFIER, IFJ16_READSTRING);
+
+    ifj_generate_reserved(ifj16, "find", T_IDENTIFIER, IFJ16_FIND);
+
+    ifj_generate_reserved(ifj16, "sort", T_IDENTIFIER, IFJ16_SORT);
+
+    ifj_generate_reserved(ifj16, "length", T_IDENTIFIER, IFJ16_LENGTH);
+
+    ifj_generate_reserved(ifj16, "substr", T_IDENTIFIER, IFJ16_SUBSTR);
+
+    ifj_generate_reserved(ifj16, "compare", T_IDENTIFIER, IFJ16_COMPARE);
+}
+
+/**
  * Create new interpreter structure
  *  - contains initialized default methods and attributes
  * @return interpreter
@@ -44,6 +91,7 @@ ifjInter* ifj_inter_new   ()
     self->syna = &syna_run;
     self->table = ial_symbol_table_new();
     self->code = ifj_list_new();
+    ifj_global_symbol_table_init(self);
     return self;
 }
 
@@ -53,11 +101,16 @@ ifjInter* ifj_inter_new   ()
  */
 void ifj_token_free( token *item)
 {
-    if( !item )
+    if(!item)
         return;
 
-    if (item->value)
+    if(item->value)
         free( (void*) item->value);
+
+    if(item->childTable)
+    {
+        ial_symbol_table_drop(item->childTable);
+    }
 
     free(item);
 }
@@ -78,6 +131,8 @@ token * ifj_token_new   ()
     item->value = NULL;
     item->next = NULL;
     item->childTable = NULL;
+    item->method = 0;
+    item->jump = NULL;
     return item;
 }
 

@@ -199,8 +199,10 @@ token *ifj_generate_token_id (char *value)
 * - save new keyword into symbol table
 * @param table symbol table for reserved keywords
 * @param value identifier
+* @param type token type
+* @param method token method for prebuild functions
 */
-void ifj_generate_reserved (symbolTable *table, char *value, int type)
+void ifj_generate_reserved (symbolTable *table, char *value, int type, int method)
 {
     token *item = table->get_item(table, value, type, NULL);
     if (!item)
@@ -209,6 +211,7 @@ void ifj_generate_reserved (symbolTable *table, char *value, int type)
         item->value = (void *)strdup(value);
 
         item->type = type;
+        item->method = method;
         item = table->add_item(table, item, NULL);
     }
 }

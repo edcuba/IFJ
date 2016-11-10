@@ -36,14 +36,13 @@ int resolve_identifier(ifjInter *self,
 
         //extract class and id
         char *full_name = strdup((char *)seek->value); //copy id for processing
-        *breakPoint = 0; //split id in half
+        full_name[(void *)breakPoint - seek->value] = 0; //split id in half
         
         char *id_class = strdup(full_name); //copy class
         char *id_id = strdup(breakPoint + 1); //copy id
         free(full_name);
 
         //find requested symbol table
-        //TODO initialise prebuild functions table in global table
 
         //search for class in global context
         token *class = self->table->get_item(self->table,
@@ -61,7 +60,7 @@ int resolve_identifier(ifjInter *self,
         }
 
         token *child = self->table->get_item(class->childTable,
-                                             id_class,
+                                             id_id,
                                              T_IDENTIFIER,
                                              NULL);
 

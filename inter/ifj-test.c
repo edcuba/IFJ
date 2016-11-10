@@ -22,6 +22,7 @@
 #define printbad(what) printf("WRONG: %s\n",what)
 
 #define check_var(what,var) if(var) printok(what); else printbad(what)
+#define check_var_d(var) if(var) printf("OK: %d\n",var); else printf("WRONG: %d\n",var)
 #define check_var_strict(what,var) if(!var) { printbad(what); return 1;} else printok(what)
 #define check_token_str(var) if(var) printf("Token.value:%s | Token.type:%d\n", (char*)var->value, var->type); else return 1
 #define check_token_int(var) if(var) printf("Token.value:%d | Token.type:%d\n", *((int*)var->value), var->type); else return 1
@@ -114,7 +115,11 @@ static int check_symbol_table(ifjInter *self)
         self->table->add_item(self->table, item, NULL);
     }
     //print some stats
-    printf("Pushed %d tokens | Hash problems: %d | Generator problems: %d\n", pushed, hash_dupl, generator_problems);
+    printf("Pushed %d tokens | Hash problems: %d | Generator problems: %d\n",
+           pushed,
+           hash_dupl,
+           generator_problems);
+
     int lost = (TEST_TOKENS - generator_problems - pushed);
     printf("Lost %d\n",lost);
 
@@ -122,7 +127,7 @@ static int check_symbol_table(ifjInter *self)
     check_var_strict("items check", !(lost));
     printf("Checking items in table...\n");
 
-    int tokens_in_table = self->table->count_items(self->table);
+    int tokens_in_table = self->table->count_items(self->table) - 1; // -1 for ifj16 class
     int missing = pushed - tokens_in_table;
 
     printf("Tokens in table: %d | Missing: %d\n", tokens_in_table, missing);
@@ -131,6 +136,7 @@ static int check_symbol_table(ifjInter *self)
     //drop table and create new one
     check_var_strict("drop table", !self->table->drop(self->table));
     check_var_strict("reinit table", (self->table = ial_symbol_table_new()));
+    ifj_global_symbol_table_init(self);
     return 0;
 }
 
@@ -214,14 +220,14 @@ static int check_reserved (ifjInter *self)
     printf("-------- Reserved symbols persistor --------\n");
     char * str = "while";
     printf("\nCreating reserved 42: %s\n", str);
-    ifj_generate_reserved(self->table, str, 42);
+    ifj_generate_reserved(self->table, str, 42, 0);
     printf("\nGetting token\n");
     token *got = self->table->get_item(self->table, str, 0, NULL);
     check_token_str(got);
 
     char * str2 = "do";
     printf("\nCreating reserved 69: %s\n", str2);
-    ifj_generate_reserved(self->table, str2, 69);
+    ifj_generate_reserved(self->table, str2, 69, 0);
 
     printf("\nGetting token\n");
     token *got2 = self->table->get_item(self->table, str2, 0, NULL);
@@ -289,6 +295,49 @@ static int check_stack(ifjInter * self)
     return 0;
 }
 
+static int check_prebuild_init(ifjInter *self)
+{
+    printf("-------- Prebuild functions initialization --------\n");
+    int rc;
+    token * method = ifj_generate_token_id("ifj16.print");
+    check("ifj16.print", resolve_identifier(self, self->table, &method, 0));
+    check_var_d(method->method);
+
+    method = ifj_generate_token_id("ifj16.readInt");
+    check("ifj16.readInt", resolve_identifier(self, self->table, &method, 0));
+    check_var_d(method->method);
+
+    method = ifj_generate_token_id("ifj16.readDouble");
+    check("ifj16.readDouble", resolve_identifier(self, self->table, &method, 0));
+    check_var_d(method->method);
+
+    method = ifj_generate_token_id("ifj16.readString");
+    check("ifj16.readString", resolve_identifier(self, self->table, &method, 0));
+    check_var_d(method->method);
+
+    method = ifj_generate_token_id("ifj16.find");
+    check("ifj16.find", resolve_identifier(self, self->table, &method, 0));
+    check_var_d(method->method);
+
+    method = ifj_generate_token_id("ifj16.sort");
+    check("ifj16.sort", resolve_identifier(self, self->table, &method, 0));
+    check_var_d(method->method);
+
+    method = ifj_generate_token_id("ifj16.length");
+    check("ifj16.length", resolve_identifier(self, self->table, &method, 0));
+    check_var_d(method->method);
+
+    method = ifj_generate_token_id("ifj16.substr");
+    check("ifj16.substr", resolve_identifier(self, self->table, &method, 0));
+    check_var_d(method->method);
+
+    method = ifj_generate_token_id("ifj16.compare");
+    check("ifj16.compare", resolve_identifier(self, self->table, &method, 0));
+    check_var_d(method->method);
+
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     int rc;
@@ -297,14 +346,15 @@ int main(int argc, char **argv)
     ifjInter *inter = NULL;
     inter = ifj_inter_new(); //create new main struct
     inter->debugMode = 1; //enable debug mode
-    check ( "File loading", inter->load(argc, argv, inter));
-    check ( "inter struct", check_inter(inter)); //check structore initialization
-    check ( "symbol table", check_symbol_table(inter)); //check symbol table functionality
-    check ( "token persistor", check_token_persistor(inter)); //check functions for creating new tokens
-    check ( "reserved symbols", check_reserved(inter)); //check reserved symbol table for lexa
-    check ( "Lexical analysis", check_lexical_analysis(inter));
-    check ( "Linear list", check_linear_list(inter));
-    check ( "Stack", check_stack(inter));
+    check("File loading", inter->load(argc, argv, inter));
+    check("inter struct", check_inter(inter)); //check structore initialization
+    check("symbol table", check_symbol_table(inter)); //check symbol table functionality
+    check("token persistor", check_token_persistor(inter)); //check functions for creating new tokens
+    check("reserved symbols", check_reserved(inter)); //check reserved symbol table for lexa
+    check("Lexical analysis", check_lexical_analysis(inter));
+    check("Linear list", check_linear_list(inter));
+    check("Stack", check_stack(inter));
+    check("Prebuild functions initialization", check_prebuild_init(inter));
     //just add tests for your modules here...
 
     ifj_inter_free(inter);

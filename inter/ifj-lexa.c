@@ -53,7 +53,7 @@ void ifj_lexa_free(ifj_lexa *l) {
 }
 
 inline void ifj_lexa_add_reserved(ifj_lexa *l, char *word, int token_type) {
-    ifj_generate_reserved(l->reserved_words, word, token_type);
+    ifj_generate_reserved(l->reserved_words, word, token_type, 0);
 }
 
 int ifj_lexa_is_reserved(ifj_lexa *l, char *word) {

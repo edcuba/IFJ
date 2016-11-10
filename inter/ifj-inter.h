@@ -14,6 +14,16 @@ typedef struct _ifj_lexa ifj_lexa;
 typedef struct _instruction instruction;
 typedef struct _linear_list linear_list;
 
+#define IFJ16_PRINT 1001
+#define IFJ16_READINT 1002
+#define IFJ16_READDOUBLE 1003
+#define IFJ16_READSTRING 1004
+#define IFJ16_FIND 1005
+#define IFJ16_SORT 1006
+#define IFJ16_LENGTH 1007
+#define IFJ16_SUBSTR 1008
+#define IFJ16_COMPARE 1009
+
 #include <stdio.h>
 #include "ifj-syna.h"
 #include "ifj-lexa.h"
@@ -34,6 +44,8 @@ struct _token
     int type;
     const void *value;
     symbolTable *childTable;
+    int method;
+    instruction *jump;
     token *next;
 };
 
@@ -73,6 +85,8 @@ void        ifj_inter_free(ifjInter *self);
 token       *ifj_token_new();
 void        ifj_token_free( token *item);
 instruction * ifj_instruction_new   ();
+
+void ifj_global_symbol_table_init(ifjInter *self);
 
 int ifj_load(int argc, char **argv, ifjInter* inter);
 char *strdup (const char *s1); //form POSIX

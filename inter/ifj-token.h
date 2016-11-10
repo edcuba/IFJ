@@ -21,7 +21,7 @@ token * ifj_generate_token_str ( symbolTable *table, char *value);
 
 token * ifj_generate_token_id (char *value);
 
-void ifj_generate_reserved(symbolTable *table, char *value, int type);
+void ifj_generate_reserved (symbolTable *table, char *value, int type, int method);
 
 char * ifj_generate_hashname_str(char * value);
 char * ifj_generate_hashname_int(int *value);

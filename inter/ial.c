@@ -164,12 +164,7 @@ int ial_symbol_table_drop ( symbolTable *self)
 		{
 			token *itemNext = item->next;
 
-			if (item->value != NULL)
-			{
-				free((void *) item->value);
-			}
-
-			free(item);
+			ifj_token_free(item);
 
 			item = itemNext;
 		}
