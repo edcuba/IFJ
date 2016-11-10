@@ -6,8 +6,8 @@ class Main
         int a;
         ifj16.print("Zadejte cislo pro vypocet faktorialu: ");
         a = ifj16.readInt();
-        int vysl = 0b101010 = 0xB00B = 0xA.Ap+2;
-        if (a < 0) { // nacitani zaporneho cisla nemusite podporovat
+        int vysl = 0b101010 = 0xB00B = 3.14; //debug tu je problem s 0xA.Ap+2
+        if (a < 0) { //debug OK nacitani zaporneho cisla nemusite podporovat
             ifj16.print("Faktorial nelze spocitat!\n");
         }
         else {/*
@@ -15,7 +15,8 @@ class Main
        uplne
 
        rozbity koment :-D */
-            vysl = 3.14 = 3.14e-13;
+            vysl = 3.14 = 3.14e-13; //debug tu je problem s exp 3.14e-13
+            // 3.14e-1 interpretujes ako 314000000000.000000 ;)
             while (a > 0) {
                 vysl = vysl * a;
                 a = a - 1;

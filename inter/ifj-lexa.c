@@ -457,6 +457,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     if (errno == ERANGE) {
                         return NULL;
                     }
+                    printf("LS_DOUBLE_NUMBER generate with double: %f\n", val);
                     t = ifj_generate_token_double(table, val);
                     return t;
                 }
@@ -485,6 +486,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     if (errno == ERANGE) {
                         return NULL;
                     }
+                    printf("LS_EXPO generate with double: %f\n", val);
                     t = ifj_generate_token_double(table, val);
                     return t;
                 }
@@ -513,7 +515,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                         return t;
                     } else {
                         t = ifj_generate_token_id(
-                                table, dyn_buffer_get_content(l->b_str));
+                                dyn_buffer_get_content(l->b_str));
                         return t;
                     }
                 }
@@ -553,6 +555,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     if (errno == ERANGE) {
                         return NULL;
                     }
+                    printf("LS_DOUBLE_NUMBER_HEX generate with double: %f\n", val);
                     t = ifj_generate_token_double(table, val);
                     return t;
                 }
@@ -582,6 +585,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     if (errno == ERANGE) {
                         return NULL;
                     }
+                    printf("LS_EXPO_HEX generate with double: %f\n", val);
                     t = ifj_generate_token_double(table, val);
                     return t;
                 }
