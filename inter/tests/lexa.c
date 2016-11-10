@@ -112,7 +112,7 @@ static int check_lexical_analysis(ifjInter *interpret) {
     test(check_type(T_ASSIGN, lexa_next_token(lex_anal, interpret->table)));
     test(check_and_destroy_integer(T_INTEGER_C, 45067, lexa_next_token(lex_anal, interpret->table)));
     test(check_type(T_ASSIGN, lexa_next_token(lex_anal, interpret->table)));
-    test(check_and_destroy_double(T_DOUBLE_C, 3.14, lexa_next_token(lex_anal, interpret->table)));
+    test(check_and_destroy_double(T_DOUBLE_C, 0xA.Ap+2, lexa_next_token(lex_anal, interpret->table)));
     test(check_type(T_SEMICOLON, lexa_next_token(lex_anal, interpret->table)));
     test(check_type(T_IF, lexa_next_token(lex_anal, interpret->table)));
     test(check_type(T_LPAREN, lexa_next_token(lex_anal, interpret->table)));

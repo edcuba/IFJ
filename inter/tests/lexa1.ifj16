@@ -6,7 +6,7 @@ class Main
         int a;
         ifj16.print("Zadejte cislo pro vypocet faktorialu: ");
         a = ifj16.readInt();
-        int vysl = 0b101010 = 0xB00B = 3.14; //debug tu je problem s 0xA.Ap+2
+        int vysl = 0b101010 = 0xB00B = 0xA.Ap+2; //debug tu je problem s 0xA.Ap+2
         if (a < 0) { //debug OK nacitani zaporneho cisla nemusite podporovat
             ifj16.print("Faktorial nelze spocitat!\n");
         }
