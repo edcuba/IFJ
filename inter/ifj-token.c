@@ -41,8 +41,8 @@ char * ifj_generate_hashname_int(int *value)
  */
 char * ifj_generate_hashname_double(double *value)
 {
-    char * hashname = (char *) malloc (sizeof(char)*32);
-    snprintf(hashname, 32, "//double%f", *value);
+    char * hashname = (char *) malloc (sizeof(char)*64);
+    snprintf(hashname, 64, "//double%.16f", *value);
     return hashname;
 }
 
