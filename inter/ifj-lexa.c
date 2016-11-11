@@ -45,7 +45,8 @@ ifj_lexa *ifj_lexa_init() {
 }
 
 void ifj_lexa_free(ifj_lexa *l) {
-    fclose(l->inputFile);
+    if(l->inputFile)
+        fclose(l->inputFile);
     ial_symbol_table_drop(l->reserved_words);
     dyn_buffer_free(l->b_str);
     dyn_buffer_free(l->b_num);

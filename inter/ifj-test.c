@@ -15,7 +15,10 @@
 
 #define TEST_TOKENS 1000
 
-#define check(name,arg) rc = arg;   if(rc) {printf("[%d] ERROR: %s\n", rc, name); return rc;}\
+#define check(name,arg) rc = arg;   if(rc) {printf("[%d] ERROR: %s\n", rc, name);  ifj_inter_free(inter); return rc;}\
+                                    else printf("[%d] SUCCESS: %s\n", rc, name)
+
+#define scheck(name,arg) rc = arg;   if(rc) {printf("[%d] ERROR: %s\n", rc, name); return rc;}\
                                     else printf("[%d] SUCCESS: %s\n", rc, name)
 
 #define printok(what) printf("OK: %s\n",what)
@@ -300,39 +303,39 @@ static int check_prebuild_init(ifjInter *self)
     printf("-------- Prebuild functions initialization --------\n");
     int rc;
     token * method = ifj_generate_token_id("ifj16.print");
-    check("ifj16.print", resolve_identifier(self, self->table, &method, 0));
+    scheck("ifj16.print", resolve_identifier(self, self->table, &method, 0));
     check_var_d(method->method);
 
     method = ifj_generate_token_id("ifj16.readInt");
-    check("ifj16.readInt", resolve_identifier(self, self->table, &method, 0));
+    scheck("ifj16.readInt", resolve_identifier(self, self->table, &method, 0));
     check_var_d(method->method);
 
     method = ifj_generate_token_id("ifj16.readDouble");
-    check("ifj16.readDouble", resolve_identifier(self, self->table, &method, 0));
+    scheck("ifj16.readDouble", resolve_identifier(self, self->table, &method, 0));
     check_var_d(method->method);
 
     method = ifj_generate_token_id("ifj16.readString");
-    check("ifj16.readString", resolve_identifier(self, self->table, &method, 0));
+    scheck("ifj16.readString", resolve_identifier(self, self->table, &method, 0));
     check_var_d(method->method);
 
     method = ifj_generate_token_id("ifj16.find");
-    check("ifj16.find", resolve_identifier(self, self->table, &method, 0));
+    scheck("ifj16.find", resolve_identifier(self, self->table, &method, 0));
     check_var_d(method->method);
 
     method = ifj_generate_token_id("ifj16.sort");
-    check("ifj16.sort", resolve_identifier(self, self->table, &method, 0));
+    scheck("ifj16.sort", resolve_identifier(self, self->table, &method, 0));
     check_var_d(method->method);
 
     method = ifj_generate_token_id("ifj16.length");
-    check("ifj16.length", resolve_identifier(self, self->table, &method, 0));
+    scheck("ifj16.length", resolve_identifier(self, self->table, &method, 0));
     check_var_d(method->method);
 
     method = ifj_generate_token_id("ifj16.substr");
-    check("ifj16.substr", resolve_identifier(self, self->table, &method, 0));
+    scheck("ifj16.substr", resolve_identifier(self, self->table, &method, 0));
     check_var_d(method->method);
 
     method = ifj_generate_token_id("ifj16.compare");
-    check("ifj16.compare", resolve_identifier(self, self->table, &method, 0));
+    scheck("ifj16.compare", resolve_identifier(self, self->table, &method, 0));
     check_var_d(method->method);
 
     return 0;

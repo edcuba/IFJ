@@ -41,12 +41,20 @@ typedef struct _linear_list linear_list;
  */
 struct _token
 {
+    //default token parameters
     int type;
     const void *value;
-    symbolTable *childTable;
-    int method;
-    instruction *jump;
     token *next;
+
+    //method
+    symbolTable *childTable; //user-defined block/class
+    int method; //prebuild method
+    instruction *jump; //first instruction of user-defined block
+    token **args;
+    
+    //variable/return value
+    int dataType;
+    void *data;
 };
 
 /**

@@ -112,6 +112,17 @@ void ifj_token_free( token *item)
         ial_symbol_table_drop(item->childTable);
     }
 
+    if(item->data)
+    {
+        free(item->data);
+    }
+
+    if(item->args)
+    {
+        //token themselfs are freed with symbol table
+        free(item->args);
+    }
+
     free(item);
 }
 
@@ -130,9 +141,15 @@ token * ifj_token_new   ()
     item->type = 0;
     item->value = NULL;
     item->next = NULL;
+
     item->childTable = NULL;
     item->method = 0;
     item->jump = NULL;
+    item->args = NULL;
+    
+    item->dataType = 0;
+    item->data = NULL;
+
     return item;
 }
 

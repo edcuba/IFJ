@@ -8,19 +8,19 @@
 #include <stdio.h>
 
 
-#define check(arg) rc = arg; if(rc) do { ifj_inter_free(inter); return rc;} while(0) //exit when return code not 0
+#define check(arg) rc = arg; if(rc) do { ifj_inter_free(self); return rc;} while(0) //exit when return code not 0
 
 int main (  int argc,
             char **argv)
 {
     int rc;
-    ifjInter *inter = ifj_inter_new(); //create new main struct
+    ifjInter *self = ifj_inter_new(); //create new main struct
     //XXX
-    inter->debugMode = 1;
-    check( inter->load(argc, argv, inter) ); //load input file
-    check( inter->syna(inter) ); //run syntactic analysis
+    self->debugMode = 1;
+    check(self->load(argc, argv, self)); //load input file
+    check(self->syna(self)); //run syntactic analysis
 
 
-    ifj_inter_free(inter);
+    ifj_inter_free(self);
     return 0;
 }
