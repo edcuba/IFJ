@@ -37,7 +37,7 @@ ifj_lexa *ifj_lexa_init() {
     ifj_lexa_add_reserved(l, "boolean", T_BOOLEAN);
     ifj_lexa_add_reserved(l, "int", T_INTEGER);
     ifj_lexa_add_reserved(l, "double", T_DOUBLE);
-    ifj_lexa_add_reserved(l, "string", T_STRING);
+    ifj_lexa_add_reserved(l, "String", T_STRING);
     ifj_lexa_add_reserved(l, "false", T_FALSE);
     ifj_lexa_add_reserved(l, "true", T_TRUE);
 
