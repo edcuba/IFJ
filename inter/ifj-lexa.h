@@ -11,6 +11,7 @@
 #include "ifj-token.h"
 #include "ifj-inter.h"
 #include <stdio.h>
+#include "ifj-exp.h"
 
 #define T_SEMICOLON ';'
 #define T_COLON ':'

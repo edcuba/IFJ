@@ -74,6 +74,7 @@ int class_inside(ifjInter *self)
     {
         return_value = 0;
     }
+
     return return_value;
 }
 
@@ -114,6 +115,26 @@ int is_ID(ifjInter *self)
         return_value = 0;
     }
     return return_value;
+}
+
+
+
+int is_ID_number(ifjInter *self)
+{
+  int return_value = 0;
+  token * active = lexa_next_token(self->lexa_module,self->table);
+  if (active->type == T_IDENTIFIER ||
+      active->type == T_INTEGER_C ||
+      active->type == T_DOUBLE_C ||
+      active->type == T_STRING_C)
+  {
+       return_value = 1;
+  }
+  else
+  {
+       return_value = 0;
+  }
+  return return_value;
 }
 
 
@@ -295,13 +316,12 @@ int function_inside1(ifjInter *self)
         return_value = 1;
         break;
         case T_WHILE:
-        return_value = (is_LPAREN(self) &&
+        return_value = (
                         condition(self) &&
-                        is_RPAREN(self) &&
                         statement_inside(self) &&
                         function_inside1(self));
         break;
-        case T_FOR:
+      /*  case T_FOR:
         return_value = (is_LPAREN(self) &&
                         tell_me_type_without_void(self) &&
                         is_ID(self) &&
@@ -316,8 +336,8 @@ int function_inside1(ifjInter *self)
                         is_RPAREN(self) &&
                         statement_inside(self) &&
                         function_inside1(self));
-        break;
-        case T_DO:
+        break;  */
+      /*  case T_DO:
         return_value = (statement_inside(self) &&
                         is_while(self) &&
                         is_LPAREN(self) &&
@@ -325,7 +345,7 @@ int function_inside1(ifjInter *self)
                         is_RPAREN(self) &&
                         is_semicolon(self) &&
                         function_inside1(self));
-        break;
+        break;*/
         case T_BREAK:
         return_value = (is_semicolon(self) && function_inside1(self));
         break;
@@ -333,15 +353,14 @@ int function_inside1(ifjInter *self)
         return_value = (is_semicolon(self) && function_inside1(self));
         break;
         case T_IF:
-        return_value = (is_LPAREN(self) &&
+        return_value = (
                         condition(self) &&
-                        is_RPAREN(self) &&
                         statement_inside(self) &&
                         if_else1(self) &&
                         function_inside1(self));
         break;
         case T_RETURN:
-        return_value = (expresion(self) && is_semicolon(self) && statement_inside1(self));
+        return_value = (expresion(self)  && statement_inside1(self));
         break;
         case T_INTEGER:
         case T_STRING:
@@ -352,7 +371,7 @@ int function_inside1(ifjInter *self)
         return_value = (fce(self) && function_inside1(self));
         break;
         default:
-        return_value = 0;
+        return_value = 80;
         break;
     }
     return return_value;
@@ -446,15 +465,34 @@ int if_else1(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type == T_ELSE)
     {
-        return_value = statement_inside(self);
+        return_value = is_LBLOCK(self) && statement_inside(self);
+    }
+    else
+    {
+      return_value = -1;
     }
     // tu nastava problem treba dat else akurat co moze byt v tokene  ak tam nebude else?
     return return_value;
 }
 
-int statement_inside(ifjInter *self)
+int is_LBLOCK(ifjInter *self)
 {
     int return_value = 0;
+    token * active = lexa_next_token(self->lexa_module,self->table);
+    if (active->type == T_LBLOCK)
+    {
+        return_value = 1;
+    }
+    else
+    {
+        return_value = 0;
+    }
+    return return_value;
+}
+
+int statement_inside(ifjInter *self)
+{
+    /*int return_value = 0;
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type == T_LBLOCK)
     {
@@ -464,7 +502,8 @@ int statement_inside(ifjInter *self)
     {
         return_value = 0;
     }
-    return return_value;
+    return return_value;*/
+    return statement_inside1(self);
 }
 
 int statement_inside1(ifjInter *self)
@@ -474,12 +513,13 @@ int statement_inside1(ifjInter *self)
     switch (active->type)
     {
         case T_RBLOCK:
-        return_value = 1;
-        break;
+          return_value = 1;
+          break;
+
         case T_WHILE:
-        return_value = (is_LPAREN(self) && condition(self) && is_RPAREN(self) && statement_inside(self) && statement_inside1(self));
+        return_value = (  condition(self) /*&& statement_inside(self) */&& statement_inside1(self)  && statement_inside1(self));
         break;
-        case T_FOR:
+      /*  case T_FOR:
         return_value = (is_LPAREN(self) &&
                         tell_me_type_without_void(self) &&
                         is_ID(self) &&
@@ -503,7 +543,7 @@ int statement_inside1(ifjInter *self)
                         is_RPAREN(self) &&
                         is_semicolon(self) &&
                         statement_inside1(self));
-        break;
+        break; */
         case T_BREAK:
         return_value = (is_semicolon(self) && statement_inside1(self));
         break;
@@ -511,10 +551,10 @@ int statement_inside1(ifjInter *self)
         return_value = (is_semicolon(self) && statement_inside1(self));
         break;
         case T_IF:
-        return_value = (is_LPAREN(self) && condition(self) && is_RPAREN(self) && statement_inside(self) && if_else1(self) && statement_inside1(self));
+        return_value = ( condition(self) && statement_inside(self) && if_else1(self) && statement_inside1(self));
         break;
         case T_RETURN:
-        return_value = (expresion(self) && is_semicolon(self) && statement_inside1(self));
+        return_value = (expresion(self) &&  statement_inside1(self));
         break;
         case T_IDENTIFIER:
         return_value = (fce(self) && statement_inside1(self));
@@ -527,13 +567,7 @@ int statement_inside1(ifjInter *self)
 }
 
 
-int condition(ifjInter *self)
-{
-    int return_value = 0;
-    return_value = (expresion(self) && rel_operator(self) && expresion(self));
-    return return_value;
 
-}
 
 
 int fce(ifjInter *self)
@@ -546,7 +580,7 @@ int fce(ifjInter *self)
     }
     else if (active->type == T_ASSIGN)
     {
-        return_value = (expresion(self) && is_semicolon(self));
+        return_value = (expresion(self) );
     }
     else if (active->type == T_DOT)
     {
@@ -571,7 +605,7 @@ int method_call(ifjInter *self)
     }
     else if (active->type == T_ASSIGN)
     {
-        return_value = (expresion(self) && is_semicolon(self));
+        return_value = (expresion(self) );
     }
     else
     {
@@ -590,7 +624,10 @@ int function_parameters(ifjInter *self)
     {
         return_value = 1;
     }
-    else if (active->type == T_IDENTIFIER)
+    else if (active->type == T_IDENTIFIER ||
+             active->type == T_INTEGER_C ||
+             active->type == T_DOUBLE_C ||
+             active->type == T_STRING_C)
     {
         return_value = next_function_parameters(self);
     }
@@ -612,7 +649,7 @@ int next_function_parameters(ifjInter *self)
     }
     else if (active->type == T_COMMA)
     {
-        return_value = (is_ID(self) && next_function_parameters(self));
+        return_value = (is_ID_number(self) && next_function_parameters(self));
     }
     else
     {
@@ -634,7 +671,7 @@ int sth_next(ifjInter *self)
     }
     else if (active->type == T_ASSIGN)
     {
-        return_value = ( expresion(self) && is_semicolon(self));
+        return_value = ( expresion(self) );
     }
     else
     {
@@ -665,10 +702,6 @@ int rel_operator(ifjInter *self)
     return return_value;
 }
 
-int expresion(ifjInter *self) //TODO
-{
-    return 1;
-}
 
 int syna_run( ifjInter *self)
 {
@@ -679,5 +712,46 @@ int syna_run( ifjInter *self)
         fprintf(stderr, "Syna result: %d\n", return_value);
     }
 
+    return return_value;
+}
+
+int function_parameters_for_exp(ifjInter *self)
+{
+    int return_value = 0;
+    token * active = lexa_next_token(self->lexa_module,self->table);
+    if (active->type == T_RPAREN)
+    {
+        return_value = is_semicolon(self);
+    }
+    else if (active->type == T_IDENTIFIER ||
+             active->type == T_INTEGER_C ||
+             active->type == T_DOUBLE_C ||
+             active->type == T_STRING_C)
+    {
+        return_value = next_function_parameters_for_exp(self);
+    }
+    else
+    {
+        return_value = 0;
+    }
+    return return_value;
+}
+
+int next_function_parameters_for_exp(ifjInter *self)
+{
+    int return_value = 0;
+    token * active = lexa_next_token(self->lexa_module,self->table);
+    if (active->type == T_RPAREN)
+    {
+        return_value = is_semicolon(self);
+    }
+    else if (active->type == T_COMMA)
+    {
+        return_value = (is_ID_number(self) && next_function_parameters_for_exp(self));
+    }
+    else
+    {
+        return_value = 0;
+    }
     return return_value;
 }

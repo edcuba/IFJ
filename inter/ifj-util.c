@@ -71,6 +71,22 @@ token *ifj_stack_pop ( token_stack *inStack )
 }
 
 /**
+ * Get token from top of stack
+ * token is not poped
+ * @param stack token_stack
+ * @return token top token of the stack
+*/
+token *ifj_stack_top ( token_stack *inStack )
+{
+	if (ifj_stack_empty(inStack))
+	{
+		return NULL;
+	}
+
+	return inStack->elements[inStack->top];
+}
+
+/**
  * Get if stack is full
  * @return true/false
 */

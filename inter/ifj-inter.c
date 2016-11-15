@@ -21,6 +21,7 @@ void ifj_inter_free(ifjInter *self)
     }
     ifj_lexa_free(self->lexa_module);
     ifj_drop_list(self->code);
+    ifj_stack_drop(self->stack);
     self->table = NULL;
     free(self);
 }
@@ -44,6 +45,7 @@ ifjInter* ifj_inter_new   ()
     self->syna = &syna_run;
     self->table = ial_symbol_table_new();
     self->code = ifj_list_new();
+    self->stack = ifj_stack_new();
     return self;
 }
 

@@ -7,7 +7,8 @@ SOURCES=ifj-inter.c \
 		ifj-token.c \
 		utils/buffer.c \
 		ifj-util.c \
-		ifj-sema.c
+		ifj-sema.c \
+		ifj-exp.c
 
 HEADERS=ifj-inter.h \
 		ifj-lexa.h \
@@ -16,7 +17,8 @@ HEADERS=ifj-inter.h \
 		ifj-token.h \
 		utils/buffer.h \
 		ifj-util.h \
-		ifj-sema.h
+		ifj-sema.h \
+		ifj-exp.h
 CC=gcc
 all: ifj16
 ifj16: $(SOURCES) $(HEADERS) ; $(CC) $(CFLAGS) $(SOURCES) ifj-base.c -o ifj16
