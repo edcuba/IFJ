@@ -19,7 +19,9 @@ set(modules_sources
         ifj-token.c
         ifj-token.h
         ifj-util.c
-        ifj-util.h)
+        ifj-util.h
+        ifj-exec.c
+        ifj-exec.h)
 
 add_library(modules ${modules_sources})
 
