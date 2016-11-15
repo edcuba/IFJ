@@ -7,6 +7,7 @@
 #ifndef IFJ_INTER_H
 #define IFJ_INTER_H
 
+typedef struct _token_stack token_stack;
 typedef struct _token token;
 typedef struct _ifjInter ifjInter;
 typedef struct _symbolTable symbolTable ;
@@ -26,6 +27,7 @@ typedef struct _linear_list linear_list;
 
 #include <stdio.h>
 #include "ifj-syna.h"
+#include "ifj-exp.h"
 #include "ifj-lexa.h"
 #include "ifj-token.h"
 #include "ial.h"
@@ -83,6 +85,8 @@ struct _ifjInter
     symbolTable *table;
     ifj_lexa *lexa_module;
     linear_list *code;
+    token_stack *stack;
+
     int     ( *load )( int, char**, ifjInter* );
     int     ( *sema )( ifjInter* );
     int     ( *syna )( ifjInter* );

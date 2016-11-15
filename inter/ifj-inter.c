@@ -21,6 +21,7 @@ void ifj_inter_free(ifjInter *self)
     }
     ifj_lexa_free(self->lexa_module);
     ifj_drop_list(self->code);
+    ifj_stack_drop(self->stack);
     self->table = NULL;
     free(self);
 }
@@ -92,6 +93,7 @@ ifjInter* ifj_inter_new   ()
     self->table = ial_symbol_table_new();
     self->code = ifj_list_new();
     ifj_global_symbol_table_init(self);
+    self->stack = ifj_stack_new();
     return self;
 }
 
@@ -146,7 +148,7 @@ token * ifj_token_new   ()
     item->method = 0;
     item->jump = NULL;
     item->args = NULL;
-    
+
     item->dataType = 0;
     item->data = NULL;
 

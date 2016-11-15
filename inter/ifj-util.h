@@ -14,12 +14,12 @@
 #include <stdbool.h>
 
 
-typedef struct
+struct _token_stack
 {
 	token **elements;
 	int top;	// -1 for empty stack
 	int size;	// default size is 32
-} token_stack;
+};
 
 typedef struct item
 {
@@ -38,6 +38,7 @@ token_stack *ifj_stack_new ();
 void ifj_stack_push (	token_stack *inStack,
 						token *inToken );
 token *ifj_stack_pop ( token_stack *inStack );
+token *ifj_stack_top ( token_stack *inStack );
 bool ifj_stack_full ( token_stack *inStack );
 bool ifj_stack_empty ( token_stack *inStack );
 void ifj_stack_drop ( token_stack *inStack );
