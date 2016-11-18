@@ -9,6 +9,7 @@
 #include "ifj-util.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 
 /**
@@ -282,28 +283,33 @@ void ifj_set_active_next ( linear_list *list )
 
 /**
  * Read integer from stdin
- * @return integer number
+ * @return const int token
 */
-int ifj_read_int ()
+token *ifj_read_int ()
 {
-	return 0;
+	int in;
+	scanf("%d", &in);
+	return ifj_generate_temp(T_INT, &in);
 }
 
 /**
  * Read double from stdin
  * @return floating point number
 */
-double ifj_read_double ()
+token *ifj_read_double ()
 {
-	return 0;
+	double in;
+	scanf("%g", &in);
+	return ifj_generate_temp(T_DOUBLE, &in);
 }
 
 /**
  * Read string from stdin
  * @return string
 */
-const char * ifj_read_string ()
+token *ifj_read_string ()
 {
+	//TODO
 	return NULL;
 }
 
