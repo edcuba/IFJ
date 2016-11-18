@@ -215,3 +215,32 @@ void ifj_generate_reserved (symbolTable *table, char *value, int type, int metho
         item = table->add_item(table, item, NULL);
     }
 }
+
+/**
+* Generate temporatu token for executor
+* - token must be freed after "set" instruction
+* @param datatype {T_INTEGER|T_DOUBLE|T_STRING}
+* @param data for chosen datatype
+* @return reference to created temporaty token
+*/
+token *ifj_generate_temp(int datatype, void *data)
+{
+    token *item = ifj_token_new();
+    item->type = T_TMP;
+    item->datatype = datatype;
+    switch (datatype)
+    {
+        case T_INTEGER:
+            item->value = (void*) malloc (sizeof(int));
+            *((int *) item->value) = *data;
+            break;
+        case T_DOUBLE:
+            item->value = (void*) malloc (sizeof(double));
+            *((double *) item->value) = *data;
+            break;
+        case T_STRING:
+            item->value = data;
+            break;
+    }
+    return item
+}

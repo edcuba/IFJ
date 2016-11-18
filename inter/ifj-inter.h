@@ -53,7 +53,7 @@ struct _token
     int method; //prebuild method
     instruction *jump; //first instruction of user-defined block
     token **args;
-    
+
     //variable/return value
     int dataType;
     void *data;
@@ -70,9 +70,9 @@ struct _token
 struct _instruction
 {
     int type;
-    void *op1;
-    void *op2;
-    void *op3;
+    token *op1;
+    token *op2;
+    token *op3;
 };
 
 /**

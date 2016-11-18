@@ -68,6 +68,7 @@
 
 #define T_END 501
 #define T_UNKNOWN 502
+#define T_TMP 503
 
 enum lexa_state {
 
