@@ -11,9 +11,12 @@
 
 int sema_run( ifjInter *self);
 
-int resolve_identifier(ifjInter *self, 
+int resolve_identifier(ifjInter *self,
                        symbolTable *table,
                        token **item,
                        int isDefiniton);
+int check_typing(token *op,
+                token *first,
+                token *second);
 
 #endif

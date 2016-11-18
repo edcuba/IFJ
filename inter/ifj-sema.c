@@ -16,7 +16,7 @@
 * @param isDefiniton bool if current rule is type definition
 * @return 0 if success, 3 if redefined/undefined
 */
-int resolve_identifier(ifjInter *self, 
+int resolve_identifier(ifjInter *self,
                        symbolTable *table,
                        token **item,
                        int isDefiniton)
@@ -31,13 +31,13 @@ int resolve_identifier(ifjInter *self,
                    (char *)seek->value);
             ifj_token_free(seek);
             *item = NULL;
-            return 3; 
+            return 3;
         }
 
         //extract class and id
         char *full_name = strdup((char *)seek->value); //copy id for processing
         full_name[(void *)breakPoint - seek->value] = 0; //split id in half
-        
+
         char *id_class = strdup(full_name); //copy class
         char *id_id = strdup(breakPoint + 1); //copy id
         free(full_name);
@@ -121,6 +121,30 @@ int resolve_identifier(ifjInter *self,
         fprintf(stderr, "ERROR: Identifier %s undefined!\n", (char*)seek->value);
         return 3;
     }
+}
+
+/**
+ *
+ */
+int check_typing(token *op,
+                 token *first,
+                 token *second)
+{
+    int muttable = 0;
+    if(first->dataType == second->dataType)
+    {
+        muttable = 1;
+    }
+    else if(first->dataType == T_DOUBLE && second->dataType == T_INTEGER)
+    {
+        muttable = 1;
+    }
+    else if(first->dataType == T_INTEGER && second->dataType == T_DOUBLE)
+    {
+        muttable = 1;
+    }
+
+    return !muttable;
 }
 
 int sema_run(ifjInter *self)

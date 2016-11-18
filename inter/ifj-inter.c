@@ -171,6 +171,7 @@ instruction * ifj_instruction_new   ()
     item->op1 = NULL;
     item->op2 = NULL;
     item->op3 = NULL;
+    item->next = NULL;
     return item;
 }
 

@@ -289,7 +289,7 @@ token *ifj_read_int ()
 {
 	int in;
 	scanf("%d", &in);
-	return ifj_generate_temp(T_INT, &in);
+	return ifj_generate_temp(T_INTEGER, &in);
 }
 
 /**
@@ -299,7 +299,7 @@ token *ifj_read_int ()
 token *ifj_read_double ()
 {
 	double in;
-	scanf("%g", &in);
+	scanf("%lf", &in);
 	return ifj_generate_temp(T_DOUBLE, &in);
 }
 

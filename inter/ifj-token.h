@@ -26,5 +26,6 @@ void ifj_generate_reserved (symbolTable *table, char *value, int type, int metho
 char * ifj_generate_hashname_str(char * value);
 char * ifj_generate_hashname_int(int *value);
 char * ifj_generate_hashname_double(double *value);
+token *ifj_generate_temp(int dataType, void *data);
 
 #endif

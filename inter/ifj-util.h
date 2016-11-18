@@ -56,8 +56,8 @@ void ifj_set_active_next ( linear_list *list );
 
 // IFJ16 functions
 token *ifj_read_int ();
-double ifj_read_double ();
-const char * ifj_read_string ();
+token *ifj_read_double ();
+token *ifj_read_string ();
 
 void ifj_print ( const char *input );
 
