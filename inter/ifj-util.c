@@ -139,19 +139,25 @@ linear_list *ifj_list_new ()
  * @return 0, -1 when unsuccessful
 */
 int ifj_insert_first (	linear_list *list,
-						instruction *item )
+						int inputType,
+						token *oper1,
+						token *oper2,
+						token *oper3 )
 {
-	linear_item *newItem = malloc(sizeof(linear_item));
+	instruction *newInstruction = malloc(sizeof(instruction));
 
-	if (newItem == NULL)
+	if (newInstruction == NULL)
 	{
 		return -1;
 	}
 
-	newItem->next = list->first;
-	list->first = newItem;
+	newInstruction->next = list->first;
+	list->first = newInstruction;
 
-	newItem->data = item;
+	newInstruction->type = inputType;
+	newInstruction->op1 = oper1;
+	newInstruction->op2 = oper2;
+	newInstruction->op3 = oper3;
 
 	return 0;
 }
@@ -163,31 +169,38 @@ int ifj_insert_first (	linear_list *list,
  * @return 0, -1 when unsuccessful
 */
 int ifj_insert_last (	linear_list *list,
-						instruction *item )
+						int inputType,
+						token *oper1,
+						token *oper2,
+						token *oper3 )
 {
-	linear_item *newItem = malloc(sizeof(linear_item));
+	instruction *newInstruction = malloc(sizeof(instruction));
 
-	if (newItem == NULL)
+	if (newInstruction == NULL)
 	{
 		return -1;
 	}
 
-	linear_item *tempItem = list->first;
+	instruction *tempIntruction = list->first;
 
-	if (tempItem == NULL)
+	if (tempIntruction == NULL)
 	{
-		free(newItem);
-		return ifj_insert_first(list, item);
+		free(newInstruction);
+		return ifj_insert_first(list, inputType, oper1, oper2, oper3);
 	}
 
-	while (tempItem->next != NULL)
+	while (tempIntruction->next != NULL)
 	{
-		tempItem = tempItem->next;
+		tempIntruction = tempIntruction->next;
 	}
 
-	tempItem->next = newItem;
-	newItem->next = NULL;
-	newItem->data = item;
+	tempIntruction->next = newInstruction;
+	newInstruction->next = NULL;
+
+	newInstruction->type = inputType;
+	newInstruction->op1 = oper1;
+	newInstruction->op2 = oper2;
+	newInstruction->op3 = oper3;
 
 	return 0;
 }
@@ -198,31 +211,29 @@ int ifj_insert_last (	linear_list *list,
  * @param list linear_list
  * @return 0
 */
-int ifj_drop_list ( linear_list *list )
+void ifj_drop_list ( linear_list *list )
 {
 	if (list == NULL)
 	{
-		return 0;
+		return;
 	}
 
-	linear_item *tempItem = list->first;
+	instruction *tempIntruction = list->first;
 
 	list->active = NULL;
 	list->first = NULL;
 
-	while (tempItem != NULL)
+	while (tempIntruction != NULL)
 	{
-		linear_item *nextItem = tempItem->next;
+		instruction *nextInstruction = tempIntruction->next;
 
-		tempItem->next = NULL;
-		free(tempItem);
+		tempIntruction->next = NULL;
+		free(tempIntruction);
 
-		tempItem = nextItem;
+		tempIntruction = nextInstruction;
 	}
 
     free(list);
-
-	return 0;
 }
 
 /**
@@ -240,19 +251,19 @@ void ifj_set_active_first ( linear_list *list )
 */
 void ifj_set_active_last ( linear_list *list )
 {
-	linear_item *tempItem = list->first;
+	instruction *tempIntruction = list->first;
 
-	if (tempItem == NULL)
+	if (tempIntruction == NULL)
 	{
 		return;
 	}
 
-	while (tempItem->next != NULL)
+	while (tempIntruction->next != NULL)
 	{
-		tempItem = tempItem->next;
+		tempIntruction = tempIntruction->next;
 	}
 
-	list->active = tempItem;
+	list->active = tempIntruction;
 }
 
 /**

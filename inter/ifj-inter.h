@@ -70,9 +70,10 @@ struct _token
 struct _instruction
 {
     int type;
-    void *op1;
-    void *op2;
-    void *op3;
+    token *op1;
+    token *op2;
+    token *op3;
+    instruction *next;
 };
 
 /**

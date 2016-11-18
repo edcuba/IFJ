@@ -21,16 +21,10 @@ struct _token_stack
 	int size;	// default size is 32
 };
 
-typedef struct item
-{
-	struct item *next;
-	instruction * data;
-} linear_item;
-
 struct _linear_list
 {
-	linear_item *active;
-	linear_item *first;
+	instruction *active;
+	instruction *first;
 };
 
 // Stack functions
@@ -46,10 +40,16 @@ void ifj_stack_drop ( token_stack *inStack );
 // Linear list functions
 linear_list *ifj_list_new ();
 int ifj_insert_first (	linear_list *list,
-						instruction *item );
+						int inputType,
+						token *oper1,
+						token *oper2,
+						token *oper3 );
 int ifj_insert_last (	linear_list *list,
-						instruction *item );
-int ifj_drop_list ( linear_list *list );
+						int inputType,
+						token *oper1,
+						token *oper2,
+						token *oper3 );
+void ifj_drop_list ( linear_list *list );
 void ifj_set_active_first ( linear_list *list );
 void ifj_set_active_last ( linear_list *list );
 void ifj_set_active_next ( linear_list *list );

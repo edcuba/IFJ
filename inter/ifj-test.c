@@ -243,7 +243,8 @@ static int check_reserved (ifjInter *self)
 static int check_linear_list(ifjInter *self)
 {
     printf("-------- Linear list --------\n");
-    linear_list *inputList = ifj_list_new();
+    printf("Treba dorobit.. :D");
+    /*linear_list *inputList = ifj_list_new();
     check_var("List initialized", inputList != NULL);
     ifj_insert_first(inputList, NULL);
     check_var("First item inserted", inputList->first != NULL);
@@ -271,7 +272,7 @@ static int check_linear_list(ifjInter *self)
     check_token_str(tok);
 
     ifj_drop_list(inputList);
-    free(ins);
+    free(ins);*/
 
     return 0;
 }
