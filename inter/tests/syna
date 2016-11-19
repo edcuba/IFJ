@@ -1,0 +1,57 @@
+class Main
+{
+  static int a,b,c;
+  static String ahojky;
+  static void run()
+  {}
+
+  static int ahoj(int a, int b, double c)
+  {
+    int ahoj =    (5 + 8 * 9 - 9 + (5 +4) + 5 * (8+5)*7 + 5) ;
+    ahoj  = ahoj + 8 / 7;
+    String str1;
+    Main.x = 88 + ahoj;
+    str1 = "Toto je nejaky text";
+    String str2;
+    str2 = str1 + ", ktery jeste trochu obohatime";
+    str = ifj16.sort(str);
+
+    //ifj16.print("Pozice retezce \"text\" v retezci str2: " + x + "\n");
+    //ifj16.find(str2, "text");
+    while (cmp !=0)
+    {}
+    if (0 >= 8 )
+    {
+        if (0)
+        {
+            ifj16.print("Zadejte cislo pro vypocet faktorialu: ");
+        }
+        else
+        {
+          a = ifj16.readInt();
+          while (cmp != 0)
+          {
+              while (0)
+              {
+                a = ifj16.readInt();
+                if (a + b) { return 10;}
+                else { return; }
+              }
+          }
+        }
+    }
+    else
+    {
+        return a + b +c / 55;
+    }
+
+
+
+
+  }
+
+}
+class prazny_class
+{
+
+}
