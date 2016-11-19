@@ -386,7 +386,6 @@ int ifj_compare (	const char *s1,
 			{
 				break;
 			}
-
 			continue;
 		}
 		else
@@ -395,10 +394,23 @@ int ifj_compare (	const char *s1,
 			{
 				return ifj_length(s1) - ifj_length(s2) > 0 ? 1 : -1;
 			}
-
 			return s1[i] - s2[i] > 0 ? 1 : -1;
 		}
 	}
-
 	return 0;
+}
+
+/**
+ * Concatenate str1 and str2 into res
+ * @param str1 First string
+ * @param str2 Second string
+ * @return concatenation of str1 and str2
+ */
+char *ifj_join_strings(const char *str1, const char *str2)
+{
+	size_t len1 = strlen(str1) + 1;
+	size_t len2 = strlen(str2);
+	char *res = malloc((len1 + len2) * sizeof(char));
+	memcpy(res, str1, len1);
+	return strncat(res, str2, len2);
 }

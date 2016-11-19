@@ -53,6 +53,7 @@ void ifj_drop_list ( linear_list *list );
 void ifj_set_active_first ( linear_list *list );
 void ifj_set_active_last ( linear_list *list );
 void ifj_set_active_next ( linear_list *list );
+char *ifj_join_strings(const char *str1, const char *str2);
 
 // IFJ16 functions
 token *ifj_read_int ();

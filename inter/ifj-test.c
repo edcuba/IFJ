@@ -244,7 +244,7 @@ static int check_linear_list(ifjInter *self)
 {
     printf("-------- Linear list --------\n");
     printf("Treba dorobit.. :D");
-    /*linear_list *inputList = ifj_list_new();
+    /*linear_list *inputList = ifj_list_new(); //TODO
     check_var("List initialized", inputList != NULL);
     ifj_insert_first(inputList, NULL);
     check_var("First item inserted", inputList->first != NULL);
@@ -342,6 +342,17 @@ static int check_prebuild_init(ifjInter *self)
     return 0;
 }
 
+static int check_utils(ifjInter *self)
+{
+    const char *str1 = "Hello-";
+    const char *str2 = "World!";
+    char *res = ifj_join_strings(str1, str2);
+    printf("%s\n", res);
+    check_var_d(!strcmp(res, "Hello-World!"));
+    free(res);
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     int rc;
@@ -359,6 +370,7 @@ int main(int argc, char **argv)
     check("Linear list", check_linear_list(inter));
     check("Stack", check_stack(inter));
     check("Prebuild functions initialization", check_prebuild_init(inter));
+    check("Utils", check_utils(inter));
     //just add tests for your modules here...
 
     ifj_inter_free(inter);
