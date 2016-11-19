@@ -3,6 +3,22 @@
  * Copyright (C) 2016 SsYoloSwag41 Inc.
  * Authors: Jan Demcak <xdemca01@stud.fit.vutbr.cz>
  */
+
+ /*TODO JANY Jiné než uvedené kombinace typů (včetně případných povolených implicitních kon-
+verzí) ve výrazech pro popsané operátory jsou považovány za chybu 4. */
+
+/*TODO JANY upavit tabulku priority operatorov != a == maju najnizsiu */
+
+
+ /*TODO JANY  vytvorit dalsi zasobnik ktory ked  dostanem konstantu alebo premennu pushnem , v momente ked sa bude vykonvat niejaka redukacna akcia ktora bude vyzadovat 2 operandy
+ skontroluje ak bude treba urobit typovie zavola Edovu funkciu na pretypovanie a   vysledny typ pushne na zasobnik s5 , nevyhodnocujem  vysledok  resp. nenazim sa manualne pocitat vysledok
+ to budu robit robove instrukcie ktorych volanie ja en d pisem do kodu ? TODO EDO skontroluj ci som dobre pochopil*/
+
+
+
+/* TODO EDO , toto riesis ty  pri typovani ci ja ? Relační operátory nepodporují porovnání řetězců
+(viz vestavěná funkce ifj16.compare ) */
+
  #include "ifj-exp.h"
 
 
@@ -36,6 +52,8 @@
 
     int b;
     int a; // first symbol on stack is automatically $ --> 7;
+    /* TODO EDO   tu si generujem par tokenov ktore potrebuje pouzivat neskor tiez ich treba niekde ulozit aby nezavadzali, token 2222 je moje "E", dufam ze sa s nicim nekryje*/
+    /* TODO EDO   takisto  pouzivam par zasobnikov od Roba , a konci ich nerusim, nevedel som ci treba ci nie,  ak treba dopis mi TODO*/
     token * semicolon_on_top = ifj_generate_token(self->table, T_LBLOCK);
     token* t_less_on_top =  ifj_generate_token(self->table, T_LARRAY);
     token* E =  ifj_generate_token(self->table, 2222);
@@ -43,6 +61,7 @@
     token * top_stack;
     token * top_on_help_stack;
     token * active = lexa_next_token(self->lexa_module,self->table);
+    /* TODO EDO   nachadzame sa vo vyraze cize vo vnutri funkcie beriem si prvy token vyrazu*/
 
     token_stack *stack  = ifj_stack_new(); // new stack MAIN stack
     token_stack *help_stack = ifj_stack_new(); // helpfull stack using while POPing the MAIN
@@ -176,6 +195,7 @@
           ifj_stack_push(stack,active);
           top_stack = ifj_stack_top(stack);
           active = lexa_next_token(self->lexa_module,self->table);
+          /* TODO EDO   stale taha dalsie a dalsie tokeny bezime v do-while cykle*/
           break;
 
 
@@ -195,6 +215,7 @@
 
           ifj_stack_push(stack, top_stack); // add next token to the top of stack
           active = lexa_next_token(self->lexa_module,self->table); // take another token from scanner
+          /* TODO EDO   stale taha dalsie a dalsie tokeny bezime v do-while cykle*/
           break;
 
 
@@ -664,6 +685,7 @@
       token * top_stack;
       token * top_on_help_stack;
       token * active = lexa_next_token(self->lexa_module,self->table);
+      /* TODO EDO   to iste co predchadzajuca funckia*/
 
       token_stack *stack  = ifj_stack_new(); // new stack MAIN stack
       token_stack *help_stack = ifj_stack_new(); // helpfull stack using while POPing the MAIN
@@ -760,6 +782,7 @@
             ifj_stack_push(stack,active);
             top_stack = ifj_stack_top(stack);
             active = lexa_next_token(self->lexa_module,self->table);
+            /* TODO EDO   to iste co predchadzajuca funckia*/
             break;
 
 
@@ -779,6 +802,7 @@
 
             ifj_stack_push(stack, top_stack); // add next token to the top of stack
             active = lexa_next_token(self->lexa_module,self->table); // take another token from scanner
+            /* TODO EDO   to iste co predchadzajuca funckia*/
             break;
 
           case  T_COMMA: // musim niekde ulozit token co je na vrchu zasobniku, to je ID funkcie a predat ho rekurzivnemu sestupu + nezabudnut pridat "("
