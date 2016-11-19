@@ -74,13 +74,45 @@ void ifj_global_symbol_table_init(ifjInter *self)
 }
 
 /**
+ * Holder for some syna - exp constants
+ * @return initialized structure for syna
+ **/
+ifjSyna *ifj_syna_new(ifjInter* inter)
+{
+    ifjSyna *self = calloc(1, sizeof(ifjSyna));
+    if(!self)
+    {
+        fprintf(stderr,"ERROR: allocating parser!\n");
+        exit(99);
+    }
+    self->semicolon = ifj_generate_token(inter->table, T_LBLOCK);
+    self->t_less =  ifj_generate_token(inter->table, T_LARRAY);
+    self->stack  = ifj_stack_new();
+    self->help_stack = ifj_stack_new();
+    self->E = ifj_generate_token(self->table, E_TYPE);
+    return self;
+}
+
+/**
+ * free syna structure
+ **/
+void ifj_syna_free(ifjSyna *self)
+{
+    ifj_token_free(self->semicolon);
+    ifj_token_free(self->t_less);
+    ifj_token_free(self->E);
+    ifj_stack_drop(self->stack);
+    ifj_stack_drop(self->help_stack);
+}
+
+/**
  * Create new interpreter structure
  *  - contains initialized default methods and attributes
  * @return interpreter
  */
-ifjInter* ifj_inter_new   ()
+ifjInter* ifj_inter_new()
 {
-    ifjInter *self = calloc ( 1, sizeof( ifjInter ));
+    ifjInter *self = calloc(1, sizeof(ifjInter));
     if(!self)
     {
         fprintf(stderr,"ERROR: allocating interpreter!\n");
@@ -94,6 +126,8 @@ ifjInter* ifj_inter_new   ()
     self->code = ifj_list_new();
     ifj_global_symbol_table_init(self);
     self->stack = ifj_stack_new();
+    self->return_code = 0;
+    self->syna = ifj_syna_new(self);
     return self;
 }
 
@@ -184,4 +218,30 @@ char *strdup (const char *s1)
     memcpy(dupl, s1, len);
     dupl[len] = 0; //null terminator
     return dupl;
+}
+
+void print_unexpected(token *item)
+{
+    fprintf(stderr, "Error: unexpected identifier \"");
+    switch(item->type)
+    {
+        case T_IDENTIFIER:
+            fprintf(stderr,"%s\"\n", (char *)item->value);
+            break;
+        case T_INTEGER_C:
+            fprintf(stderr,"%d\"\n", *((int *)item->value));
+            break;
+        case T_DOUBLE_C:
+            fprintf(stderr,"%g\"\n", *((double *)item->value));
+            break;
+        case T_STRING_C:
+            fprintf(stderr,"%s\"\n", (char *)item->value);
+            break;
+        default:
+            if (item->type < 256)
+                fprintf(stderr,"%c\"\n", item->type);
+            else
+                fprintf(stderr,"code: %d\"", item->type);
+            break;
+    }
 }

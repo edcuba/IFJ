@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdio.h>
 
+//TODO ifj_stack_clear PLS 
 
 /**
  * Initialize and allocate new token_stack

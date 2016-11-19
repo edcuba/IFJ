@@ -14,7 +14,7 @@
 #include "ifj-token.h"
 #include <stdbool.h>
 
-int expresion(ifjInter *self);
-int condition(ifjInter *self);
+int expresion(ifjInter *self, symbolTable *table);
+int condition(ifjInter *self, symbolTable *table);
 
 #endif

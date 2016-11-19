@@ -14,6 +14,7 @@ typedef struct _symbolTable symbolTable ;
 typedef struct _ifj_lexa ifj_lexa;
 typedef struct _instruction instruction;
 typedef struct _linear_list linear_list;
+typedef struct _ifjSyna ifjSyna;
 
 #define IFJ16_PRINT 1001
 #define IFJ16_READINT 1002
@@ -24,6 +25,8 @@ typedef struct _linear_list linear_list;
 #define IFJ16_LENGTH 1007
 #define IFJ16_SUBSTR 1008
 #define IFJ16_COMPARE 1009
+
+#define E_TYPE 2222
 
 #include <stdio.h>
 #include "ifj-syna.h"
@@ -59,6 +62,15 @@ struct _token
     void *data;
 };
 
+struct _ifjSyna
+{
+    token *semicolon;
+    token *t_less;
+    token *E;
+    token_stack *stack;
+    token_stack *help_stack;
+}
+
 /**
  * Struct for stroring 3-address instruction
  * Used in instruction list generated in parser
@@ -90,16 +102,20 @@ struct _ifjInter
 
     int     ( *load )( int, char**, ifjInter* );
     int     ( *sema )( ifjInter* );
-    int     ( *syna )( ifjInter* );
+    ifjSyna *syna;
+    int return_code;
 };
 
 ifjInter    *ifj_inter_new();
 void        ifj_inter_free(ifjInter *self);
 token       *ifj_token_new();
 void        ifj_token_free( token *item);
-instruction * ifj_instruction_new   ();
+instruction * ifj_instruction_new();
+
+ifjSyna *ifj_syna_new();
 
 void ifj_global_symbol_table_init(ifjInter *self);
+void print_unexpected(token *item);
 
 int ifj_load(int argc, char **argv, ifjInter* inter);
 char *strdup (const char *s1); //form POSIX

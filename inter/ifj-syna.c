@@ -49,8 +49,10 @@ výrazech, příp. špatný počet či typ parametrů u volání funkce.
 lokace paměti, chyba při otvírání souboru s řídicím programem, špatné parametry
 příkazové řádky atd.).*/
 
-/* TODO EDO  na zaciatku by mala byt vytvorena niejaka tabulka  globalna kde bude vsetko + 1 tabulka pre classu Main sa urobi hned na zaciatku este pred pustenim  analyz*/
-/*TODO EDO kazda funkcia obsahuje premennu active kde je ulozeny akutualny  token  2. parameter je vzdy self->table  nastaveny, len mi nieje jasne ako to urobit aby sa napriklad pri kazdom volani
+/* TODO EDO  na zaciatku by mala byt vytvorena niejaka tabulka  globalna kde bude vsetko
++ 1 tabulka pre classu Main sa urobi hned na zaciatku este pred pustenim  analyz*/
+/*TODO EDO kazda funkcia obsahuje premennu active kde je ulozeny akutualny  token
+2. parameter je vzdy self->table  nastaveny, len mi nieje jasne ako to urobit aby sa napriklad pri kazdom volani
 funkcie ukladalo do inej tabulky kedze stale sa bude volat ten isty kod, dufam ze tebe je :D*/
 /* TODO EDO  pri kazdom volani tokenu najdes popis o co sa jedna a  kde sa nachadza*/
 
@@ -60,10 +62,20 @@ int start(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type ==  T_CLASS)
     {
+        /*
+            TODO XXX JANY myslím, že by sme tu mali skočiť rovno do next_class
+        */
         /* TODO EDO  uplne prve slovo  v zdrojaku cize  token class k prvej classe Main*/
         return_value = (is_ID(self) &&
-        /*TODO  JANY tu treba overit ci to is_ID je Main, cize bud  upravit funkciu  a spravit v nej 2 volania lexa_next_token, alebo si urobit   static premennu counter ktora to skontroluje ked sa
-        1.x zavola is_ID --> prve ID musi byt main */
+        /*TODO  JANY tu treba overit ci to is_ID je Main, cize bud  upravit funkciu
+        a spravit v nej 2 volania lexa_next_token,
+        alebo si urobit static premennu counter ktora to skontroluje ked sa
+        1.x zavola is_ID --> prve ID musi byt main
+
+        XXX tu to podla mna nemusime riešiť, to či je metóda Run v classe Main
+        definovaná si vieme jednoducho overiť po behu syntaktickej a rovno
+        aj nastaviť štartovací bod pre exekúT_FOR
+        */
                         class_inside(self) &&
                         next_class(self));
     }
@@ -75,96 +87,146 @@ int start(ifjInter *self)
 
 }
 
+/**
+ * Next class or EOF
+ * @param self global structure
+ * @return 1 if EOF or some proper class definition, 0 when some garbage found
+ **/
 int next_class(ifjInter *self)
 {
     int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
+    token * active = lexa_next_token(self->lexa_module, self->table);
     if ((active->type) == T_END)
     {
-          /* TODO EDO   token je koncovy znak suboru  PS neviem do ktorej tabulky to ukadat*/
-        return_value =  1;
+        return_value =  0;
     }
-    else if (active->type == T_CLASS && is_ID(self))
+    else if (active->type == T_CLASS && !is_ID(self, self->table, &active))
     {
-        /* TODO EDO   nasiel dafiniciu dalsej classy takze vytvara tabulku pre novu classu ktorej nazov je token ktory dostava is_ID, viem to prerobit aby
-        ten token s id dostavala rovno aj tato funkcia  staci povedat, ale myslim ze je jednoduchsie vytvorit nieco na ukladanie viz presny popis nizsie */
-        return_value = (class_inside(self) && next_class(self));
+        active->childTable = ial_symbol_table_new();
+        active->parent = self->table;
+        return_value = class_inside(self, active->childTable) &&
+                       next_class(self);
     }
     else
     {
-        return_value = 0;
+        print_unexpected(active);
+        return_value = 2;
     }
     return return_value;
 
 }
 
-
-int class_inside(ifjInter *self)
+/**
+ * New class beginning with {
+ * @param self global structure
+ * @param table symbol table for current class
+ * @return 0 is successfull
+ **/
+int class_inside(ifjInter *self, symbolTable *table)
 {
     int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
+    token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type == T_LBLOCK)
-    { /* TODO EDO  "{" ktora zacina vnutro classy*/
+    {
         return_value = class_inside1(self);
     }
     else
     {
-        return_value = 0;
+        print_unexpected(active);
+        return_value = 2;
     }
 
     return return_value;
 }
 
-
-int class_inside1(ifjInter *self)
+/**
+ * Inside class, static function, static variable or } expected
+ * @param self global structure
+ * @param table symbol table for current class
+ * @return 0 if successfull
+ **/
+int class_inside1(ifjInter *self, symbolTable *table)
 {
     int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
-    if (active->type == T_RBLOCK)
-    {
-      /* TODO EDO  *"}" znaciaca koniec classy */
-        return_value = 1;
-    }
-    else
+    token * active = lexa_next_token(self->lexa_module, self->table);
+    if (active->type != T_RBLOCK)
     {
         if (active->type == T_STATIC)
         {
-          /* TODO EDO   static cize zacina definicia bud premennej alebo  funkcie*/
-            return_value = (tell_me_type_with_void(self) && is_ID(self) && class_inside2(self));
+            return_value = get_type_with_void(self, &active) &&
+                           is_ID(self, &active) &&
+                           class_inside2(self, table, active);
         }
         else
         {
-            return_value = 0;
+            print_unexpected(active);
+            return_value = 2;
         }
     }
     return return_value;
 }
 
-
-int is_ID(ifjInter *self)
+/**
+ * Fetch next token, assert idenfifier type, set datatype
+ * @param self global structure
+ * @param item reference to last token, reference to new token returned
+ * @return 0 if successfull
+ **/
+int is_ID(ifjInter *self, symbolTable *table, token **item)
 {
     int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
+    token *active = lexa_next_token(self->lexa_module, table);
+    token *prev = *item;
     if (active->type == T_IDENTIFIER)
-    { /* TODO EDO  dostava ID o ake ide ide urcuju ostatne funkcie*/
-        return_value = 1;
+    {
+        switch (prev->type)
+        {
+            //declarations
+            case T_CLASS:
+                return_value = resolve_identifier(self, table, &active, 1);
+                break;
+            case T_INTEGER:
+                active->dataType = T_INTEGER;
+                return_value = resolve_identifier(self, table, &active, 1);
+                break;
+            case T_DOUBLE:
+                active->dataType = T_DOUBLE;
+                return_value = resolve_identifier(self, table, &active, 1);
+                break;
+            case T_STRING:
+                active->dataType = T_STRING;
+                return_value = resolve_identifier(self, table, &active, 1);
+                break;
+            case T_VOID:
+                active->dataType = T_VOID;
+                return_value = resolve_identifier(self, table, &active, 1);
+                break;
+            //not a declaration
+            default:
+                return_value = resolve_identifier(self, table, &active, 0);
+                break;
+        }
     }
     else
     {
-        return_value = 0;
+        print_unexpected(active);
+        return_value = 4;
     }
+    *item = active;
+    self->return_code = return_value;
     return return_value;
 }
-
-
 
 int is_ID_number(ifjInter *self)
 {
   int return_value = 0;
   token * active = lexa_next_token(self->lexa_module,self->table);
-  /* TODO EDO  pouziva sa iba pri volani funkcie, kontroluje ci je v argumentoch iba to co tam moze byt (syntakticky nie sematicky)
-  , mozes dorobit aj sematicku kontrolu ci sedia typy tak ako je v deklaracii, funkcie s tym suvisiace next_function_parameters, function_parameters,
-  a  function_parameters_for_exp, next_function_parameters_for_exp   presne to iste len to 2.  komunikuje  s exp.c, pre teba by to nemalo znamenat rozdiel*/
+  /* TODO EDO  pouziva sa iba pri volani funkcie,
+  kontroluje ci je v argumentoch iba to co tam moze byt (syntakticky nie sematicky)
+  , mozes dorobit aj sematicku kontrolu ci sedia typy tak ako je v deklaracii,
+  funkcie s tym suvisiace next_function_parameters, function_parameters,
+  a  function_parameters_for_exp, next_function_parameters_for_exp
+  presne to iste len to 2.  komunikuje  s exp.c, pre teba by to nemalo znamenat rozdiel*/
   if (active->type == T_IDENTIFIER ||
       active->type == T_INTEGER_C ||
       active->type == T_DOUBLE_C ||
@@ -180,202 +242,219 @@ int is_ID_number(ifjInter *self)
   return return_value;
 }
 
-
-int class_inside2(ifjInter *self)
+/**
+ * Fetch next token. Now we are in state "type identifier". We expect "(" for
+ * function declaration, ";" or "=" for variable declaration
+ * @param self global structure
+ * @param table symbol table for current class
+ * @param item last token / identifier (TODO solve this for each T_IDENTIFIER)
+ * @return 0 if successfull
+ **/
+int class_inside2(ifjInter *self, symbolTable *table, token *item)
 {
     int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
+    token * active = lexa_next_token(self->lexa_module, self->table);
+    //function
     if (active->type == T_LPAREN)
-    /* TODO EDO  vytvaras novu tabullku pre funkciu, nachadzas sa v deklaracii funkcie  prave si nasiel "(" ktora ti hovori ze predchadzajuce ID bolo id funkcie,
-    asi treba dorobit niejaku strukturu, glob. premennu ktora si bude ukladat  posledne ID z lexikalnej  pomocou ktorej sa  k nemu budeme vediet dostat
-     pre najdenie vsetkych tychto situacii CTRL + F T_IDENTIFIER, alebo mi daj vediet a urobim to ja */
     {
-        return_value = (function_declar(self) && function_inside(self) && class_inside1(self));
+        item->childTable = ial_symbol_table_new();
+        item->parent = table;
+        return_value = !function_declar(self, item) &&
+                       !function_inside(self, item) &&
+                       !class_inside1(self, table);
     }
+    //variable
     else if (active->type == T_SEMICOLON)
     {
-        return_value = class_inside1(self);
+        //check if not void here
+        return_value = class_inside1(self, table);
     }
-    else if (active->type == T_COMMA)
+    else if (active->type == T_ASSIGN)
     {
-        return_value = id_declar(self) && class_inside1(self);
+        return_value = !expresion(self) && !class_inside1(self, table);
     }
+    //some garbage
     else
     {
-        return_value = 0;
+        print_unexpected(active);
+        return_value = 2;
     }
     return return_value;
 }
 
-
-int tell_me_type_with_void(ifjInter *self)
+/**
+ * Fetch next token. Expects type definition (int, double, String, void)
+ * @param self global structure
+ * @param item returns reference to fetched token
+ * @return 0 if successfull
+ **/
+int get_type_with_void(ifjInter *self, token **item)
 {
-    int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
-    /* TODO EDO  sme pri deklaracii a urcovani datoveho typu  s voidom cize stale v classe mimo akejkolvek funkcie */
-    /* TODO JANNY treba skontrolovat ze ak ide o deklaraciu premennej ci nieje pouzity typ void a zistit ako tuto chybu specifikovat*/
+    int return_value = 2;
+    token * active = lexa_next_token(self->lexa_module, self->table);
     switch(active->type)
     {
         case T_INTEGER:
-        return_value = 1;
-        break;
         case T_DOUBLE:
-        return_value = 1;
-        break;
         case T_STRING:
-        return_value = 1;
-        break;
         case T_VOID:
-        return_value = 1;
-        break;
-        default:
-        return_value = 0;
-        break;
+            return_value = 0;
+            break;
     }
+    if(return_value)
+    {
+        print_unexpected(active);
+    }
+    *item = active;
     return return_value;
 }
 
-
-int tell_me_type_without_void(ifjInter *self)
+/**
+ * Fetch next token. Expects type definition (int, double, String)
+ * @param self global structure
+ * @param item returns reference to fetched token
+ * @return 0 if successfull
+ **/
+int get_type_without_void(ifjInter *self, token **item)
 {
-    int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
+    int return_value = 2;
+    token * active = lexa_next_token(self->lexa_module, self->table);
     switch(active->type)
-    /* TODO EDO  deklaracia vo funkcii */
     {
         case T_INTEGER:
-        return_value = 1;
-        break;
         case T_DOUBLE:
-        return_value = 1;
-        break;
         case T_STRING:
-        return_value = 1;
-        break;
-        default:
-        return_value = 0;
-        break;
+            return_value = 0;
+            break;
     }
+    if(return_value)
+    {
+        print_unexpected(active);
+    }
+    *item = active;
     return return_value;
 }
 
-int id_declar(ifjInter *self)
+/**
+ * Fetch first argument for function declaration ("type identifier" or ")")
+ * - save arguments in child table
+ * - set args stack
+ * @param self global structure
+ * @param item function token
+ * @return 0 if successfull
+ **/
+int function_declar(ifjInter *self, token *item)
 {
     int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
-    /* TODO EDO  riesi  pripad viacnasobnej deklaracie mimo funkcie v classe priklad: int a, b, c;*/
-    if (active->type == T_IDENTIFIER)
-    {
-        return_value = id_declar1(self);
-    }
-    else
-    {
-        return_value = 0;
-    }
-    return return_value;
-}
-
-
-int id_declar1(ifjInter *self)
-{
-    int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
-    /* TODO EDO  to iste co id_declar, pracuju spolu a navzajom sa cyklia*/
-    if (active->type == T_SEMICOLON)
-    {
-        return_value = 1;
-    }
-    else if (active->type == T_COMMA)
-    {
-        return_value = id_declar(self);
-    }
-    else
-    {
-        return_value = 0;
-    }
-    return return_value;
-}
-
-
-int function_declar(ifjInter *self)
-{
-    int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
+    token * active = lexa_next_token(self->lexa_module, item->childTable);
     switch(active->type)
-    /* TODO EDO   deklaracie funkcie  v classe, konkretne riesi prvy paramenter*/
     {
         case T_INTEGER:
-
         case T_DOUBLE:
-
         case T_STRING:
-        return_value = (is_ID(self) && next_function_param(self));
-        break;
+            if(!is_ID(self, item->childTable, &active))
+            {
+                item->args = ifj_stack_new();
+                ifj_stack_push(item->args, active);
+                return_value = next_function_param(self, item);
+            }
+            else
+            {
+                print_unexpected(active);
+                return_value = 2;
+            }
+            break;
         case T_RPAREN:
-        return_value = 1;
-        break;
+            return_value = 0;
+            break;
         default:
-        return_value = 0;
-        break;
+            return_value = 2;
+            print_unexpected(active);
+            break;
     }
     return return_value;
 }
 
-
-int next_function_param(ifjInter * self)
+/**
+ * Fetch n-th argument for function declaration (")", "type identifier" or ",")
+ * - save arguments in child table
+ * - set args stack
+ * @param self global structure
+ * @param item function token
+ * @return 0 if successfull
+ **/
+int next_function_param(ifjInter *self, token *item)
 {
     int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
-    /* TODO EDO  riesi 2. az n-ty parameter pri deklaracii funkcie */
-    if (active->type == T_RPAREN)
+    token * active = lexa_next_token(self->lexa_module, self->table);
+    if (active->type == T_COMMA)
     {
-        return_value = 1;
+        if(!get_type_without_void(self, &active) &&
+           !is_ID(self, item->childTable, &active))
+        {
+            ifj_stack_push(item->args, active);
+            return_value = next_function_param(self, item);
+        }
+        else
+        {
+            print_unexpected(active);
+            return_value = 2;
+        }
+
     }
-    else if (active->type == T_COMMA)
+    else if(active->type != T_RPAREN)
     {
-        return_value = (tell_me_type_without_void(self) && is_ID(self) && next_function_param(self));
-    }
-    else
-    {
-        return_value = 0;
+        return_value = 2;
+        print_unexpected(active);
     }
     return return_value;
 }
 
-
-int function_inside(ifjInter *self)
+/**
+ * Fetch next token. Expects "{".
+ * @param self global structure
+ * @param current function token
+ * @return 0 if successfull
+ **/
+int function_inside(ifjInter *self, token *item)
 {
     int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
+    token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type == T_LBLOCK)
-    /* TODO EDO  "{" ktora znaci zaciatok funkcie  */
     {
-        return_value = function_inside1(self);
+        return_value = function_inside1(self, item);
     }
     else
     {
-        return_value = 0;
+        print_unexpected(active);
+        return_value = 2;
     }
     return return_value;
 }
 
-
-int function_inside1(ifjInter *self)
+/**
+ * Inside function. Expects "}", "while", "break", "continue", "if", "return",
+ * "int", "double", "String", "identifier"
+ * @param self global structure
+ * @param item current function token
+ * @return 0 if successfull
+ **/
+int function_inside1(ifjInter *self, token *item)
 {
     int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
-    /* TODO EDO  sme vo vnutri funcie */
+    token * active = lexa_next_token(self->lexa_module, self->table);
     switch (active->type)
     {
         case T_RBLOCK:
-        return_value = 1;
-        break;
+            return_value = 0;
+            break;
         case T_WHILE:
-        return_value = (
-                        condition(self) &&
-                        statement_inside(self) &&
-                        function_inside1(self));
-        break;
+            return_value = (
+                condition(self, item->childTable) && //TODO XXX NOTE FIXME TU SOM
+                statement_inside(self) &&
+                function_inside1(self)
+            );
+            break;
       /*  case T_FOR:
         return_value = (is_LPAREN(self) &&
                         tell_me_type_without_void(self) &&
@@ -402,32 +481,34 @@ int function_inside1(ifjInter *self)
                         function_inside1(self));
         break;*/
         case T_BREAK:
-        return_value = (is_semicolon(self) && function_inside1(self));
-        break;
+            return_value = (is_semicolon(self) && function_inside1(self));
+            break;
         case T_CONTINUE:
-        return_value = (is_semicolon(self) && function_inside1(self));
-        break;
+            return_value = (is_semicolon(self) && function_inside1(self));
+            break;
         case T_IF:
-        return_value = (
-                        condition(self) &&
-                        statement_inside(self) &&
-                        if_else1(self) &&
-                        function_inside1(self));
-        break;
+            return_value = (
+                condition(self) &&
+                statement_inside(self) &&
+                if_else1(self) &&
+                function_inside1(self)
+            );
+            break;
         case T_RETURN:
-        return_value = (expresion(self)  && statement_inside1(self));
-        break;
+            return_value = (expresion(self)  && statement_inside1(self));
+            break;
         case T_INTEGER:
         case T_STRING:
         case T_DOUBLE:
-        return_value = (is_ID(self) && sth_next(self) && function_inside1(self));
-        break;
+            return_value = (is_ID(self) && sth_next(self) && function_inside1(self));
+            break;
         case T_IDENTIFIER:
-        return_value = (fce(self) && function_inside1(self));
-        break;
+            return_value = (fce(self) && function_inside1(self));
+            break;
         default:
-        return_value = 0;
-        break;
+            return_value = 2;
+            print_unexpected(active);
+            break;
     }
     return return_value;
 }
@@ -506,7 +587,8 @@ int is_ASSIGN(ifjInter *self)
 {
     int return_value = 0;
     token * active = lexa_next_token(self->lexa_module,self->table);
-    /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie, resp, momentalne nevyuzivane vobec pouzivam pri DO a FOR ktore zatial niesu plne funkcne*/
+    /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie, resp, momentalne
+    nevyuzivane vobec pouzivam pri DO a FOR ktore zatial niesu plne funkcne*/
     if (active->type == T_ASSIGN)
     {
         return_value = 1;
