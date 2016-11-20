@@ -11,7 +11,7 @@
 #include <string.h>
 #include <stdio.h>
 
-//TODO ifj_stack_clear PLS 
+//TODO ifj_stack_clear PLS
 
 /**
  * Initialize and allocate new token_stack
@@ -318,12 +318,30 @@ token *ifj_read_string ()
  * Print input at stdout
  * - int convert to string
  * - double convert to string and print by '%g'
- * @param input string
+ * @param token stack
+ * @param number of items to pop from stack
  * @return void
 */
-void ifj_print ( const char *input )
+void ifj_print ( token_stack *inStack, int popNum )
 {
-	return;
+	token *item;
+
+	for ( int i = 0; i < popNum; ++i)
+	{
+		item = ifj_stack_pop( inStack );
+		switch ( item->dataType )
+		{
+	        case T_INTEGER:
+	            printf("%d", *((int *)item->data));
+	            break;
+	        case T_DOUBLE:
+	            printf("%g", *((double *)item->data));
+	            break;
+	        case T_STRING:
+	            printf"%s", (char *)item->data);
+	            break;
+		}
+	}
 }
 
 /**

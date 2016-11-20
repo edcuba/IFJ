@@ -226,7 +226,71 @@ symbolTable *ial_symbol_table_new()
 */
 int ifj_find ( const char *s1, const char *search)
 {
-	return 0;
+
+	if ( !s1 || !search )
+	{
+		return -1;
+	}
+
+	int inputLength = strlen(s1);
+	int searchLength = strlen(search);
+
+	if ( searchLength > inputLength ) {
+		return -1;
+	}
+
+	int kmpArray[ searchLength ];
+
+	int i = 0;
+	int j = kmpArray[0] = -1;
+	while ( i < searchLength )
+	{
+		while ( j > -1 && search[i] != search[j] )
+		{
+			j = kmpArray[j];
+		}
+
+		i++;
+		j++;
+
+		if ( search[i] == search[j] )
+		{
+			kmpArray[i] = kmpArray[j];
+		}
+		else
+		{
+			kmpArray[i] = j;
+		}
+	}
+
+	i = 0;
+	j = 0;
+
+	while ( i < inputLength )
+	{
+		if ( search[i] == s1[j] )
+		{
+			if ( i == searchLength - 1 )
+			{
+				return( j - searchLength + 1 );
+			}
+			else
+			{
+				i++;
+				j++;
+			}
+		}
+		else if ( kmpArray[i] == -1 )
+		{
+			i = 0;
+			j++;
+		}
+		else
+		{
+			i = kmpArray[i];
+		}
+	}
+	return -1;
 }
 
 /**
