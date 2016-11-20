@@ -55,7 +55,7 @@ struct _token
     symbolTable *childTable; //user-defined block/class
     int method; //prebuild method
     instruction *jump; //first instruction of user-defined block
-    token **args;
+    token_stack *args;
 
     //variable/return value
     int dataType;
@@ -69,7 +69,7 @@ struct _ifjSyna
     token *E;
     token_stack *stack;
     token_stack *help_stack;
-}
+};
 
 /**
  * Struct for stroring 3-address instruction

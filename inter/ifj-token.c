@@ -110,6 +110,9 @@ token * ifj_generate_token_int ( symbolTable *table, int value )
         item->type = T_INTEGER_C;
 
         item = table->add_item(table, item, hashname);
+        item->dataType = T_INTEGER;
+        *((int *) item->data) = value;
+
         free(hashname);
         return item;
     }
@@ -143,6 +146,9 @@ token * ifj_generate_token_double ( symbolTable *table, double value )
         item->type = T_DOUBLE_C;
 
         item = table->add_item(table, item, hashname);
+        item->dataType = T_DOUBLE;
+        *((double *) item->data) = value;
+
         free(hashname);
         return item;
     }
@@ -156,7 +162,7 @@ token * ifj_generate_token_double ( symbolTable *table, double value )
  * @param value value to store
  * @return reference to stored token
  */
-token * ifj_generate_token_str (symbolTable *table, char *value)
+token * ifj_generate_token_str ( symbolTable *table, char *value )
 {
     char * hashname = ifj_generate_hashname_str(value);
 
@@ -174,6 +180,10 @@ token * ifj_generate_token_str (symbolTable *table, char *value)
 
         item->type = T_STRING_C;
         item = table->add_item(table, item, hashname);
+
+        item->dataType = T_STRING;
+        (char *) item->data = value;
+
         free(hashname);
         return item;
     }

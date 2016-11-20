@@ -8,6 +8,7 @@
 #include "ifj-inter.h"
 #include "ifj-util.h"
 #include "ifj-lexa.h"
+#include "ifj-token.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -19,69 +20,185 @@ void run_exec ( ifjInter *self )
 
 	bool jumped = false;
 
+	// ZAPNUT DEBUG, vypisat aku intrukciu robim
 	while (instruc != NULL)
 	{
 		switch (instruc->type)
 		{
 			case I_MUL:
 			{
+				// Get tokens from stack
 				if (instruc->op1 == NULL)
 					instruc->op1 = ifj_stack_pop(stack);
 				if (instruc->op2 == NULL)
 					instruc->op2 = ifj_stack_pop(stack);
 
-				// Calculate c = a * b
-				//ifj_stack_push(c);
+				// Check if variables are inicialized
+				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
+				{
+					fprintf(stderr, "%s\n", "Variable is not inicialized");
+					return;
+				}
 
+				// Calculate (a * b)
+				token *tempToken = NULL;
+				if (instruc->op1->dataType == T_DOUBLE || instruc->op2->dataType == T_DOUBLE)
+				{
+					tempToken = ifj_generate_temp(
+						T_DOUBLE,
+						*((double *) instruc->op1->data) * *((double *) instruc->op2->data)
+						);
+				}
+				else
+				{
+					tempToken = ifj_generate_temp(
+						T_INTEGER,
+						*((int *) instruc->op1->data) * *((int *) instruc->op2->data)
+						);
+				}
+
+				// Push temp token, and free temp tokens
+				ifj_stack_push(tempToken);
+				freeTempTokens(instruc);
 				break;
 			}
 
 			case I_ADD:
 			{
+				// Get tokens from stack
 				if (instruc->op1 == NULL)
 					instruc->op1 = ifj_stack_pop(stack);
 				if (instruc->op2 == NULL)
 					instruc->op2 = ifj_stack_pop(stack);
-				
-				if (instruc->op1->type == T_STRING)
+
+				// Check if variables are inicialized
+				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
 				{
-					// Allokuje string v garbarage collectore
-					// Spoji 2 string a ulozi do C
-					//ifj_stack_push(c);
+					fprintf(stderr, "%s\n", "Variable is not inicialized");
+					return;
+				}
+				
+				// Calculate (a + b)
+				token *tempToken = NULL;
+				if (instruc->op1->dataType == T_STRING)
+				{
+					char *completString = ifj_join_strings(
+						instruc->op1->data,
+						instruc->op2->data
+						);
+
+					tempToken = ifj_generate_temp(
+						T_STRING,
+						(char *) completString
+						);
+
+					// Push temp token
+					ifj_stack_push(tempToken);
 				}
 				else
 				{
-					// Calculate a + b
-					//ifj_stack_push(c);
+					if (instruc->op1->dataType == T_DOUBLE || instruc->op2->dataType == T_DOUBLE)
+					{
+						tempToken = ifj_generate_temp(
+							T_DOUBLE,
+							*((double *) instruc->op1->data) + *((double *) instruc->op2->data)
+							);
+					}
+					else
+					{
+						tempToken = ifj_generate_temp(
+							T_INTEGER,
+							*((int *) instruc->op1->data) + *((int *) instruc->op2->data)
+							);
+					}
+
+					// Push temp token
+					ifj_stack_push(stack, tempToken);
 				}
+
+				// Free temp tokens
+				freeTempTokens(instruc);
 				break;
 			}
 
 			case I_SUB:
 			{
+				// Get tokens from stack
 				if (instruc->op1 == NULL)
 					instruc->op1 = ifj_stack_pop(stack);
 				if (instruc->op2 == NULL)
 					instruc->op2 = ifj_stack_pop(stack);
 
-				// Calculate c = a - b
-				//ifj_stack_push(stack, c);
+				// Check if variables are inicialized
+				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
+				{
+					fprintf(stderr, "%s\n", "Variable is not inicialized");
+					return;
+				}
+
+				// Calculate (a - b)
+				token *tempToken = NULL;
+				if (instruc->op1->dataType == T_DOUBLE || instruc->op2->dataType == T_DOUBLE)
+				{
+					tempToken = ifj_generate_temp(
+						T_DOUBLE,
+						*((double *) instruc->op1->data) - *((double *) instruc->op2->data)
+						);
+				}
+				else
+				{
+					tempToken = ifj_generate_temp(
+						T_INTEGER,
+						*((int *) instruc->op1->data) - *((int *) instruc->op2->data)
+						);
+				}
+
+				// Push temp token, and free temp tokens
+				ifj_stack_push(tempToken);
+				freeTempTokens(instruc);
 				break;
 			}
 
 			case I_DIV:
 			{
+				// Get tokens from stack
 				if (instruc->op1 == NULL)
 					instruc->op1 = ifj_stack_pop(stack);
 				if (instruc->op2 == NULL)
 					instruc->op2 = ifj_stack_pop(stack);
 
-				if (instruc->op2->value == 0)
-					fprintf(stderr, "%s\n", "Division by zero");
-					break;
+				// Check if variables are inicialized
+				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
+				{
+					fprintf(stderr, "%s\n", "Variable is not inicialized");
+					return;
+				}
 
-				// Calculate c = a / b
-				//ifj_stack_push(stack, c);
+				// Check division by zero
+				if ( *((int *) instruc->op2->data) == 0 )
+					fprintf(stderr, "%s\n", "Division by zero");
+					return;
+
+				// Calculate (a / b)
+				token *tempToken = NULL;
+				if (instruc->op1->dataType == T_DOUBLE || instruc->op2->dataType == T_DOUBLE)
+				{
+					tempToken = ifj_generate_temp(
+						T_DOUBLE,
+						*((double *) instruc->op1->data) / *((double *) instruc->op2->data)
+						);
+				}
+				else
+				{
+					tempToken = ifj_generate_temp(
+						T_INTEGER,
+						*((int *) instruc->op1->data) / *((int *) instruc->op2->data)
+						);
+				}
+
+				// Push temp token, and free temp tokens
+				ifj_stack_push(tempToken);
+				freeTempTokens(instruc);
 				break;
 			}
 
@@ -91,21 +208,33 @@ void run_exec ( ifjInter *self )
 				break;
 			}
 
+			//c = a, a je neinializovane
 			case I_SET:
 			{
+				// Get token from stack
 				if (instruc->op1 == NULL)
 					instruc->op1 = ifj_stack_pop(stack);
 
-				if (instruc->op1->type == T_STRING)
+				// Check if variable is inicialized
+				if (instruc->op1->data == NULL)
 				{
-					if (instruc->op3->value)
-						free((char *) instruc->op3->value);
+					fprintf(stderr, "%s\n", "Variable is not inicialized");
+					return;
+				}
 
-					instruc->op3->value = strdup(instruc->op1->value);
+				// Set value
+				if (instruc->op1->dataType == T_STRING)
+				{
+					if ((char *) instruc->op3->data)
+						free((char *) instruc->op3->data);
+
+					//EDO
+					instruc->op3->data = strdup(instruc->op1->data);
 				}
 				else
 				{
-					instruc->op3->value = instruc->op1->value;
+					//EDO
+					instruc->op3->data = instruc->op1->data;
 				}
 
 				break;
@@ -115,9 +244,9 @@ void run_exec ( ifjInter *self )
 			{
 				// Daco urobit s argumentmy na stacku, _dakam_ = ifj_stack_pop(stack);
 
-				ifj_stack_push(stack, instruc->op1);	// token s adresou nasledujucej instrukcie v lin.zozname
+				ifj_stack_push(stack, instruc->op1);
 
-				instruc = instruc->op1->jump;	// goto(a->label)
+				instruc = instruc->op1->jump;
 				jumped = true;
 				break;
 			}
@@ -133,7 +262,7 @@ void run_exec ( ifjInter *self )
 			{
 				token *output = ifj_stack_pop(stack);
 
-				if (output->value)
+				if ( *((int *)output->data) )
 				{
 					instruc = instruc->op3->jump;
 					jumped = true;
@@ -141,11 +270,22 @@ void run_exec ( ifjInter *self )
 				break;
 			}
 
+			// Tak isto op1
 			case I_RETURN:
 			{
 				token *label = ifj_stack_pop(stack);
+
 				if (instruc->op1 != NULL)
+				{
+					// Check if variable is inicialized
+					if (instruc->op1->data == NULL)
+					{
+						fprintf(stderr, "%s\n", "Variable is not inicialized");
+						return;
+					}
+					
 					ifj_stack_push(stack, instruc->op1);
+				}
 				
 				instruc = label->jump;
 				jumped = true;
@@ -155,10 +295,15 @@ void run_exec ( ifjInter *self )
 
 			case I_CONDITION:
 			{
-				bool output = checkCondition(instruc->op1, instruc->op2, instruc->op3);
+				int output = checkCondition(instruc->op1, instruc->op2, instruc->op3);
 				output = !output;
-				//Create TMP token with bool value(integer)
-				//ifj_stack_push(stack, outputToken);
+
+				token *tempToken = ifj_generate_temp(
+					T_INTEGER,
+					output
+					);
+
+				ifj_stack_push(stack, tempToken);
 				break;
 			}
 
@@ -183,31 +328,47 @@ void run_exec ( ifjInter *self )
 	ifj_stack_drop(stack);
 }
 
-bool checkCondition (	token *a,
+int checkCondition (	token *a,
 						token *b,
 						token *rel )
 {
 	switch(rel->type)
 	{
+		//EDO
 		case T_LESS:
-			return a->value < b->value;
+			return a->data < b->data;
 			break;
 		case T_GREATER:
-			return a->value > b->value;
+			return a->data > b->data;
 			break;
 
 		case T_LESS_EQUAL:
-			return a->value <= b->value;
+			return a->data <= b->data;
 			break;
 		case T_GREATER_EQUAL:
-			return a->value >= b->value;
+			return a->data >= b->data;
 			break;
 
 		case T_EQUAL:
-			return a->value == b->value;
+			return a->data == b->data;
 			break;
 		case T_NOT_EQUAL:
-			return a->value != b->value;
+			return a->data != b->data;
 			break;
+	}
+}
+
+void freeTempTokens (instruction *inputInstruc)
+{
+	if (inputInstruc->op1 && inputInstruc->op1->type == T_TMP)
+	{
+		ifj_token_free(inputInstruc->op1);
+		inputInstruc->op1 = NULL;
+	}
+
+	if (inputInstruc->op2 && inputInstruc->op2->type == T_TMP)
+	{
+		ifj_token_free(inputInstruc->op2);
+		inputInstruc->op2 = NULL;
 	}
 }

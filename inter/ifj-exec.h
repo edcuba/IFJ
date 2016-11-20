@@ -30,5 +30,6 @@ void run_exec ( ifjInter *self );
 bool checkCondition (	token *a,
 						token *b,
 						token *rel );
+void freeTempTokens ( instruction *inputInstruc );
 
 #endif

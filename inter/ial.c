@@ -412,6 +412,11 @@ static char * ifj_sort_divide( const char *s1)
 */
 char * ifj_sort( const char *s1 )
 {
+	if (strlen(s1) == 0)
+	{
+		return NULL;
+	}
+
 	if (strlen(s1) == 1)
 	{
 		return strdup(s1);

@@ -140,22 +140,31 @@ ifjInter* ifj_inter_new()
  * Drop token not connected to hash structure
  * @param item token
  */
-void ifj_token_free( token *item)
+void ifj_token_free( token *item )
 {
     if(!item)
         return;
 
-    if(item->value)
-        free( (void*) item->value);
+    if (item->value == item->data)
+    {
+        free(item->data);
+    }
+    else
+    {
+        if(item->value)
+        {
+            free( (void*) item->value);
+        }
+
+        if(item->data)
+        {
+            free(item->data);
+        }
+    }
 
     if(item->childTable)
     {
         ial_symbol_table_drop(item->childTable);
-    }
-
-    if(item->data)
-    {
-        free(item->data);
     }
 
     if(item->args)
