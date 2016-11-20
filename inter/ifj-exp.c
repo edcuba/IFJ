@@ -737,7 +737,6 @@ int expresion(ifjInter *self, symbolTable *table)
             ifj_stack_push(syna->stack,active);
             top_stack = ifj_stack_top(syna->stack);
             active = lexa_next_token(self->lexa_module, table);
-            /* TODO EDO   to iste co predchadzajuca funckia*/
             break;
 
 
@@ -762,7 +761,8 @@ int expresion(ifjInter *self, symbolTable *table)
             to je ID funkcie a predat ho rekurzivnemu sestupu
             + nezabudnut pridat "(" */
             case  T_COMMA:
-                return function_parameters_for_exp(self); //TODO XXX
+            //FIXME volanie funkcie ako exp, budem potrebovať identifikátor funkcie
+                return function_parameters_for_exp(self, table); //TODO XXX
             break;
             case  T_END:
                 return -1;
