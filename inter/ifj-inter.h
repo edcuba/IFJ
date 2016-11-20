@@ -71,7 +71,7 @@ struct _ifjSyna
     token_stack *help_stack;
     int **predictExpresion;
     int **predictCondition;
-}
+};
 
 
 /**
@@ -107,7 +107,7 @@ struct _ifjInter
     int     ( *sema )( ifjInter* );
     ifjSyna *syna;
     token *pushBack;
-    int return_code;
+    int returnCode;
 };
 
 ifjInter    *ifj_inter_new();

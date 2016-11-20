@@ -94,7 +94,7 @@ ifjSyna *ifj_syna_new(ifjInter* inter)
     self->t_less =  ifj_generate_token(inter->table, T_LARRAY);
     self->stack  = ifj_stack_new();
     self->help_stack = ifj_stack_new();
-    self->E = ifj_generate_token(self->table, E_TYPE);
+    self->E = ifj_generate_token(inter->table, E_TYPE);
     self->predictCondition = predictCondition;
     self->predictExpresion = predictExpresion;
     return self;
@@ -133,7 +133,7 @@ ifjInter* ifj_inter_new()
     self->code = ifj_list_new();
     ifj_global_symbol_table_init(self);
     self->stack = ifj_stack_new();
-    self->return_code = 0;
+    self->returnCode = 0;
     self->syna = ifj_syna_new(self);
     self->pushBack = NULL;
     return self;

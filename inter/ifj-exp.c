@@ -728,7 +728,8 @@ int expresion(ifjInter *self, symbolTable *table)
             + nezabudnut pridat "(" */
             case  T_COMMA:
             //FIXME volanie funkcie ako exp, budem potrebovať identifikátor funkcie
-                return function_parameters_for_exp(self, table); //TODO XXX
+            //TODO JANY skontroluj toto...
+                return function_parameters_for_exp(self, table, ifj_stack_top(syna->stack)); //TODO XXX
             break;
             case  T_END:
                 return -1;
@@ -882,92 +883,92 @@ int expresion(ifjInter *self, symbolTable *table)
                         break;
 
                         case T_SUBTRACT:
-
-                        ifj_stack_pop(syna->help_stack);
-                        top_on_help_stack = ifj_stack_top(syna->help_stack);
-                        if (top_on_help_stack == syna->E)
-                        {
                             ifj_stack_pop(syna->help_stack);
-                            if(ifj_stack_empty(syna->help_stack))
+                            top_on_help_stack = ifj_stack_top(syna->help_stack);
+                            if (top_on_help_stack == syna->E)
                             {
-                                top_stack = ifj_stack_top(syna->stack);
-                                ifj_stack_push(syna->stack, syna->E);
-                                if(self->debugMode)
+                                ifj_stack_pop(syna->help_stack);
+                                if(ifj_stack_empty(syna->help_stack))
                                 {
-                                    fprintf(stderr, "E --> E - E\n");
+                                    top_stack = ifj_stack_top(syna->stack);
+                                    ifj_stack_push(syna->stack, syna->E);
+                                    if(self->debugMode)
+                                    {
+                                        fprintf(stderr, "E --> E - E\n");
+                                    }
+                                    else
+                                    {
+                                        return -1;
+                                    }
+
                                 }
                                 else
                                 {
                                     return -1;
                                 }
-
                             }
                             else
                             {
                                 return -1;
                             }
-                        }
-                        else
-                        {
-                            return -1;
-                        }
-                        break;
-                    case T_DIVIDE:ifj_stack_pop(syna->help_stack);
-                        top_on_help_stack = ifj_stack_top(syna->help_stack);
-                        if (top_on_help_stack == syna->E)
-                        {
+                            break;
+                        case T_DIVIDE:
                             ifj_stack_pop(syna->help_stack);
-                            if(ifj_stack_empty(syna->help_stack))
+                            top_on_help_stack = ifj_stack_top(syna->help_stack);
+                            if (top_on_help_stack == syna->E)
                             {
-                                top_stack = ifj_stack_top(syna->stack);
-                                ifj_stack_push(syna->stack, syna->E);
-                                if(self->debugMode)
+                                ifj_stack_pop(syna->help_stack);
+                                if(ifj_stack_empty(syna->help_stack))
                                 {
-                                    fprintf(stderr, "E --> E / E\n");
+                                    top_stack = ifj_stack_top(syna->stack);
+                                    ifj_stack_push(syna->stack, syna->E);
+                                    if(self->debugMode)
+                                    {
+                                        fprintf(stderr, "E --> E / E\n");
 
+                                    }
+                                }
+                                else
+                                {
+                                    return -1;
                                 }
                             }
                             else
                             {
                                 return -1;
                             }
-                        }
-                        else
-                        {
-                            return -1;
-                        }
-                        break;
-                    case T_MULTIPLY:
-                        ifj_stack_pop(syna->help_stack);
-                        top_on_help_stack = ifj_stack_top(syna->help_stack);
-                        if (top_on_help_stack == syna->E)
-                        {
+                            break;
+                        case T_MULTIPLY:
                             ifj_stack_pop(syna->help_stack);
-                            if(ifj_stack_empty(syna->help_stack))
+                            top_on_help_stack = ifj_stack_top(syna->help_stack);
+                            if (top_on_help_stack == syna->E)
                             {
-                                top_stack = ifj_stack_top(syna->stack);
-                                ifj_stack_push(syna->stack, syna->E);
-                                if(self->debugMode)
+                                ifj_stack_pop(syna->help_stack);
+                                if(ifj_stack_empty(syna->help_stack))
                                 {
-                                    fprintf(stderr, "E --> E * E\n");
+                                    top_stack = ifj_stack_top(syna->stack);
+                                    ifj_stack_push(syna->stack, syna->E);
+                                    if(self->debugMode)
+                                    {
+                                        fprintf(stderr, "E --> E * E\n");
+                                    }
+                                }
+                                else
+                                {
+                                    return -1;
                                 }
                             }
                             else
                             {
                                 return -1;
                             }
-                        }
-                        else
-                        {
+                            break;
+                        default:
                             return -1;
-                        }
-                        break;
-                    default:
-                        return -1;
-                        break;
+                            break;
                     }
-                break;
-                    default:
+                    break;
+                default:
                     return -1;
                     break;
             }

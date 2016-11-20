@@ -77,7 +77,7 @@ void run_exec ( ifjInter *self )
 					fprintf(stderr, "%s\n", "Variable is not inicialized");
 					return;
 				}
-				
+
 				// Calculate (a + b)
 				token *tempToken = NULL;
 				if (instruc->op1->dataType == T_STRING)
@@ -234,6 +234,7 @@ void run_exec ( ifjInter *self )
 				else
 				{
 					//EDO
+					// TODO FIXME Rozlíšiť dátové typy a robiť to cez dereferenciu
 					instruc->op3->data = instruc->op1->data;
 				}
 
@@ -283,10 +284,10 @@ void run_exec ( ifjInter *self )
 						fprintf(stderr, "%s\n", "Variable is not inicialized");
 						return;
 					}
-					
+
 					ifj_stack_push(stack, instruc->op1);
 				}
-				
+
 				instruc = label->jump;
 				jumped = true;
 
@@ -335,6 +336,7 @@ int checkCondition (	token *a,
 	switch(rel->type)
 	{
 		//EDO
+		//TODO FIXME porovnávaš pointery
 		case T_LESS:
 			return a->data < b->data;
 			break;

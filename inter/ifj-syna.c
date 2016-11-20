@@ -213,33 +213,44 @@ int is_ID(ifjInter *self, symbolTable *table, token **item)
         return_value = 4;
     }
     *item = active;
-    self->return_code = return_value;
+    self->returnCode = return_value;
     return return_value;
 }
 
-int is_ID_number(ifjInter *self)
+/**
+ * Resolving args for called functions. Fetch next token, expects "arg" or ")"
+ * @param self global structure
+ * @param table symbol table for current function (not called one!)
+ * @param expected prototype of expected argument for type check
+ * @return 0 if successfull
+ **/
+int next_param(ifjInter *self, symbolTable *table, token *expected)
 {
-  int return_value = 0;
-  token * active = lexa_next_token(self->lexa_module,self->table);
-  /* TODO EDO  pouziva sa iba pri volani funkcie,
-  kontroluje ci je v argumentoch iba to co tam moze byt (syntakticky nie sematicky)
-  , mozes dorobit aj sematicku kontrolu ci sedia typy tak ako je v deklaracii,
-  funkcie s tym suvisiace next_function_parameters, function_parameters,
-  a  function_parameters_for_exp, next_function_parameters_for_exp
-  presne to iste len to 2.  komunikuje  s exp.c, pre teba by to nemalo znamenat rozdiel*/
-  if (active->type == T_IDENTIFIER ||
-      active->type == T_INTEGER_C ||
-      active->type == T_DOUBLE_C ||
-      active->type == T_STRING_C)
-
-  {
-       return_value = 1;
-  }
-  else
-  {
-       return_value = 0;
-  }
-  return return_value;
+    token * active = lexa_next_token(self->lexa_module, table);
+    if (active->type == T_IDENTIFIER)
+    {
+        int rc = resolve_identifier(self, table, &active, 0);
+        if(rc)
+        {
+            self->returnCode = rc;
+            return rc;
+        }
+        if(active->dataType == expected->dataType)
+        {
+            return 0;
+        }
+    }
+    else if(active->type == T_INTEGER_C ||
+            active->type == T_DOUBLE_C ||
+            active->type == T_STRING_C)
+    {
+        if(active->dataType == expected->dataType)
+        {
+            return 0;
+        }
+    }
+    print_unexpected(active);
+    return 4;
 }
 
 /**
@@ -654,23 +665,6 @@ int is_LBLOCK(ifjInter *self)
     return return_value;
 }
 
-int statement_inside(ifjInter *self)
-{
-    /*int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
-    if (active->type == T_LBLOCK)
-    {
-        return_value = statement_inside1(self);
-    }
-    else
-    {
-        return_value = 0;
-    }
-    return return_value;*/
-    /* TODO JANY   uprav to je to zbytocne*/
-    return statement_inside1(self);
-}
-
 /**
  * Inside statement (while, if, for ...)
  * - no variable declaration here!
@@ -739,7 +733,7 @@ int statement_inside1(ifjInter *self, symbolTable *table)
             break;
         case T_IF:
             return_value = !condition(self, table) &&
-                           !statement_inside(self, table) &&
+                           !statement_inside1(self, table) &&
                            !if_else1(self, table) &&
                            !statement_inside1(self, table);
             break;
@@ -748,8 +742,12 @@ int statement_inside1(ifjInter *self, symbolTable *table)
                            !statement_inside1(self, table);
             break;
         case T_IDENTIFIER:
-            return_value = !fce(self) &&
-                           !statement_inside1(self, table);
+            return_value = resolve_identifier(self, table, &active, 0);
+            if(!return_value)
+            {
+                return_value = !fce(self, table, active) &&
+                               !statement_inside1(self, table);
+            }
             break;
         default:
             print_unexpected(active);
@@ -759,94 +757,83 @@ int statement_inside1(ifjInter *self, symbolTable *table)
     return return_value;
 }
 
-//TODO XXX tu som skoncil
-int fce(ifjInter *self)
+/**
+ * After identifier. Expects "(" - func or "=" for expresion
+ * @param self global structure
+ * @param table symbol table for current function_parameters
+ * @param last token/identifier
+ * @return 0 if successful
+ **/
+int fce(ifjInter *self, symbolTable *table, token *item)
 {
-  /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type == T_LPAREN)
     {
-        return_value = (function_parameters(self) && !is_semicolon(self));
+        return function_parameters(self) && !is_semicolon(self);
     }
     else if (active->type == T_ASSIGN)
     {
-        return_value = (expresion(self) );
+        //TODO typing + instruction
+        return expresion(self);
     }
-    else if (active->type == T_DOT) //TODO JANY ifj16.print atd sa berie ako jedno ID, tzn mozeme vyhodit aj s method.call
+    print_unexpected(active);
+    return 2;
+}
+
+/**
+ * Resolving functon call with return
+ * fetch next token. Expect ")" or next function param
+ * TODO We should check argument count and type here
+ * @param self global structure
+ * @param table symbol table for current function (not called one!)
+ * @param item called function structure
+ * @return 0 if successful
+ **/
+int function_parameters(ifjInter *self, symbolTable *table, token *item)
+{
+    int return_value = 0;
+    token * active = lexa_next_token(self->lexa_module, table);
+    if (active->type == T_IDENTIFIER ||
+        active->type == T_INTEGER_C ||
+        active->type == T_DOUBLE_C ||
+        active->type == T_STRING_C)
     {
-        return_value =  (is_ID(self) && method_call(self));
+        return_value = next_function_parameters_for_exp(self, table, item);
     }
-    else
+    else if (active->type != T_RPAREN)
     {
-        return_value = 0;
+        print_unexpected(active);
+        return_value = 2;
     }
     return return_value;
 }
 
-
-int method_call(ifjInter *self)
+/**
+ * Resolving function call, fetch next token. Expect ");" or next func param
+ * TODO We should check argument count and type here
+ * @param self global structure
+ * @param table symbol table for current function (not called one!)
+ * @param item called function structure
+ * @return 0 if successful
+ **/
+int next_function_parameters(ifjInter *self, symbolTable *table, token *item)
 {
-  /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
     int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
-    if (active->type == T_LPAREN)
-    {
-        return_value = (function_parameters(self)  && !is_semicolon(self));
-    }
-    else if (active->type == T_ASSIGN)
-    {
-        return_value = (expresion(self) );
-    }
-    else
-    {
-        return_value = 0;
-    }
-    return return_value;
-
-}
-
-
-int function_parameters(ifjInter *self)
-{
-  /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
-    int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
+    token *active = lexa_next_token(self->lexa_module,self->table);
+    token *expected = NULL; //TODO
     if (active->type == T_RPAREN)
     {
-        return_value = 1;
-    }
-    else if (active->type == T_IDENTIFIER ||
-             active->type == T_INTEGER_C ||
-             active->type == T_DOUBLE_C ||
-             active->type == T_STRING_C)
-    {
-        return_value = next_function_parameters(self);
-    }
-    else
-    {
-        return_value = 0;
-    }
-    return return_value;
-}
-
-
-int next_function_parameters(ifjInter *self)
-{
-  /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
-    int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
-    if (active->type == T_RPAREN)
-    {
-        return_value = 1;
+        return_value = !is_semicolon(self);
     }
     else if (active->type == T_COMMA)
     {
-        return_value = (is_ID_number(self) && next_function_parameters(self));
+        return_value = next_param(self, table, expected) &&
+                       next_function_parameters_for_exp(self);
     }
     else
     {
-        return_value = 0;
+        print_unexpected(active);
+        return_value = 2;
     }
     return return_value;
 }
@@ -876,6 +863,7 @@ int sth_next(ifjInter *self, symbolTable *table, token *item)
     return return_value;
 }
 
+//TODO XXX JANY načo je toto?
 int rel_operator(ifjInter *self)
 {
   /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
@@ -909,45 +897,66 @@ int syna_run( ifjInter *self)
     return return_value;
 }
 
-int function_parameters_for_exp(ifjInter *self)
+/**
+ * Resolving functon call with return
+ * fetch next token. Expect ")" or next function param
+ * TODO We should check argument count and type here
+ * @param self global structure
+ * @param table symbol table for current function (not called one!)
+ * @param item called function structure
+ * @return 0 if successful
+ * TODO resolve return
+ **/
+int function_parameters_for_exp(ifjInter *self,
+                                symbolTable *table,
+                                token *item)
 {
-  /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
     int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
-    if (active->type == T_RPAREN)
+    token * active = lexa_next_token(self->lexa_module, table);
+    if (active->type == T_IDENTIFIER ||
+        active->type == T_INTEGER_C ||
+        active->type == T_DOUBLE_C ||
+        active->type == T_STRING_C)
     {
-        return_value = !is_semicolon(self);
+        return_value = next_function_parameters_for_exp(self, table, item);
     }
-    else if (active->type == T_IDENTIFIER ||
-             active->type == T_INTEGER_C ||
-             active->type == T_DOUBLE_C ||
-             active->type == T_STRING_C)
+    else if (active->type != T_RPAREN)
     {
-        return_value = next_function_parameters_for_exp(self);
-    }
-    else
-    {
-        return_value = 0;
+        print_unexpected(active);
+        return_value = 2;
     }
     return return_value;
 }
 
-int next_function_parameters_for_exp(ifjInter *self)
+/**
+ * Resolving function call with return
+ * fetch next token. Expect ");" or next func param
+ * TODO We should check argument count and type here
+ * @param self global structure
+ * @param table symbol table for current function (not called one!)
+ * @param item called function structure
+ * @return 0 if successful
+ **/
+int next_function_parameters_for_exp(ifjInter *self,
+                                     symbolTable *table,
+                                     token *item)
 {
-  /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
     int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
+    token *active = lexa_next_token(self->lexa_module,self->table);
+    token *expected = NULL; //TODO
     if (active->type == T_RPAREN)
     {
         return_value = !is_semicolon(self);
     }
     else if (active->type == T_COMMA)
     {
-        return_value = (is_ID_number(self) && next_function_parameters_for_exp(self));
+        return_value = next_param(self, table, expected) &&
+                       next_function_parameters_for_exp(self);
     }
     else
     {
-        return_value = 0;
+        print_unexpected(active);
+        return_value = 2;
     }
     return return_value;
 }
