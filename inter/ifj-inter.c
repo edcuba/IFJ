@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ifj-inter.h"
+#include "ifj-tables.h"
 #include <string.h>
 
 /**
@@ -94,6 +95,8 @@ ifjSyna *ifj_syna_new(ifjInter* inter)
     self->stack  = ifj_stack_new();
     self->help_stack = ifj_stack_new();
     self->E = ifj_generate_token(self->table, E_TYPE);
+    self->predictCondition = predictCondition;
+    self->predictExpresion = predictExpresion;
     return self;
 }
 

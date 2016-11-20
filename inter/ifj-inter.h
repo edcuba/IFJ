@@ -69,7 +69,10 @@ struct _ifjSyna
     token *E;
     token_stack *stack;
     token_stack *help_stack;
-};
+    int **predictExpresion;
+    int **predictCondition;
+}
+
 
 /**
  * Struct for stroring 3-address instruction
