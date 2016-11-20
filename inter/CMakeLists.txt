@@ -21,7 +21,8 @@ set(modules_sources
         ifj-util.c
         ifj-util.h
         ifj-exec.c
-        ifj-exec.h)
+        ifj-exec.h
+        ifj-tables.h)
 
 add_library(modules ${modules_sources})
 
