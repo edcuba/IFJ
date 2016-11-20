@@ -22,6 +22,10 @@ void ifj_inter_free(ifjInter *self)
     ifj_lexa_free(self->lexa_module);
     ifj_drop_list(self->code);
     ifj_stack_drop(self->stack);
+    if(self->pushBack)
+    {
+        ifj_token_free(self->pushBack);
+    }
     self->table = NULL;
     free(self);
 }
@@ -128,6 +132,7 @@ ifjInter* ifj_inter_new()
     self->stack = ifj_stack_new();
     self->return_code = 0;
     self->syna = ifj_syna_new(self);
+    self->pushBack = NULL;
     return self;
 }
 

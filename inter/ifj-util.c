@@ -310,8 +310,17 @@ token *ifj_read_double ()
 */
 token *ifj_read_string ()
 {
-	//TODO
-	return NULL;
+    dyn_buffer *buffer = dyn_buffer_init(128);
+    int ch;
+    while ((ch = getchar()) != EOF) {
+        if (ch == '\n') {
+            break;
+        }
+        dyn_buffer_append(buffer, ch);
+    }
+    token *t = ifj_generate_temp(T_STRING, dyn_buffer_get_content(buffer));
+    dyn_buffer_free(buffer);
+	return t;
 }
 
 /**

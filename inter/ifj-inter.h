@@ -103,6 +103,7 @@ struct _ifjInter
     int     ( *load )( int, char**, ifjInter* );
     int     ( *sema )( ifjInter* );
     ifjSyna *syna;
+    token *pushBack;
     int return_code;
 };
 

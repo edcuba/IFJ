@@ -239,7 +239,7 @@ token *ifj_generate_temp(int dataType, void *data)
             *((double *) item->value) = *((double *) data);
             break;
         case T_STRING:
-            item->value = data;
+            item->value = strdup(data);
             break;
     }
     return item;
