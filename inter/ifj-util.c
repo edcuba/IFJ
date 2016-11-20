@@ -11,8 +11,6 @@
 #include <string.h>
 #include <stdio.h>
 
-//TODO ifj_stack_clear PLS
-
 /**
  * Initialize and allocate new token_stack
  * @return allocated token_stack
@@ -113,6 +111,16 @@ void ifj_stack_drop ( token_stack *inStack )
 {
 	free(inStack->elements);
 	free(inStack);
+}
+
+/**
+ * Clear input stack
+*/
+void ifj_stack_clear ( token_stack *inStack )
+{
+	free(inStack->elements);
+	inStack->elements = malloc(inStack->size * sizeof(token *));
+	inStack->top = -1;
 }
 
 /**

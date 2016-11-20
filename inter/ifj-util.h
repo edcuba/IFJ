@@ -36,6 +36,7 @@ token *ifj_stack_top ( token_stack *inStack );
 bool ifj_stack_full ( token_stack *inStack );
 bool ifj_stack_empty ( token_stack *inStack );
 void ifj_stack_drop ( token_stack *inStack );
+void ifj_stack_clear ( token_stack *inStack );
 
 // Linear list functions
 linear_list *ifj_list_new ();
