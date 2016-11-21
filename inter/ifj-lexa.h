@@ -104,6 +104,7 @@ enum lexa_state {
 
 struct _ifj_lexa {
     FILE *inputFile;
+    unsigned line_number;
     symbolTable *reserved_words;
     dyn_buffer *b_str;
     dyn_buffer *b_num;

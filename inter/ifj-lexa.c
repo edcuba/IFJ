@@ -22,6 +22,7 @@ ifj_lexa *ifj_lexa_init() {
     l->reserved_words = ial_symbol_table_new();
     l->b_str = dyn_buffer_init(64);
     l->b_num = dyn_buffer_init(16);
+    l->line_number = 1;
 
     ifj_lexa_add_reserved(l, "while", T_WHILE);
     ifj_lexa_add_reserved(l, "for", T_FOR);
@@ -105,6 +106,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     state = LS_WORD;
                     break;
                 } else if (isspace(newChar)) {
+                    if (newChar == '\n') l->line_number++;
                     break;
                 } else if (newChar == EOF) {
                     t = ifj_generate_token(table, T_END);
@@ -181,6 +183,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                 break;
             case LS_COMMENT:
                 if (newChar == '\n') {
+                    l->line_number++;
                     state = LS_START;
                     break;
                 } else if (newChar == EOF) {
