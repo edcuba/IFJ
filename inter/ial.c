@@ -6,6 +6,8 @@
  */
 
 #include "ial.h"
+#include "ifj-lexa.h"
+#include "ifj-token.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -217,16 +219,8 @@ symbolTable *ial_symbol_table_new()
     return table;
 }
 
-/**
- * Find first occurrence of string search in string s1
- * - use Knuth-Morris-Prattuv algorithm
- * @param input string
- * @param substring to be searched
- * @return -1 if search string is not found, index if successfully found
-*/
-int ifj_find ( const char *s1, const char *search)
+static int ifj_find_help ( const char *s1, const char *search )
 {
-
 	if ( !s1 || !search )
 	{
 		return -1;
@@ -291,6 +285,20 @@ int ifj_find ( const char *s1, const char *search)
 		}
 	}
 	return -1;
+}
+
+/**
+ * Find first occurrence of string search in string s1
+ * - use Knuth-Morris-Prattuv algorithm
+ * @param input string
+ * @param substring to be searched
+ * @return -1 if search string is not found, index if successfully found
+*/
+token *ifj_find ( const char *s1, const char *search)
+{
+	int result = ifj_find_help(s1, search);
+	token *temp = ifj_generate_temp(T_INTEGER, &result);
+	return temp;
 }
 
 /**
@@ -404,13 +412,7 @@ static char * ifj_sort_divide( const char *s1)
 	return ifj_sort_help(l1p, l2p);
 }
 
-/**
- * Sort ordinary value of chars in inputString
- * - use List-Merge sort
- * @param input string
- * @return sorted string or NULL if error
-*/
-char * ifj_sort( const char *s1 )
+static char * ifj_sort_help_help( const char *s1 )
 {
 	if (strlen(s1) == 0)
 	{
@@ -425,4 +427,17 @@ char * ifj_sort( const char *s1 )
 	{
 		return ifj_sort_divide(s1);
 	}
+}
+
+/**
+ * Sort ordinary value of chars in inputString
+ * - use List-Merge sort
+ * @param input string
+ * @return sorted string or NULL if error
+*/
+token *ifj_sort( const char *s1 )
+{
+	char *result = ifj_sort_help_help(s1);
+	token *temp = ifj_generate_temp(T_STRING, (char *) result);
+	return temp;
 }
