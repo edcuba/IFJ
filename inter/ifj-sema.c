@@ -31,6 +31,7 @@ int resolve_identifier(ifjInter *self,
                    (char *)seek->value);
             ifj_token_free(seek);
             *item = NULL;
+            self->returnCode = 3;
             return 3;
         }
 
@@ -56,6 +57,7 @@ int resolve_identifier(ifjInter *self,
             free(id_id);
             ifj_token_free(seek);
             *item = NULL;
+            self->returnCode = 3;
             return 3;
         }
 
@@ -73,6 +75,7 @@ int resolve_identifier(ifjInter *self,
             free(id_id);
             ifj_token_free(seek);
             *item = NULL;
+            self->returnCode = 3;
             return 3;
         }
 
@@ -92,6 +95,7 @@ int resolve_identifier(ifjInter *self,
             ifj_token_free(seek);
             *item = NULL;
             fprintf(stderr, "ERROR: Identifier \"%s\" redefined!\n", (char*)seek->value);
+            self->returnCode = 3;
             return 3;
         }
         else
@@ -119,6 +123,7 @@ int resolve_identifier(ifjInter *self,
         fprintf(stderr, "ERROR: Identifier \"%s\" undefined!\n", (char*)seek->value);
         ifj_token_free(seek);
         *item = NULL;
+        self->returnCode = 3;
         return 3;
     }
 }

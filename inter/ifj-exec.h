@@ -26,8 +26,8 @@
 #define I_CONDITION 5010
 #define I_LABEL 5020
 
-void run_exec ( ifjInter *self );
-bool checkCondition (	token *a,
+int run_exec ( ifjInter *self );
+int checkCondition (	token *a,
 						token *b,
 						token *rel );
 void freeTempTokens ( instruction *inputInstruc );

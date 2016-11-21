@@ -56,25 +56,21 @@ příkazové řádky atd.).*/
  **/
 int next_class(ifjInter *self)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, self->table);
     if ((active->type) == T_END)
     {
-        return_value =  0;
+        return 0;
     }
     else if (active->type == T_CLASS && !is_ID(self, self->table, &active))
     {
         active->childTable = ial_symbol_table_new();
         active->childTable->parent = self->table;
-        return_value = class_inside(self, active->childTable) &&
-                       next_class(self);
+        return !class_inside(self, active->childTable) &&
+               !next_class(self);
     }
-    else
-    {
-        print_unexpected(self, active);
-        return_value = 2;
-    }
-    return return_value;
+
+    print_unexpected(self, active);
+    return 2;
 }
 
 /**
@@ -85,19 +81,14 @@ int next_class(ifjInter *self)
  **/
 int class_inside(ifjInter *self, symbolTable *table)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type == T_LBLOCK)
     {
-        return_value = class_inside1(self, table);
-    }
-    else
-    {
-        print_unexpected(self, active);
-        return_value = 2;
+        return class_inside1(self, table);
     }
 
-    return return_value;
+    print_unexpected(self, active);
+    return 2;
 }
 
 /**
@@ -108,23 +99,23 @@ int class_inside(ifjInter *self, symbolTable *table)
  **/
 int class_inside1(ifjInter *self, symbolTable *table)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type != T_RBLOCK)
     {
         if (active->type == T_STATIC)
         {
-            return_value = !get_type_with_void(self, &active) &&
-                           !is_ID(self, table, &active) &&
-                           !class_inside2(self, table, active);
+            return !get_type_with_void(self, &active) &&
+                   !is_ID(self, table, &active) &&
+                   !class_inside2(self, table, active);
         }
         else
         {
             print_unexpected(self, active);
-            return_value = 2;
+            return 2;
         }
     }
-    return return_value;
+
+    return 0;
 }
 
 /**
@@ -135,47 +126,43 @@ int class_inside1(ifjInter *self, symbolTable *table)
  **/
 int is_ID(ifjInter *self, symbolTable *table, token **item)
 {
-    int return_value = 0;
     token *active = lexa_next_token(self->lexa_module, table);
     token *prev = *item;
+    *item = active;
     if (active->type == T_IDENTIFIER)
     {
         switch (prev->type)
         {
             //declarations
             case T_CLASS:
-                return_value = resolve_identifier(self, table, &active, 1);
-                break;
+                return resolve_identifier(self, table, &active, 1);
+
             case T_INTEGER:
                 active->dataType = T_INTEGER;
-                return_value = resolve_identifier(self, table, &active, 1);
-                break;
+                return resolve_identifier(self, table, &active, 1);
+
             case T_DOUBLE:
                 active->dataType = T_DOUBLE;
-                return_value = resolve_identifier(self, table, &active, 1);
-                break;
+                return resolve_identifier(self, table, &active, 1);
+
             case T_STRING:
                 active->dataType = T_STRING;
-                return_value = resolve_identifier(self, table, &active, 1);
-                break;
+                return resolve_identifier(self, table, &active, 1);
+
             case T_VOID:
                 active->dataType = T_VOID;
-                return_value = resolve_identifier(self, table, &active, 1);
-                break;
+                return resolve_identifier(self, table, &active, 1);
+
             //not a declaration
             default:
-                return_value = resolve_identifier(self, table, &active, 0);
-                break;
+                return resolve_identifier(self, table, &active, 0);
+
         }
     }
-    else
-    {
-        print_unexpected(self, active);
-        return_value = 4;
-    }
-    *item = active;
-    self->returnCode = return_value;
-    return return_value;
+
+    print_unexpected(self, active);
+    self->returnCode = 4;
+    return 4;
 }
 
 /**
@@ -214,6 +201,7 @@ int next_param(ifjInter *self, symbolTable *table, token *expected)
         print_mistyped(self, active, expected);
         return 4;
     }
+
     print_unexpected(self, active);
     return 2;
 }
@@ -228,35 +216,31 @@ int next_param(ifjInter *self, symbolTable *table, token *expected)
  **/
 int class_inside2(ifjInter *self, symbolTable *table, token *item)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, self->table);
     //function
     if (active->type == T_LPAREN)
     {
         item->childTable = ial_symbol_table_new();
         item->childTable->parent = table;
-        return_value = !function_declar(self, item) &&
-                       !function_inside(self, item) &&
-                       !class_inside1(self, table);
+        return !function_declar(self, item) &&
+               !function_inside(self, item) &&
+               !class_inside1(self, table);
     }
     //variable
     else if (active->type == T_SEMICOLON)
     {
         //check if not void here
-        return_value = class_inside1(self, table);
+        return class_inside1(self, table);
     }
     else if (active->type == T_ASSIGN)
     {
-        return_value = !expresion(self, table) &&
-                       !class_inside1(self, table);
+        return !expresion(self, table) &&
+               !class_inside1(self, table);
     }
     //some garbage
-    else
-    {
-        print_unexpected(self, active);
-        return_value = 2;
-    }
-    return return_value;
+
+    print_unexpected(self, active);
+    return 2;
 }
 
 /**
@@ -267,23 +251,19 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
  **/
 int get_type_with_void(ifjInter *self, token **item)
 {
-    int return_value = 2;
     token * active = lexa_next_token(self->lexa_module, self->table);
+    *item = active;
     switch(active->type)
     {
         case T_INTEGER:
         case T_DOUBLE:
         case T_STRING:
         case T_VOID:
-            return_value = 0;
-            break;
+            return 0;
     }
-    if(return_value)
-    {
-        print_unexpected(self, active);
-    }
-    *item = active;
-    return return_value;
+
+    print_unexpected(self, active);
+    return 2;
 }
 
 /**
@@ -294,22 +274,18 @@ int get_type_with_void(ifjInter *self, token **item)
  **/
 int get_type_without_void(ifjInter *self, token **item)
 {
-    int return_value = 2;
     token * active = lexa_next_token(self->lexa_module, self->table);
+    *item = active;
     switch(active->type)
     {
         case T_INTEGER:
         case T_DOUBLE:
         case T_STRING:
-            return_value = 0;
-            break;
+            return 0;
     }
-    if(return_value)
-    {
-        print_unexpected(self, active);
-    }
-    *item = active;
-    return return_value;
+
+    print_unexpected(self, active);
+    return 2;
 }
 
 /**
@@ -322,7 +298,6 @@ int get_type_without_void(ifjInter *self, token **item)
  **/
 int function_declar(ifjInter *self, token *item)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, item->childTable);
     switch(active->type)
     {
@@ -333,23 +308,20 @@ int function_declar(ifjInter *self, token *item)
             {
                 item->args = ifj_stack_new();
                 ifj_stack_push(item->args, active);
-                return_value = next_function_param(self, item);
+                return next_function_param(self, item);
             }
             else
             {
                 print_unexpected(self, active);
-                return_value = 2;
+                return 2;
             }
-            break;
+
         case T_RPAREN:
-            return_value = 0;
-            break;
-        default:
-            return_value = 2;
-            print_unexpected(self, active);
-            break;
+            return 0;
     }
-    return return_value;
+
+    print_unexpected(self, active);
+    return 2;
 }
 
 /**
@@ -362,7 +334,6 @@ int function_declar(ifjInter *self, token *item)
  **/
 int next_function_param(ifjInter *self, token *item)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type == T_COMMA)
     {
@@ -370,20 +341,21 @@ int next_function_param(ifjInter *self, token *item)
            !is_ID(self, item->childTable, &active))
         {
             ifj_stack_push(item->args, active);
-            return_value = next_function_param(self, item);
+            return next_function_param(self, item);
         }
         else
         {
             print_unexpected(self, active);
-            return_value = 2;
+            return 2;
         }
     }
     else if(active->type != T_RPAREN)
     {
-        return_value = 2;
         print_unexpected(self, active);
+        return 2;
     }
-    return return_value;
+
+    return 0;
 }
 
 /**
@@ -399,6 +371,7 @@ int function_inside(ifjInter *self, token *item)
     {
         return function_inside1(self, item);
     }
+
     print_unexpected(self, active);
     return 2;
 }
@@ -414,7 +387,6 @@ int function_inside(ifjInter *self, token *item)
  **/
 int function_inside1(ifjInter *self, token *item)
 {
-    int return_value = 0;
     token * active = NULL;
     if(self->pushBack)
     {
@@ -425,87 +397,84 @@ int function_inside1(ifjInter *self, token *item)
     {
         active = lexa_next_token(self->lexa_module, item->childTable);
     }
+
     switch (active->type)
     {
         case T_RBLOCK:
-            return_value = 0;
-            break;
+            return 0;
+
         case T_WHILE:
-            return_value = (
-                !condition(self, item->childTable) &&
-                !statement_inside1(self, item->childTable) &&
-                !function_inside1(self, item)
-            );
-            break;
+            return !condition(self, item->childTable) &&
+                   !statement_inside1(self, item->childTable) &&
+                   !function_inside1(self, item);
+
       /*  case T_FOR:
-        return_value = (is_LPAREN(self) &&
-                        tell_me_type_without_void(self) &&
-                        is_ID(self) &&
-                        is_ASSIGN(self) &&
-                        expresion(self) &&
-                        is_semicolon(self) &&
-                        condition(self) &&
-                        is_semicolon(self) &&
-                        is_ID(self) &&
-                        is_ASSIGN(self) &&
-                        expresion(self)&&
-                        is_RPAREN(self) &&
-                        statement_inside(self) &&
-                        function_inside1(self));
-        break;  */
+        return !is_LPAREN(self) &&
+               !tell_me_type_without_void(self) &&
+               !is_ID(self) &&
+               !is_ASSIGN(self) &&
+               !expresion(self) &&
+               !is_semicolon(self) &&
+               !condition(self) &&
+               !is_semicolon(self) &&
+               !is_ID(self) &&
+               !is_ASSIGN(self) &&
+               !expresion(self)&&
+               !is_RPAREN(self) &&
+               !statement_inside(self) &&
+               !function_inside1(self);*/
+
       /*  case T_DO:
-        return_value = (statement_inside(self) &&
-                        is_while(self) &&
-                        is_LPAREN(self) &&
-                        condition(self) &&
-                        is_RPAREN(self) &&
-                        is_semicolon(self) &&
-                        function_inside1(self));
-        break;*/
+        return !statement_inside(self) &&
+               !is_while(self) &&
+               !is_LPAREN(self) &&
+               !condition(self) &&
+               !is_RPAREN(self) &&
+               !is_semicolon(self) &&
+               !function_inside1(self));*/
+
         case T_BREAK:
-            return_value = !is_semicolon(self) &&
-                           !function_inside1(self, item);
-            break;
+            return !is_semicolon(self) &&
+                   !function_inside1(self, item);
+
         case T_CONTINUE:
-            return_value = !is_semicolon(self) &&
-                           !function_inside1(self, item);
-            break;
+            return !is_semicolon(self) &&
+                   !function_inside1(self, item);
+
         case T_IF:
-            return_value = (
-                !condition(self, item->childTable) &&
-                !statement_inside1(self, item->childTable) &&
-                !if_else1(self, item->childTable) &&
-                !function_inside1(self, item)
-            );
-            break;
+            return !condition(self, item->childTable) &&
+                   !statement_inside1(self, item->childTable) &&
+                   !if_else1(self, item->childTable) &&
+                   !function_inside1(self, item);
+
         case T_RETURN:
-            return_value = !expresion(self, item->childTable) &&
-                           !statement_inside1(self, item->childTable);
-            break;
+            return !expresion(self, item->childTable) &&
+                   !statement_inside1(self, item->childTable);
+
         case T_INTEGER:
         case T_STRING:
         case T_DOUBLE:
-            return_value = !is_ID(self, item->childTable, &active) &&
-                           !sth_next(self, item->childTable, active) &&
-                           !function_inside1(self, item);
-            break;
+            return !is_ID(self, item->childTable, &active) &&
+                   !sth_next(self, item->childTable, active) &&
+                   !function_inside1(self, item);
+
         case T_IDENTIFIER:
-            return_value = resolve_identifier(self,
-                                              item->childTable,
-                                              &active,
-                                              0);
-            if(!return_value)
+        {
+            int rc;
+            rc = resolve_identifier(self, item->childTable, &active, 0);
+
+            if(!rc)
             {
-                return_value = !fce(self, item->childTable, active) &&
-                               !function_inside1(self, item);
+                return !fce(self, item->childTable, active) &&
+                       !function_inside1(self, item);
             }
-            break;
-        default:
-            return_value = 2;
-            print_unexpected(self, active);
-            break;
+
+            return rc;
+        }
     }
-    return return_value;
+
+    print_unexpected(self, active);
+    return 2;
 }
 
 /**
@@ -521,6 +490,7 @@ int is_semicolon(ifjInter *self)
         print_unexpected(self, active);
         return 2;
     }
+
     return 0;
 }
 
@@ -532,6 +502,7 @@ int is_while(ifjInter *self)
         print_unexpected(self, active);
         return 2;
     }
+
     return 0;
 }
 
@@ -543,6 +514,7 @@ int is_LPAREN(ifjInter *self)
         print_unexpected(self, active);
         return 2;
     }
+
     return 0;
 }
 
@@ -554,6 +526,7 @@ int is_RPAREN(ifjInter *self)
         print_unexpected(self, active);
         return 2;
     }
+
     return 0;
 }
 
@@ -565,6 +538,7 @@ int is_ASSIGN(ifjInter *self)
         print_unexpected(self, active);
         return 2;
     }
+
     return 0;
 }
 
@@ -576,18 +550,15 @@ int is_ASSIGN(ifjInter *self)
  **/
 int if_else1(ifjInter *self, symbolTable *table)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, table);
     if (active->type == T_ELSE)
     {
-        return_value = !is_LBLOCK(self) && !statement_inside1(self, table);
+        return !is_LBLOCK(self) &&
+               !statement_inside1(self, table);
     }
-    else
-    {
-      self->pushBack = active;
-      return_value = 1;
-    }
-    return return_value;
+
+    self->pushBack = active;
+    return 1;
 }
 
 /**
@@ -603,6 +574,7 @@ int is_LBLOCK(ifjInter *self)
         print_unexpected(self, active);
         return 2;
     }
+
     return 0;
 }
 
@@ -616,7 +588,6 @@ int is_LBLOCK(ifjInter *self)
  **/
 int statement_inside1(ifjInter *self, symbolTable *table)
 {
-    int return_value = 0;
     token * active = NULL;
     if(self->pushBack)
     {
@@ -631,71 +602,73 @@ int statement_inside1(ifjInter *self, symbolTable *table)
     {
         //END
         case T_RBLOCK:
-          return_value = 0;
-          break;
+          return 0;
 
         case T_WHILE:
-            return_value = !condition(self, table) &&
-                           !statement_inside1(self, table) &&
-                           !statement_inside1(self, table);
-            break;
+            return !condition(self, table) &&
+                   !statement_inside1(self, table) &&
+                   !statement_inside1(self, table);
+
       /*  case T_FOR:
-        return_value = (is_LPAREN(self) &&
-                        tell_me_type_without_void(self) &&
-                        is_ID(self) &&
-                        is_ASSIGN(self) &&
-                        expresion(self) &&
-                        is_semicolon(self) &&
-                        condition(self) &&
-                        is_semicolon(self) &&
-                        is_ID(self) &&
-                        is_ASSIGN(self) &&
-                        expresion(self) &&
-                        is_RPAREN(self) &&
-                        statement_inside(self) &&
-                        statement_inside1(self));
-        break;
+        return !is_LPAREN(self) &&
+               !tell_me_type_without_void(self) &&
+               !is_ID(self) &&
+               !is_ASSIGN(self) &&
+               !expresion(self) &&
+               !is_semicolon(self) &&
+               !condition(self) &&
+               !is_semicolon(self) &&
+               !is_ID(self) &&
+               !is_ASSIGN(self) &&
+               !expresion(self) &&
+               !is_RPAREN(self) &&
+               !statement_inside(self) &&
+               !statement_inside1(self);
+
         case T_DO:
-        return_value = (statement_inside(self) &&
-                        is_while(self) &&
-                        is_LPAREN(self) &&
-                        condition(self) &&
-                        is_RPAREN(self) &&
-                        is_semicolon(self) &&
-                        statement_inside1(self));
-        break; */
+        return !statement_inside(self) &&
+               !is_while(self) &&
+               !is_LPAREN(self) &&
+               !condition(self) &&
+               !is_RPAREN(self) &&
+               !is_semicolon(self) &&
+               !statement_inside1(self);*/
+
         case T_BREAK:
-            return_value = !is_semicolon(self) &&
-                           !statement_inside1(self, table);
-            break;
+            return !is_semicolon(self) &&
+                   !statement_inside1(self, table);
+
         case T_CONTINUE:
-            return_value = !is_semicolon(self) &&
-                           !statement_inside1(self, table);
-            break;
+            return !is_semicolon(self) &&
+                   !statement_inside1(self, table);
+
         case T_IF:
-            return_value = !condition(self, table) &&
-                           !statement_inside1(self, table) &&
-                           !if_else1(self, table) &&
-                           !statement_inside1(self, table);
-            break;
+            return !condition(self, table) &&
+                   !statement_inside1(self, table) &&
+                   !if_else1(self, table) &&
+                   !statement_inside1(self, table);
+
         case T_RETURN:
-            return_value = !expresion(self, table) &&
-                           !statement_inside1(self, table);
-            break;
+            return !expresion(self, table) &&
+                   !statement_inside1(self, table);
+
         case T_IDENTIFIER:
-            return_value = resolve_identifier(self, table, &active, 0);
-            if(!return_value)
+        {
+            int rc;
+            rc = resolve_identifier(self, table, &active, 0);
+
+            if(!rc)
             {
-                return_value = !fce(self, table, active) &&
-                               !statement_inside1(self, table);
+                return !fce(self, table, active) &&
+                       !statement_inside1(self, table);
             }
-            break;
-        default:
-            print_unexpected(self, active);
-            return_value = 2;
-            break;
+
+            return rc;
+        }
     }
-    return return_value;
+
+    print_unexpected(self, active);
+    return 2;
 }
 
 /**
@@ -717,6 +690,7 @@ int fce(ifjInter *self, symbolTable *table, token *item)
         //TODO typing + instruction
         return expresion(self, table);
     }
+
     print_unexpected(self, active);
     return 2;
 }
@@ -786,6 +760,7 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
         print_mistyped(self, active, expected);
         return 4;
     }
+
     print_unexpected(self, active);
     return 2;
 }
@@ -854,6 +829,7 @@ int sth_next(ifjInter *self, symbolTable *table, token *item)
     {
         return 0;
     }
+
     print_unexpected(self, active);
     return 2;
 }
@@ -862,7 +838,6 @@ int sth_next(ifjInter *self, symbolTable *table, token *item)
 int rel_operator(ifjInter *self)
 {
   /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, self->table);
     switch (active->type)
     {
@@ -872,12 +847,10 @@ int rel_operator(ifjInter *self)
         case T_GREATER_EQUAL:
         case T_EQUAL:
         case T_NOT_EQUAL:
-        return_value = 1;
-        break;
-        default:
-        return_value = 0;
+            return 1;
     }
-    return return_value;
+
+    return 0;
 }
 
 int syna_run( ifjInter *self)
