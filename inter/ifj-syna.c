@@ -71,7 +71,7 @@ int next_class(ifjInter *self)
     }
     else
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return_value = 2;
     }
     return return_value;
@@ -93,7 +93,7 @@ int class_inside(ifjInter *self, symbolTable *table)
     }
     else
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return_value = 2;
     }
 
@@ -120,7 +120,7 @@ int class_inside1(ifjInter *self, symbolTable *table)
         }
         else
         {
-            print_unexpected(active);
+            print_unexpected(self, active);
             return_value = 2;
         }
     }
@@ -170,7 +170,7 @@ int is_ID(ifjInter *self, symbolTable *table, token **item)
     }
     else
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return_value = 4;
     }
     *item = active;
@@ -210,7 +210,7 @@ int next_param(ifjInter *self, symbolTable *table, token *expected)
             return 0;
         }
     }
-    print_unexpected(active);
+    print_unexpected(self, active);
     return 4;
 }
 
@@ -250,7 +250,7 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
     //some garbage
     else
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return_value = 2;
     }
     return return_value;
@@ -277,7 +277,7 @@ int get_type_with_void(ifjInter *self, token **item)
     }
     if(return_value)
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
     }
     *item = active;
     return return_value;
@@ -303,7 +303,7 @@ int get_type_without_void(ifjInter *self, token **item)
     }
     if(return_value)
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
     }
     *item = active;
     return return_value;
@@ -334,7 +334,7 @@ int function_declar(ifjInter *self, token *item)
             }
             else
             {
-                print_unexpected(active);
+                print_unexpected(self, active);
                 return_value = 2;
             }
             break;
@@ -343,7 +343,7 @@ int function_declar(ifjInter *self, token *item)
             break;
         default:
             return_value = 2;
-            print_unexpected(active);
+            print_unexpected(self, active);
             break;
     }
     return return_value;
@@ -371,7 +371,7 @@ int next_function_param(ifjInter *self, token *item)
         }
         else
         {
-            print_unexpected(active);
+            print_unexpected(self, active);
             return_value = 2;
         }
 
@@ -379,7 +379,7 @@ int next_function_param(ifjInter *self, token *item)
     else if(active->type != T_RPAREN)
     {
         return_value = 2;
-        print_unexpected(active);
+        print_unexpected(self, active);
     }
     return return_value;
 }
@@ -397,7 +397,7 @@ int function_inside(ifjInter *self, token *item)
     {
         return function_inside1(self, item);
     }
-    print_unexpected(active);
+    print_unexpected(self, active);
     return 2;
 }
 
@@ -493,7 +493,7 @@ int function_inside1(ifjInter *self, token *item)
             break;
         default:
             return_value = 2;
-            print_unexpected(active);
+            print_unexpected(self, active);
             break;
     }
     return return_value;
@@ -509,7 +509,7 @@ int is_semicolon(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type != T_SEMICOLON)
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return 2;
     }
     return 0;
@@ -520,7 +520,7 @@ int is_while(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type != T_WHILE)
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return 2;
     }
     return 0;
@@ -531,7 +531,7 @@ int is_LPAREN(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type != T_LPAREN)
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return 2;
     }
     return 0;
@@ -542,7 +542,7 @@ int is_RPAREN(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type != T_RPAREN)
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return 2;
     }
     return 0;
@@ -553,7 +553,7 @@ int is_ASSIGN(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type != T_ASSIGN)
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return 2;
     }
     return 0;
@@ -591,7 +591,7 @@ int is_LBLOCK(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type != T_LBLOCK)
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return 2;
     }
     return 0;
@@ -682,7 +682,7 @@ int statement_inside1(ifjInter *self, symbolTable *table)
             }
             break;
         default:
-            print_unexpected(active);
+            print_unexpected(self, active);
             return_value = 2;
             break;
     }
@@ -707,9 +707,9 @@ int fce(ifjInter *self, symbolTable *table, token *item)
     else if (active->type == T_ASSIGN)
     {
         //TODO typing + instruction
-        return !expresion(self, table);
+        return expresion(self, table);
     }
-    print_unexpected(active);
+    print_unexpected(self, active);
     return 2;
 }
 
@@ -735,7 +735,7 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
     }
     else if (active->type != T_RPAREN)
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return_value = 2;
     }
     return return_value;
@@ -765,7 +765,7 @@ int next_function_parameters(ifjInter *self, symbolTable *table, token *item)
     }
     else
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return_value = 2;
     }
     return return_value;
@@ -790,7 +790,7 @@ int sth_next(ifjInter *self, symbolTable *table, token *item)
     }
     else if (active->type != T_SEMICOLON)
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return_value = 2;
     }
     return return_value;
@@ -855,7 +855,7 @@ int function_parameters_for_exp(ifjInter *self,
     }
     else if (active->type != T_RPAREN)
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return_value = 2;
     }
     return return_value;
@@ -888,7 +888,7 @@ int next_function_parameters_for_exp(ifjInter *self,
     }
     else
     {
-        print_unexpected(active);
+        print_unexpected(self, active);
         return_value = 2;
     }
     return return_value;

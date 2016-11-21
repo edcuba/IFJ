@@ -117,11 +117,11 @@ void        ifj_token_free( token *item);
 instruction * ifj_instruction_new();
 
 ifjSyna *ifj_syna_new();
-// Doplnenie 
+// Doplnenie
 void ifj_syna_free(ifjSyna *self);
 
 void ifj_global_symbol_table_init(ifjInter *self);
-void print_unexpected(token *item);
+void print_unexpected(ifjInter *self, token *item);
 
 int ifj_load(int argc, char **argv, ifjInter* inter);
 char *strdup (const char *s1); //form POSIX
