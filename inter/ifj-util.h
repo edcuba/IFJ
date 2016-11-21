@@ -61,7 +61,7 @@ token *ifj_read_int ();
 token *ifj_read_double ();
 token *ifj_read_string ();
 
-void ifj_print ( const char *input );
+void ifj_print ( token_stack *inStack, int popNum );
 
 int ifj_length ( const char *inputString );
 

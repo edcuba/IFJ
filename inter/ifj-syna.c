@@ -66,7 +66,8 @@ int start(ifjInter *self)
             TODO XXX JANY myslím, že by sme tu mali skočiť rovno do next_class
         */
         /* TODO EDO  uplne prve slovo  v zdrojaku cize  token class k prvej classe Main*/
-        return_value = (is_ID(self) &&
+
+        //return_value = (is_ID(self) &&
         /*TODO  JANY tu treba overit ci to is_ID je Main, cize bud  upravit funkciu
         a spravit v nej 2 volania lexa_next_token,
         alebo si urobit static premennu counter ktora to skontroluje ked sa
@@ -76,8 +77,10 @@ int start(ifjInter *self)
         definovaná si vieme jednoducho overiť po behu syntaktickej a rovno
         aj nastaviť štartovací bod pre exekúT_FOR
         */
-                        class_inside(self) &&
-                        next_class(self));
+        //                class_inside(self) &&
+        //                next_class(self));
+
+
     }
     else
     {

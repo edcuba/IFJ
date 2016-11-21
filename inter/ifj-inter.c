@@ -95,8 +95,8 @@ ifjSyna *ifj_syna_new(ifjInter* inter)
     self->stack  = ifj_stack_new();
     self->help_stack = ifj_stack_new();
     self->E = ifj_generate_token(inter->table, E_TYPE);
-    self->predictCondition = predictCondition;
-    self->predictExpresion = predictExpresion;
+    self->predictCondition = &predictCondition;
+    self->predictExpresion = &predictExpresion;
     return self;
 }
 
@@ -128,7 +128,6 @@ ifjInter* ifj_inter_new()
     self->debugMode = 0;
     self->lexa_module = ifj_lexa_init();
     self->load = &ifj_load;
-    self->syna = &syna_run;
     self->table = ial_symbol_table_new();
     self->code = ifj_list_new();
     ifj_global_symbol_table_init(self);

@@ -8,7 +8,7 @@
 #define T_Q 603
 #define T_C ','
 
-int predictCondition [17][17] =
+int predictCondition[17][17] =
 {
     {T_G, T_G, T_L, T_L, T_L, T_G, T_L, T_G, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
     {T_G, T_G, T_L, T_L, T_L, T_G, T_L, T_G, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},

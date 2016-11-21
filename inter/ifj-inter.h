@@ -69,8 +69,8 @@ struct _ifjSyna
     token *E;
     token_stack *stack;
     token_stack *help_stack;
-    int **predictExpresion;
-    int **predictCondition;
+    int (*predictExpresion)[11][11];
+    int (*predictCondition)[17][17];
 };
 
 
@@ -117,6 +117,8 @@ void        ifj_token_free( token *item);
 instruction * ifj_instruction_new();
 
 ifjSyna *ifj_syna_new();
+// Doplnenie 
+void ifj_syna_free(ifjSyna *self);
 
 void ifj_global_symbol_table_init(ifjInter *self);
 void print_unexpected(token *item);
