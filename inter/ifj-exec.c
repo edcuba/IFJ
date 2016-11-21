@@ -16,17 +16,21 @@
 
 int run_exec ( ifjInter *self )
 {
+	if (self->debugMode)
+	{
+		fprintf(stderr, "%s\n", "---------------- Executor started ----------------");
+	}
+	
 	instruction *instruc = self->code->first;
 	token_stack *stack = ifj_stack_new();
 
 	bool jumped = false;
 
-	// ZAPNUT DEBUG, vypisat aku intrukciu robim
 	while (instruc != NULL)
 	{
 		if (self->debugMode)
 		{
-			fprintf(stderr, "%s %d\n", "Actual instruction: ", instruc->type);
+			fprintf(stderr, "%s %d\n", "Actual instruction type: ", instruc->type);
 		}
 
 		switch (instruc->type)
@@ -188,8 +192,10 @@ int run_exec ( ifjInter *self )
 
 				// Check division by zero
 				if ( *((int *) instruc->op2->data) == 0 )
+				{
 					fprintf(stderr, "%s\n", "Division by zero");
 					return 9;
+				}
 
 				// Calculate (a / b)
 				token *tempToken = NULL;
@@ -303,12 +309,15 @@ int run_exec ( ifjInter *self )
 							case T_STRING:
 								argToken->data = (void *) strdup(myToken->data);
 								break;
+
 							case T_DOUBLE:
 								*((double *) argToken->data) = *((double *) myToken->data);
 								break;
+
 							case T_INTEGER:
 								*((int *) argToken->data) = *((int *) myToken->data);
 								break;
+
 							default:
 								fprintf(stderr, "%s %d\n", "Executor ERROR, invalid dataType: ", argToken->dataType);
 								return 10;
@@ -481,7 +490,7 @@ int run_exec ( ifjInter *self )
 
 			default:
 			{
-				fprintf(stderr, "%s %d\n", "Undefined instruction, value: ", instruc->type);
+				fprintf(stderr, "%s %d\n", "Executor ERROR: Undefined instruction, value: ", instruc->type);
 				break;
 			}
 		}
@@ -493,6 +502,12 @@ int run_exec ( ifjInter *self )
 	}
 
 	ifj_stack_drop(stack);
+
+	if (self->debugMode)
+	{
+		fprintf(stderr, "%s\n", "---------------- Executor ended ----------------");
+	}
+
 	return 0;
 }
 
