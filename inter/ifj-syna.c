@@ -219,7 +219,7 @@ int next_param(ifjInter *self, symbolTable *table, token *expected)
  * function declaration, ";" or "=" for variable declaration
  * @param self global structure
  * @param table symbol table for current class
- * @param item last token / identifier (TODO solve this for each T_IDENTIFIER)
+ * @param item last token / identifier
  * @return 0 if successfull
  **/
 int class_inside2(ifjInter *self, symbolTable *table, token *item)
@@ -487,8 +487,15 @@ int function_inside1(ifjInter *self, token *item)
                            !function_inside1(self, item);
             break;
         case T_IDENTIFIER:
-            return_value = !fce(self, item->childTable, active) &&
-                           !function_inside1(self, item);
+            return_value = resolve_identifier(self,
+                                              item->childTable,
+                                              &active,
+                                              0);
+            if(!return_value)
+            {
+                return_value = !fce(self, item->childTable, active) &&
+                               !function_inside1(self, item);
+            }
             break;
         default:
             return_value = 2;
@@ -723,21 +730,36 @@ int fce(ifjInter *self, symbolTable *table, token *item)
  **/
 int function_parameters(ifjInter *self, symbolTable *table, token *item)
 {
-    int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module, table);
-    if (active->type == T_IDENTIFIER ||
-        active->type == T_INTEGER_C ||
-        active->type == T_DOUBLE_C ||
-        active->type == T_STRING_C)
+    token *active = lexa_next_token(self->lexa_module, table);
+    token *expected = NULL;
+    if (active->type == T_IDENTIFIER)
     {
-        return_value = !next_function_parameters(self, table, item);
+        int rc = resolve_identifier(self, table, &active, 0);
+        if(rc)
+        {
+            self->returnCode = rc;
+            return rc;
+        }
+        if(active->dataType == expected->dataType)
+        {
+            return next_function_parameters(self, table, item);
+        }
     }
-    else if (active->type != T_RPAREN)
+    else if(active->type == T_INTEGER_C ||
+            active->type == T_DOUBLE_C ||
+            active->type == T_STRING_C)
     {
-        print_unexpected(self, active);
-        return_value = 2;
+        if(active->dataType == expected->dataType)
+        {
+            return next_function_parameters(self, table, item);
+        }
     }
-    return return_value;
+    else if (active->type == T_RPAREN)
+    {
+        return 0;
+    }
+    print_unexpected(self, active);
+    return 2;
 }
 
 /**
@@ -779,20 +801,19 @@ int next_function_parameters(ifjInter *self, symbolTable *table, token *item)
  **/
 int sth_next(ifjInter *self, symbolTable *table, token *item)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, table);
     if (active->type == T_ASSIGN)
     {
         //TODO check typing
-        return_value = !expresion(self, table);
+        return expresion(self, table);
         // TODO generate instruction
     }
-    else if (active->type != T_SEMICOLON)
+    else if (active->type == T_SEMICOLON)
     {
-        print_unexpected(self, active);
-        return_value = 2;
+        return 0;
     }
-    return return_value;
+    print_unexpected(self, active);
+    return 2;
 }
 
 //TODO XXX JANY načo je toto?
@@ -843,21 +864,36 @@ int function_parameters_for_exp(ifjInter *self,
                                 symbolTable *table,
                                 token *item)
 {
-    int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module, table);
-    if (active->type == T_IDENTIFIER ||
-        active->type == T_INTEGER_C ||
-        active->type == T_DOUBLE_C ||
-        active->type == T_STRING_C)
+    token *active = lexa_next_token(self->lexa_module, table);
+    token *expected = NULL;
+    if (active->type == T_IDENTIFIER)
     {
-        return_value = next_function_parameters_for_exp(self, table, item);
+        int rc = resolve_identifier(self, table, &active, 0);
+        if(rc)
+        {
+            self->returnCode = rc;
+            return rc;
+        }
+        if(active->dataType == expected->dataType)
+        {
+            return next_function_parameters_for_exp(self, table, item);
+        }
     }
-    else if (active->type != T_RPAREN)
+    else if(active->type == T_INTEGER_C ||
+            active->type == T_DOUBLE_C ||
+            active->type == T_STRING_C)
     {
-        print_unexpected(self, active);
-        return_value = 2;
+        if(active->dataType == expected->dataType)
+        {
+            return next_function_parameters_for_exp(self, table, item);
+        }
     }
-    return return_value;
+    else if (active->type == T_RPAREN)
+    {
+        return 0;
+    }
+    print_unexpected(self, active);
+    return 2;
 }
 
 /**

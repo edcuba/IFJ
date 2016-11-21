@@ -27,7 +27,7 @@ int resolve_identifier(ifjInter *self,
     {
         if(isDefiniton)
         {
-           fprintf(stderr, "ERROR: Identifier %s defined in foreign class!\n",
+           fprintf(stderr, "ERROR: Identifier \"%s\" defined in foreign class!\n",
                    (char *)seek->value);
             ifj_token_free(seek);
             *item = NULL;
@@ -51,7 +51,7 @@ int resolve_identifier(ifjInter *self,
                                              NULL);
         if(!class || !class->childTable)
         {
-            fprintf(stderr, "ERROR: Class %s undefined!\n", id_class);
+            fprintf(stderr, "ERROR: Class \"%s\" undefined!\n", id_class);
             free(id_class);
             free(id_id);
             ifj_token_free(seek);
@@ -66,7 +66,7 @@ int resolve_identifier(ifjInter *self,
 
         if(!child)
         {
-            fprintf(stderr, "ERROR: Identifier %s from class %s undefined!\n",
+            fprintf(stderr, "ERROR: Identifier \"%s\" from class \"%s\" undefined!\n",
                     id_id,
                     id_class);
             free(id_class);
@@ -91,7 +91,7 @@ int resolve_identifier(ifjInter *self,
         {
             ifj_token_free(seek);
             *item = NULL;
-            fprintf(stderr, "ERROR: Identifier %s redefined!\n", (char*)seek->value);
+            fprintf(stderr, "ERROR: Identifier \"%s\" redefined!\n", (char*)seek->value);
             return 3;
         }
         else
@@ -116,9 +116,9 @@ int resolve_identifier(ifjInter *self,
             }
             context = context->parent;
         }
+        fprintf(stderr, "ERROR: Identifier \"%s\" undefined!\n", (char*)seek->value);
         ifj_token_free(seek);
         *item = NULL;
-        fprintf(stderr, "ERROR: Identifier %s undefined!\n", (char*)seek->value);
         return 3;
     }
 }

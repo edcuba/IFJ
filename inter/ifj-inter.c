@@ -105,9 +105,6 @@ ifjSyna *ifj_syna_new(ifjInter* inter)
  **/
 void ifj_syna_free(ifjSyna *self)
 {
-    ifj_token_free(self->semicolon);
-    ifj_token_free(self->t_less);
-    ifj_token_free(self->E);
     ifj_stack_drop(self->stack);
     ifj_stack_drop(self->help_stack);
 }

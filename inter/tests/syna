@@ -1,14 +1,15 @@
 class Main
 {
-  static int a = 0;
+  static int a;
   static String ahojky;
-  static void run()
+  static int x;
+  static void Run()
   {}
 
   static int ahoj(int a, int b, double c)
   {
     int ahoj =    (5 + 8 * 9 - 9 + (5 +4) + 5 * (8+5)*7 + 5) ;
-    ahoj  = ahoj + 8 / 7;
+    ahoj = ahoj + 8 / 7;
     String str1;
     Main.x = 88 + ahoj;
     str1 = "Toto je nejaky text";
