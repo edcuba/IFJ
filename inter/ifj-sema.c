@@ -92,9 +92,9 @@ int resolve_identifier(ifjInter *self,
         token *prev = table->get_item(table, seek->value, T_IDENTIFIER, NULL);
         if (prev) //redefined
         {
+            fprintf(stderr, "ERROR: Identifier \"%s\" redefined!\n", (char*)seek->value);
             ifj_token_free(seek);
             *item = NULL;
-            fprintf(stderr, "ERROR: Identifier \"%s\" redefined!\n", (char*)seek->value);
             self->returnCode = 3;
             return 0;
         }
