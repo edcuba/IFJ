@@ -617,6 +617,7 @@ int expresion(ifjInter *self, symbolTable *table)
     ifj_stack_clear(syna->help_stack);
     ifj_stack_push(syna->stack, syna->semicolon);
     top_stack = ifj_stack_top(syna->stack);
+
     do
     {
         switch (active->type)
@@ -698,6 +699,11 @@ int expresion(ifjInter *self, symbolTable *table)
                 return -1;
                 break;
         }
+
+      /*  if(self->debugMode)
+        {
+            fprintf(stderr, "a je %d a b je %d\n",a,b);
+        }*/
         switch ((*syna->predictExpresion)[a][b])
         {
             case T_EQUAL:

@@ -244,7 +244,6 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
     else if (active->type == T_ASSIGN)
     {
         return_value = !expresion(self, table) &&
-                       !is_semicolon(self) &&
                        !class_inside1(self, table);
     }
     //some garbage
