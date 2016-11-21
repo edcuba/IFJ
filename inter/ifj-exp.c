@@ -39,7 +39,7 @@ int condition(ifjInter *self, symbolTable *table)
 
     fprintf(stderr, "Som v condition\n");
 
-    ifj_stack_push(syna->stack, syna->semicolon);
+    ifj_stack_push(syna->stack, syna->lblock);
     top_stack = ifj_stack_top(syna->stack);
 
     do

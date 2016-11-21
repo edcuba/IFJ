@@ -4,7 +4,7 @@ class Main
   static String ahojky;
   static int x;
 
-  static int Func(int a, String b, double c)
+  static int Func(int a)
   {
 
   }
@@ -23,18 +23,24 @@ class Main
     str1 = "Toto je nejaky text";
     String str2;
     str2 = str1 + ", ktery jeste trochu obohatime";
-    int abc = Func(1, "str", 3);
-    String
-    asds;
-
+    int abc = Func(1);
+    abc = ifj16.readInt();
+    String asds;
     String str;
     ifj16.sort(str1);
     //ifj16.print("Pozice retezce \"text\" v retezci str2: " + x + "\n");
     ifj16.find(str, str);
     int cmp;
+    while (cmp != 0)
+    {
 
-    while (cmp !=0)
-    {}
+    }
+
+    if(cmp)
+    {
+        a = 0;
+    }
+
     if (0 >= 8 )
     {
         if (0)
@@ -59,14 +65,9 @@ class Main
     {
         return a + b +c / 55;
     }
-
-
-
-
   }
-
 }
-class prazny_class
+class prazdny_class
 {
 
 }

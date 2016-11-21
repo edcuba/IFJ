@@ -29,9 +29,6 @@ telské třídy ifj16 je chyba 3*/
 /*TODO JANNY Pokud je vyhodnocený výraz pravdivý,
 vykoná se složený_příkaz 1 , jinak se vykoná složený_příkaz 2 . Pokud výsledná hod-
 nota výrazu není pravdivostní (tj. pravda či nepravda), nastává chyba 4. */
-/* TODO JANY V případě, že příkaz volání funkce obsahuje jiný počet nebo typy
-parametrů, než funkce očekává (tedy než je uvedeno v její hlavičce, a to i u vesta-
-věných funkcí) včetně případné aplikace implicitních konverzí, jedná se o chybu 4.*/
 /*TODO JANY  opravit navratove kody
 1 - chyba v programu v rámci lexikální analýzy (chybná struktura aktuálního lexé-
 mu).
@@ -97,7 +94,7 @@ int class_inside(ifjInter *self, symbolTable *table)
  * Inside class, static function, static variable or } expected
  * @param self global structure
  * @param table symbol table for current class
- * @return 0 if successfull
+ * @return 1 if successfull
  **/
 int class_inside1(ifjInter *self, symbolTable *table)
 {
@@ -125,7 +122,7 @@ int class_inside1(ifjInter *self, symbolTable *table)
  * Fetch next token, assert idenfifier type, set datatype
  * @param self global structure
  * @param item reference to last token, reference to new token returned
- * @return 0 if successfull
+ * @return 1 if successfull
  **/
 int is_ID(ifjInter *self, symbolTable *table, token **item)
 {
@@ -173,7 +170,7 @@ int is_ID(ifjInter *self, symbolTable *table, token **item)
  * @param self global structure
  * @param table symbol table for current function (not called one!)
  * @param expected prototype of expected argument for type check
- * @return 0 if successfull
+ * @return 1 if successfull
  **/
 int next_param(ifjInter *self, symbolTable *table, token *expected)
 {
@@ -217,7 +214,7 @@ int next_param(ifjInter *self, symbolTable *table, token *expected)
  * @param self global structure
  * @param table symbol table for current class
  * @param item last token / identifier
- * @return 0 if successfull
+ * @return 1 if successfull
  **/
 int class_inside2(ifjInter *self, symbolTable *table, token *item)
 {
@@ -253,7 +250,7 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
  * Fetch next token. Expects type definition (int, double, String, void)
  * @param self global structure
  * @param item returns reference to fetched token
- * @return 0 if successfull
+ * @return 1 if successfull
  **/
 int get_type_with_void(ifjInter *self, token **item)
 {
@@ -277,7 +274,7 @@ int get_type_with_void(ifjInter *self, token **item)
  * Fetch next token. Expects type definition (int, double, String)
  * @param self global structure
  * @param item returns reference to fetched token
- * @return 0 if successfull
+ * @return 1 if successfull
  **/
 int get_type_without_void(ifjInter *self, token **item)
 {
@@ -302,7 +299,7 @@ int get_type_without_void(ifjInter *self, token **item)
  * - set args stack
  * @param self global structure
  * @param item function token
- * @return 0 if successfull
+ * @return 1 if successfull
  **/
 int function_declar(ifjInter *self, token *item)
 {
@@ -340,7 +337,7 @@ int function_declar(ifjInter *self, token *item)
  * - set args stack
  * @param self global structure
  * @param item function token
- * @return 0 if successfull
+ * @return 1 if successfull
  **/
 int next_function_param(ifjInter *self, token *item)
 {
@@ -374,7 +371,7 @@ int next_function_param(ifjInter *self, token *item)
  * Fetch next token. Expects "{".
  * @param self global structure
  * @param current function token
- * @return 0 if successfull
+ * @return 1 if successfull
  **/
 int function_inside(ifjInter *self, token *item)
 {
@@ -396,7 +393,7 @@ int function_inside(ifjInter *self, token *item)
  * FIXME: I dont think, that we can accept "break" or "continue" here
  * @param self global structure
  * @param item current function token
- * @return 0 if successfull
+ * @return 1 if successfull
  **/
 int function_inside1(ifjInter *self, token *item)
 {
@@ -494,7 +491,7 @@ int function_inside1(ifjInter *self, token *item)
 /**
  * Fetch next token, expects semicolon
  * @param self global structure
- * @return 0 if successfull
+ * @return 1 if successfull
  **/
 int is_semicolon(ifjInter *self)
 {
@@ -565,7 +562,7 @@ int is_ASSIGN(ifjInter *self)
  * Fetch next token. Expect "else", if unexpected, perform token push bezparametricka
  * @param self global structure
  * @param table table for current function
- * @return 0 if else, 1 if pushBack
+ * @return 1 if else, 1 if pushBack
  **/
 int if_else1(ifjInter *self, symbolTable *table)
 {
@@ -575,16 +572,14 @@ int if_else1(ifjInter *self, symbolTable *table)
         return is_LBLOCK(self) &&
                statement_inside1(self, table);
     }
-
     self->pushBack = active;
-    self->returnCode = 1;
-    return 0;
+    return 1;
 }
 
 /**
  * Fetch next token, expects "{"
  * @param self global structure
- * @return 0 if successful
+ * @return 1 if successful
  **/
 int is_LBLOCK(ifjInter *self)
 {
@@ -605,7 +600,7 @@ int is_LBLOCK(ifjInter *self)
  * - Expects "}", "while", "for", "if", "break", "continue", "return", "id"
  * @param self global structure
  * @param table symbol table for current function
- * @return 0 if successful
+ * @return 1 if successful
  **/
 int statement_inside1(ifjInter *self, symbolTable *table)
 {
@@ -698,7 +693,7 @@ int statement_inside1(ifjInter *self, symbolTable *table)
  * @param self global structure
  * @param table symbol table for current function_parameters
  * @param last token/identifier
- * @return 0 if successful
+ * @return 1 if successful
  **/
 int fce(ifjInter *self, symbolTable *table, token *item)
 {
@@ -724,7 +719,7 @@ int fce(ifjInter *self, symbolTable *table, token *item)
  * @param self global structure
  * @param table symbol table for current function (not called one!)
  * @param item called function structure
- * @return 0 if successful
+ * @return 1 if successful
  **/
 int function_parameters(ifjInter *self, symbolTable *table, token *item)
 {
@@ -779,8 +774,8 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
     }
     else if (active->type == T_RPAREN)
     {
-        if(item->args && item->args->top == 0)
-            return 1;
+        if(!item->args || (item->args && item->args->top < 0))
+            return is_semicolon(self);
         print_mistyped(self, active, expected);
         self->returnCode = 4;
         return 0;
@@ -796,7 +791,7 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
  * @param self global structure
  * @param table symbol table for current function (not called one!)
  * @param item called function structure
- * @return 0 if successful
+ * @return 1 if successful
  **/
 int next_function_parameters(ifjInter *self,
                              symbolTable *table,
@@ -807,7 +802,7 @@ int next_function_parameters(ifjInter *self,
     token *active = lexa_next_token(self->lexa_module, self->table);
     if (active->type == T_RPAREN)
     {
-        if(item->args && item->args->top == idx - 1)
+        if(item->args && item->args->top == idx - 1 )
             return is_semicolon(self);
         print_mistyped(self, active, expected);
         self->returnCode = 4;
@@ -842,7 +837,7 @@ int next_function_parameters(ifjInter *self,
  * @param self global structure
  * @param table symbol table for current function
  * @param item last token/identifier for instruction generation/type control
- * @return 0 if successful
+ * @return 1 if successful
  **/
 int sth_next(ifjInter *self, symbolTable *table, token *item)
 {
@@ -903,7 +898,7 @@ int syna_run( ifjInter *self)
  * @param self global structure
  * @param table symbol table for current function (not called one!)
  * @param item called function structure
- * @return 0 if successful
+ * @return 1 if successful
  * TODO resolve return
  **/
 int function_parameters_for_exp(ifjInter *self,
