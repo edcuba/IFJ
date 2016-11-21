@@ -50,6 +50,12 @@ void ifj_stack_push (	token_stack *inStack,
 	{
 		inStack->size += 32;
 	    inStack->elements = realloc(inStack->elements, inStack->size * sizeof(token *));
+
+	    if (inStack->elements == NULL)
+	    {
+	    	// TODO chyba pamate
+	    	return;
+	    }
 	}
 
 	inStack->top++;
@@ -130,6 +136,13 @@ void ifj_stack_clear ( token_stack *inStack )
 {
 	free(inStack->elements);
 	inStack->elements = malloc(inStack->size * sizeof(token *));
+
+	if (inStack->elements == NULL)
+	{
+		// TODO chyba pamate
+		return;
+	}
+
 	inStack->top = -1;
 }
 
@@ -168,7 +181,7 @@ int ifj_insert_first (	linear_list *list,
 
 	if (newInstruction == NULL)
 	{
-		return -1;
+		return 99;
 	}
 
 	newInstruction->next = list->first;
@@ -198,7 +211,7 @@ int ifj_insert_last (	linear_list *list,
 
 	if (newInstruction == NULL)
 	{
-		return -1;
+		return 99;
 	}
 
 	instruction *tempIntruction = list->first;
@@ -457,6 +470,10 @@ char *ifj_join_strings(const char *str1, const char *str2)
 	size_t len1 = strlen(str1) + 1;
 	size_t len2 = strlen(str2);
 	char *res = malloc((len1 + len2) * sizeof(char));
+
+	if (res == NULL)
+		return NULL;
+
 	memcpy(res, str1, len1);
 	return strncat(res, str2, len2);
 }

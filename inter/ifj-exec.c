@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-void run_exec ( ifjInter *self )
+int run_exec ( ifjInter *self )
 {
 	instruction *instruc = self->code->first;
 	token_stack *stack = ifj_stack_new();
@@ -42,7 +42,7 @@ void run_exec ( ifjInter *self )
 				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
 				{
 					fprintf(stderr, "%s\n", "Variable is not inicialized");
-					return;
+					return 8;
 				}
 
 				// Calculate (a * b)
@@ -82,7 +82,7 @@ void run_exec ( ifjInter *self )
 				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
 				{
 					fprintf(stderr, "%s\n", "Variable is not inicialized");
-					return;
+					return 8;
 				}
 
 				// Calculate (a + b)
@@ -142,7 +142,7 @@ void run_exec ( ifjInter *self )
 				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
 				{
 					fprintf(stderr, "%s\n", "Variable is not inicialized");
-					return;
+					return 8;
 				}
 
 				// Calculate (a - b)
@@ -182,13 +182,13 @@ void run_exec ( ifjInter *self )
 				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
 				{
 					fprintf(stderr, "%s\n", "Variable is not inicialized");
-					return;
+					return 8;
 				}
 
 				// Check division by zero
 				if ( *((int *) instruc->op2->data) == 0 )
 					fprintf(stderr, "%s\n", "Division by zero");
-					return;
+					return 9;
 
 				// Calculate (a / b)
 				token *tempToken = NULL;
@@ -231,7 +231,7 @@ void run_exec ( ifjInter *self )
 				if (instruc->op1->data == NULL)
 				{
 					fprintf(stderr, "%s\n", "Variable is not inicialized");
-					return;
+					return 8;
 				}
 
 				// Set value
@@ -240,7 +240,7 @@ void run_exec ( ifjInter *self )
 					if ((char *) instruc->op3->data)
 						free((char *) instruc->op3->data);
 
-					instruc->op3->data = strdup(instruc->op1->data);
+					instruc->op3->data = (void *) strdup(instruc->op1->data);
 				}
 				else
 				{
@@ -264,8 +264,45 @@ void run_exec ( ifjInter *self )
 
 			case I_CALL:
 			{
-				// Daco urobit s argumentmy na stacku, _dakam_ = ifj_stack_pop(stack);
-				//for (int i = 0; i < (op1->args->top + 1); )
+				for (int i = instruc->op1->args->top; i >= 0; i--)
+				{
+					token *myToken = ifj_stack_pop(stack);
+					token *argToken = instruc->op1->args->elements[i];
+
+					// Alloc memory for uninicialized variables
+					if (argToken->data == NULL)
+					{
+						if (argToken->dataType == T_DOUBLE)
+						{
+							argToken->data = (void*) malloc (sizeof(double));
+						}
+						if (argToken->dataType == T_INTEGER)
+						{
+							argToken->data = (void*) malloc (sizeof(int));
+						}
+					}
+
+					// Set data to argToken
+					switch(argToken->dataType)
+					{
+						case T_STRING:
+							argToken->data = (void *) strdup(myToken->data);
+							break;
+						case T_DOUBLE:
+							*((double *) argToken->data) = *((double *) myToken->data);
+							break;
+						case T_INTEGER:
+							*((int *) argToken->data) = *((int *) myToken->data);
+							break;
+						default:
+							fprintf(stderr, "%s %d\n", "Executor ERROR, invalid dataType: ", argToken->dataType);
+							return 10;
+					}
+
+					// Free temp token
+					if (myToken->type == T_TMP)
+						ifj_token_free(myToken);
+				}
 
 				ifj_stack_push(stack, instruc->op1);
 
@@ -308,7 +345,7 @@ void run_exec ( ifjInter *self )
 					if (instruc->op1->data == NULL)
 					{
 						fprintf(stderr, "%s\n", "Variable is not inicialized");
-						return;
+						return 8;
 					}
 
 					ifj_stack_push(stack, instruc->op1);
@@ -326,13 +363,17 @@ void run_exec ( ifjInter *self )
 
 			case I_CONDITION:
 			{
-				// Mozem mat op1 / op2 na stacku
+				// Get tokens from stack
+				if (instruc->op2 == NULL)
+					instruc->op2 = ifj_stack_pop(stack);
+				if (instruc->op1 == NULL)
+					instruc->op1 = ifj_stack_pop(stack);
 
 				int output = checkCondition(instruc->op1, instruc->op2, instruc->op3);
-				if (output == -1)
+				if (output == 10)
 				{
 					fprintf(stderr, "%s\n", "Executor ERROR: condition error");
-					return;
+					return 10;
 				}
 
 				output = !output;
@@ -365,6 +406,7 @@ void run_exec ( ifjInter *self )
 	}
 
 	ifj_stack_drop(stack);
+	return 0;
 }
 
 int checkCondition (	token *a,
@@ -397,7 +439,7 @@ int checkCondition (	token *a,
 				break;
 
 			default:
-				return -1;
+				return 10;
 				break;
 		}
 	}
@@ -427,12 +469,12 @@ int checkCondition (	token *a,
 				break;
 
 			default:
-				return -1;
+				return 10;
 				break;
 		}
 	}
 
-	return -1;
+	return 10;
 }
 
 void freeTempTokens (instruction *inputInstruc)
