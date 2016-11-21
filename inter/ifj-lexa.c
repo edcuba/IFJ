@@ -24,23 +24,27 @@ ifj_lexa *ifj_lexa_init() {
     l->b_num = dyn_buffer_init(16);
     l->line_number = 1;
 
-    ifj_lexa_add_reserved(l, "while", T_WHILE);
-    ifj_lexa_add_reserved(l, "for", T_FOR);
-    ifj_lexa_add_reserved(l, "do", T_DO);
-    ifj_lexa_add_reserved(l, "break", T_BREAK);
-    ifj_lexa_add_reserved(l, "continue", T_CONTINUE);
-    ifj_lexa_add_reserved(l, "if", T_IF);
-    ifj_lexa_add_reserved(l, "else", T_ELSE);
-    ifj_lexa_add_reserved(l, "return", T_RETURN);
-    ifj_lexa_add_reserved(l, "void", T_VOID);
-    ifj_lexa_add_reserved(l, "static", T_STATIC);
-    ifj_lexa_add_reserved(l, "class", T_CLASS);
-    ifj_lexa_add_reserved(l, "boolean", T_BOOLEAN);
-    ifj_lexa_add_reserved(l, "int", T_INTEGER);
-    ifj_lexa_add_reserved(l, "double", T_DOUBLE);
-    ifj_lexa_add_reserved(l, "String", T_STRING);
-    ifj_lexa_add_reserved(l, "false", T_FALSE);
-    ifj_lexa_add_reserved(l, "true", T_TRUE);
+    token *item;
+    ifj_generate_reserved(l->reserved_words, "while", T_WHILE, 0);
+    ifj_generate_reserved(l->reserved_words, "for", T_FOR, 0);
+    ifj_generate_reserved(l->reserved_words, "do", T_DO, 0);
+    ifj_generate_reserved(l->reserved_words, "break", T_BREAK, 0);
+    ifj_generate_reserved(l->reserved_words, "continue", T_CONTINUE, 0);
+    ifj_generate_reserved(l->reserved_words, "if", T_IF, 0);
+    ifj_generate_reserved(l->reserved_words, "else", T_ELSE, 0);
+    ifj_generate_reserved(l->reserved_words, "return", T_RETURN, 0);
+    ifj_generate_reserved(l->reserved_words, "void", T_VOID, 0);
+    ifj_generate_reserved(l->reserved_words, "static", T_STATIC, 0);
+    ifj_generate_reserved(l->reserved_words, "class", T_CLASS, 0);
+    ifj_generate_reserved(l->reserved_words, "boolean", T_BOOLEAN, 0);
+    item = ifj_generate_reserved(l->reserved_words, "int", T_INTEGER, 0);
+    item->dataType = T_INTEGER;
+    item = ifj_generate_reserved(l->reserved_words, "double", T_DOUBLE, 0);
+    item->dataType = T_DOUBLE;
+    item = ifj_generate_reserved(l->reserved_words, "String", T_STRING, 0);
+    item->dataType = T_STRING;
+    ifj_generate_reserved(l->reserved_words, "false", T_FALSE, 0);
+    ifj_generate_reserved(l->reserved_words, "true", T_TRUE, 0);
 
     return l;
 }
@@ -52,10 +56,6 @@ void ifj_lexa_free(ifj_lexa *l) {
     dyn_buffer_free(l->b_str);
     dyn_buffer_free(l->b_num);
     free(l);
-}
-
-inline void ifj_lexa_add_reserved(ifj_lexa *l, char *word, int token_type) {
-    ifj_generate_reserved(l->reserved_words, word, token_type, 0);
 }
 
 int ifj_lexa_is_reserved(ifj_lexa *l, char *word) {

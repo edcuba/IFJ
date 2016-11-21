@@ -122,6 +122,7 @@ void ifj_syna_free(ifjSyna *self);
 
 void ifj_global_symbol_table_init(ifjInter *self);
 void print_unexpected(ifjInter *self, token *item);
+void print_mistyped(ifjInter *self, token *item, token *expected);
 
 int ifj_load(int argc, char **argv, ifjInter* inter);
 char *strdup (const char *s1); //form POSIX

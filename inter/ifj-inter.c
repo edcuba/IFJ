@@ -28,6 +28,10 @@ void ifj_inter_free(ifjInter *self)
         ifj_token_free(self->pushBack);
     }
     self->table = NULL;
+    if(self->syna)
+    {
+        ifj_syna_free(self->syna);
+    }
     free(self);
 }
 
@@ -43,9 +47,13 @@ void ifj_global_symbol_table_init(ifjInter *self)
             fprintf(stderr, "Internal error: global symbol table not initialized\n");
         return;
     }
+    symbolTable *reserved = self->lexa_module->reserved_words;
 
     //create token for ifj16 class
     token *class = ifj_generate_token_id("ifj16");
+    token *item;
+    token *t_str = reserved->get_item(reserved, "String", 0, NULL);
+    token *t_int = reserved->get_item(reserved, "int", 0, NULL);
 
     //save class into global table
     self->table->add_item(self->table, class, NULL);
@@ -59,23 +67,47 @@ void ifj_global_symbol_table_init(ifjInter *self)
     symbolTable *ifj16 = class->childTable;
 
     //add methods
-    ifj_generate_reserved(ifj16, "print", T_IDENTIFIER, IFJ16_PRINT);
+    item = ifj_generate_reserved(ifj16, "print", T_IDENTIFIER, IFJ16_PRINT);
+    item->args = ifj_stack_new();
+    ifj_stack_push(item->args, t_str);
 
-    ifj_generate_reserved(ifj16, "readInt", T_IDENTIFIER, IFJ16_READINT);
+    item = ifj_generate_reserved(ifj16, "readInt", T_IDENTIFIER, IFJ16_READINT);
+    item->dataType = T_INTEGER;
 
-    ifj_generate_reserved(ifj16, "readDouble", T_IDENTIFIER, IFJ16_READDOUBLE);
+    item = ifj_generate_reserved(ifj16, "readDouble", T_IDENTIFIER, IFJ16_READDOUBLE);
+    item->dataType = T_DOUBLE;
 
-    ifj_generate_reserved(ifj16, "readString", T_IDENTIFIER, IFJ16_READSTRING);
+    item = ifj_generate_reserved(ifj16, "readString", T_IDENTIFIER, IFJ16_READSTRING);
+    item->dataType = T_STRING;
 
-    ifj_generate_reserved(ifj16, "find", T_IDENTIFIER, IFJ16_FIND);
+    item = ifj_generate_reserved(ifj16, "find", T_IDENTIFIER, IFJ16_FIND);
+    item->dataType = T_INTEGER;
+    item->args = ifj_stack_new();
+    ifj_stack_push(item->args, t_str);
+    ifj_stack_push(item->args, t_str);
 
-    ifj_generate_reserved(ifj16, "sort", T_IDENTIFIER, IFJ16_SORT);
+    item = ifj_generate_reserved(ifj16, "sort", T_IDENTIFIER, IFJ16_SORT);
+    item->dataType = T_STRING;
+    item->args = ifj_stack_new();
+    ifj_stack_push(item->args, t_str);
 
-    ifj_generate_reserved(ifj16, "length", T_IDENTIFIER, IFJ16_LENGTH);
+    item = ifj_generate_reserved(ifj16, "length", T_IDENTIFIER, IFJ16_LENGTH);
+    item->dataType = T_INTEGER;
+    item->args = ifj_stack_new();
+    ifj_stack_push(item->args, t_str);
 
-    ifj_generate_reserved(ifj16, "substr", T_IDENTIFIER, IFJ16_SUBSTR);
+    item = ifj_generate_reserved(ifj16, "substr", T_IDENTIFIER, IFJ16_SUBSTR);
+    item->dataType = T_STRING;
+    item->args = ifj_stack_new();
+    ifj_stack_push(item->args, t_str);
+    ifj_stack_push(item->args, t_int);
+    ifj_stack_push(item->args, t_int);
 
-    ifj_generate_reserved(ifj16, "compare", T_IDENTIFIER, IFJ16_COMPARE);
+    item = ifj_generate_reserved(ifj16, "compare", T_IDENTIFIER, IFJ16_COMPARE);
+    item->dataType = T_INTEGER;
+    item->args = ifj_stack_new();
+    ifj_stack_push(item->args, t_str);
+    ifj_stack_push(item->args, t_str);
 }
 
 /**
@@ -107,6 +139,7 @@ void ifj_syna_free(ifjSyna *self)
 {
     ifj_stack_drop(self->stack);
     ifj_stack_drop(self->help_stack);
+    free(self);
 }
 
 /**
@@ -152,7 +185,7 @@ void ifj_token_free( token *item )
     {
         if(item->value)
         {
-            free( (void*) item->value);
+            free((void *)item->value);
         }
 
         if(item->data)
@@ -169,9 +202,8 @@ void ifj_token_free( token *item )
     if(item->args)
     {
         //token themselfs are freed with symbol table
-        free(item->args);
+        ifj_stack_drop(item->args);
     }
-
     free(item);
 }
 
@@ -256,6 +288,48 @@ void print_unexpected(ifjInter *self, token *item)
                 fprintf(stderr,"%c\"\n", item->type);
             else
                 fprintf(stderr,"code: %d\"\n", item->type);
+            break;
+    }
+}
+
+void print_mistyped(ifjInter *self, token *item, token *expected)
+{
+    fprintf(stderr, "Error: line %d identifier \"",
+            self->lexa_module->line_number);
+    switch(item->type)
+    {
+        case T_INTEGER_C:
+            fprintf(stderr,"%d\"", *((int *)item->value));
+            break;
+        case T_DOUBLE_C:
+            fprintf(stderr,"%g\"", *((double *)item->value));
+            break;
+        case T_STRING_C:
+        case T_IDENTIFIER:
+            fprintf(stderr,"%s\"", (char *)item->value);
+            break;
+        default:
+            if (item->type < 256)
+                fprintf(stderr,"%c\"", item->type);
+    }
+    fprintf(stderr, " mistyped, expected ");
+    if (!expected)
+    {
+        fprintf(stderr, "nothing\n");
+    }
+    else switch(expected->dataType)
+    {
+        case T_INTEGER:
+            fprintf(stderr,"int\n");
+            break;
+        case T_DOUBLE:
+            fprintf(stderr,"double\n");
+            break;
+        case T_STRING:
+            fprintf(stderr,"String\n");
+            break;
+        default:
+            fprintf(stderr,"%d\n", expected->dataType);
             break;
     }
 }

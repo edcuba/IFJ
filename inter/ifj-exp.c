@@ -63,8 +63,9 @@ int condition(ifjInter *self, symbolTable *table)
                 b = 5;
                 break;
             case T_IDENTIFIER:
-                break;
+                return_value = resolve_identifier(self, table, &active, 0);
                 b = 6;
+                break;
             case T_LBLOCK:
                 b = 7;
                 break;
@@ -641,6 +642,7 @@ int expresion(ifjInter *self, symbolTable *table)
                 b = 5;
                 break;
             case T_IDENTIFIER:
+                return_value = resolve_identifier(self, table, &active, 0);
                 b = 6;
                 break;
             case T_SEMICOLON:
@@ -794,13 +796,11 @@ int expresion(ifjInter *self, symbolTable *table)
                     ifj_stack_pop(syna->help_stack);
                     if (ifj_stack_empty(syna->help_stack))
                     {
-
                         top_stack = ifj_stack_top(syna->stack);
                         ifj_stack_push(syna->stack, syna->E);
                         if(self->debugMode)
                         {
                             fprintf(stderr, "E --> id\n");
-
                         }
                     }
                     else

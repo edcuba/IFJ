@@ -124,30 +124,105 @@ int resolve_identifier(ifjInter *self,
 }
 
 /**
- *
- */
-int check_typing(token *op,
-                 token *first,
-                 token *second)
+ * Check if types are convertable
+ * @param first first idenfifier
+ * @param second second idenfifier
+ * @return 0 if convertable
+ **/
+int check_typing(token *first, token *second)
 {
-    int muttable = 0;
+
     if(first->dataType == second->dataType)
     {
-        muttable = 1;
+        return 0;
     }
     else if(first->dataType == T_DOUBLE && second->dataType == T_INTEGER)
     {
-        muttable = 1;
+        return 0;
     }
     else if(first->dataType == T_INTEGER && second->dataType == T_DOUBLE)
     {
-        muttable = 1;
+        return 0;
     }
-
-    return !muttable;
+    return 1;
 }
 
-int sema_run(ifjInter *self)
+void print_table(symbolTable *table, int level)
 {
-    return 0;
+    for (unsigned int i = 0; i < table->size; ++i)
+	{
+		if (table->row[i] == NULL)
+		{
+			continue;
+		}
+
+		token *item = table->row[i];
+		while (item != NULL)
+		{
+            if(item->type == T_IDENTIFIER)
+            {
+                for(int j = 0; j <= level; ++j)
+                    fprintf(stderr,"\t");
+                switch (item->dataType) {
+                    case T_INTEGER:
+                        fprintf(stderr, "int ");
+                        break;
+                    case T_STRING:
+                        fprintf(stderr, "String ");
+                        break;
+                    case T_DOUBLE:
+                        fprintf(stderr, "double ");
+                        break;
+                }
+                fprintf(stderr,"%s", (char *)item->value);
+                if(item->args)
+                {
+                    fprintf(stderr, "(");
+                    for(int i = 0; i <= item->args->top; ++i)
+                    {
+                        token *sub = item->args->elements[i];
+                        switch (sub->dataType) {
+                            case T_INTEGER:
+                                fprintf(stderr, " int ");
+                                break;
+                            case T_STRING:
+                                fprintf(stderr, " String ");
+                                break;
+                            case T_DOUBLE:
+                                fprintf(stderr, " double ");
+                                break;
+                        }
+                        fprintf(stderr,"%s", (char *)sub->value);
+
+                    }
+                    fprintf(stderr, ")");
+                }
+                else if(item->childTable)
+                {
+                    fprintf(stderr, "()");
+                }
+                if(item->data)
+                {
+                    switch (item->dataType) {
+                        case T_INTEGER:
+                            fprintf(stderr, " = %d", *((int *) item->data));
+                            break;
+                        case T_STRING:
+                            fprintf(stderr, " = %s", (char *) item->data);
+                            break;
+                        case T_DOUBLE:
+                            fprintf(stderr, " = %g", *((double *) item->data));
+                            break;
+                        }
+                }
+                fprintf(stderr, "\n");
+                if(item->childTable)
+                {
+                    print_table(item->childTable, level + 1);
+                }
+            }
+			item = item->next;
+		}
+	}
+
 }

@@ -181,7 +181,7 @@ token * ifj_generate_token_str ( symbolTable *table, char *value )
         item = table->add_item(table, item, hashname);
 
         item->dataType = T_STRING;
-        item->data = (void *)value;
+        item->data = (void *)item->value;
 
         free(hashname);
         return item;
@@ -210,8 +210,9 @@ token *ifj_generate_token_id (char *value)
 * @param value identifier
 * @param type token type
 * @param method token method for prebuild functions
+* @return pointer to generated token
 */
-void ifj_generate_reserved (symbolTable *table, char *value, int type, int method)
+token *ifj_generate_reserved (symbolTable *table, char *value, int type, int method)
 {
     token *item = table->get_item(table, value, type, NULL);
     if (!item)
@@ -223,6 +224,7 @@ void ifj_generate_reserved (symbolTable *table, char *value, int type, int metho
         item->method = method;
         item = table->add_item(table, item, NULL);
     }
+    return item;
 }
 
 /**

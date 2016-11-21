@@ -196,22 +196,26 @@ int next_param(ifjInter *self, symbolTable *table, token *expected)
             self->returnCode = rc;
             return rc;
         }
-        if(active->dataType == expected->dataType)
+        if(expected && !check_typing(active, expected))
         {
             return 0;
         }
+        print_mistyped(self, active, expected);
+        return 4;
     }
     else if(active->type == T_INTEGER_C ||
             active->type == T_DOUBLE_C ||
             active->type == T_STRING_C)
     {
-        if(active->dataType == expected->dataType)
+        if(expected && !check_typing(active, expected))
         {
             return 0;
         }
+        print_mistyped(self, active, expected);
+        return 4;
     }
     print_unexpected(self, active);
-    return 4;
+    return 2;
 }
 
 /**
@@ -373,7 +377,6 @@ int next_function_param(ifjInter *self, token *item)
             print_unexpected(self, active);
             return_value = 2;
         }
-
     }
     else if(active->type != T_RPAREN)
     {
@@ -707,8 +710,7 @@ int fce(ifjInter *self, symbolTable *table, token *item)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type == T_LPAREN)
     {
-        return !function_parameters(self, table, item) &&
-               !is_semicolon(self);
+        return function_parameters(self, table, item);
     }
     else if (active->type == T_ASSIGN)
     {
@@ -722,7 +724,6 @@ int fce(ifjInter *self, symbolTable *table, token *item)
 /**
  * Resolving functon call with return
  * fetch next token. Expect ")" or next function param
- * TODO We should check argument count and type here
  * @param self global structure
  * @param table symbol table for current function (not called one!)
  * @param item called function structure
@@ -732,6 +733,10 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
 {
     token *active = lexa_next_token(self->lexa_module, table);
     token *expected = NULL;
+    if(item->args && !ifj_stack_empty(item->args))
+    {
+        expected = item->args->elements[0];
+    }
     if (active->type == T_IDENTIFIER)
     {
         int rc = resolve_identifier(self, table, &active, 0);
@@ -740,23 +745,46 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
             self->returnCode = rc;
             return rc;
         }
-        if(active->dataType == expected->dataType)
+        if(expected && !check_typing(active, expected))
         {
-            return next_function_parameters(self, table, item);
+            if(1 > item->args->top)
+            {
+                expected = NULL;
+            }
+            else
+            {
+                expected = item->args->elements[1];
+            }
+            return next_function_parameters(self, table, item, expected, 1);
         }
+        print_mistyped(self, active, expected);
+        return 4;
     }
     else if(active->type == T_INTEGER_C ||
             active->type == T_DOUBLE_C ||
             active->type == T_STRING_C)
     {
-        if(active->dataType == expected->dataType)
+        if(expected && !check_typing(active, expected))
         {
-            return next_function_parameters(self, table, item);
+            if(1 > item->args->top)
+            {
+                expected = NULL;
+            }
+            else
+            {
+                expected = item->args->elements[1];
+            }
+            return next_function_parameters(self, table, item, expected, 1);
         }
+        print_mistyped(self, active, expected);
+        return 4;
     }
     else if (active->type == T_RPAREN)
     {
-        return 0;
+        if(item->args && item->args->top == 0)
+            return 0;
+        print_mistyped(self, active, expected);
+        return 4;
     }
     print_unexpected(self, active);
     return 2;
@@ -764,32 +792,46 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
 
 /**
  * Resolving function call, fetch next token. Expect ");" or next func param
- * TODO We should check argument count and type here
  * @param self global structure
  * @param table symbol table for current function (not called one!)
  * @param item called function structure
  * @return 0 if successful
  **/
-int next_function_parameters(ifjInter *self, symbolTable *table, token *item)
+int next_function_parameters(ifjInter *self,
+                             symbolTable *table,
+                             token *item,
+                             token *expected,
+                             int idx)
 {
-    int return_value = 0;
-    token *active = lexa_next_token(self->lexa_module,self->table);
-    token *expected = NULL; //TODO
+    token *active = lexa_next_token(self->lexa_module, self->table);
     if (active->type == T_RPAREN)
     {
-        return_value = !is_semicolon(self);
+        if(item->args && item->args->top == idx - 1)
+            return is_semicolon(self);
+        print_mistyped(self, active, expected);
+        return 4;
+
     }
     else if (active->type == T_COMMA)
     {
-        return_value = next_param(self, table, expected) &&
-                       next_function_parameters(self, table, item);
+        int rc = next_param(self, table, expected);
+        if(!rc)
+        {
+            if(idx > item->args->top)
+            {
+                expected = NULL;
+            }
+            else
+            {
+                idx++;
+                expected = item->args->elements[idx];
+            }
+            return next_function_parameters(self, table, item, expected, idx);
+        }
+        return rc;
     }
-    else
-    {
-        print_unexpected(self, active);
-        return_value = 2;
-    }
-    return return_value;
+    print_unexpected(self, active);
+    return 2;
 }
 
 /**
@@ -847,13 +889,15 @@ int syna_run( ifjInter *self)
         fprintf(stderr, "Syna result: %d\n", return_value);
     }
 
+    if(self->debugMode)
+        print_table(self->table, 0);
+
     return return_value;
 }
 
 /**
  * Resolving functon call with return
  * fetch next token. Expect ")" or next function param
- * TODO We should check argument count and type here
  * @param self global structure
  * @param table symbol table for current function (not called one!)
  * @param item called function structure
@@ -864,67 +908,5 @@ int function_parameters_for_exp(ifjInter *self,
                                 symbolTable *table,
                                 token *item)
 {
-    token *active = lexa_next_token(self->lexa_module, table);
-    token *expected = NULL;
-    if (active->type == T_IDENTIFIER)
-    {
-        int rc = resolve_identifier(self, table, &active, 0);
-        if(rc)
-        {
-            self->returnCode = rc;
-            return rc;
-        }
-        if(active->dataType == expected->dataType)
-        {
-            return next_function_parameters_for_exp(self, table, item);
-        }
-    }
-    else if(active->type == T_INTEGER_C ||
-            active->type == T_DOUBLE_C ||
-            active->type == T_STRING_C)
-    {
-        if(active->dataType == expected->dataType)
-        {
-            return next_function_parameters_for_exp(self, table, item);
-        }
-    }
-    else if (active->type == T_RPAREN)
-    {
-        return 0;
-    }
-    print_unexpected(self, active);
-    return 2;
-}
-
-/**
- * Resolving function call with return
- * fetch next token. Expect ");" or next func param
- * TODO We should check argument count and type here
- * @param self global structure
- * @param table symbol table for current function (not called one!)
- * @param item called function structure
- * @return 0 if successful
- **/
-int next_function_parameters_for_exp(ifjInter *self,
-                                     symbolTable *table,
-                                     token *item)
-{
-    int return_value = 0;
-    token *active = lexa_next_token(self->lexa_module,self->table);
-    token *expected = NULL; //TODO
-    if (active->type == T_RPAREN)
-    {
-        return_value = !is_semicolon(self);
-    }
-    else if (active->type == T_COMMA)
-    {
-        return_value = !next_param(self, table, expected) &&
-                       !next_function_parameters_for_exp(self, table, item);
-    }
-    else
-    {
-        print_unexpected(self, active);
-        return_value = 2;
-    }
-    return return_value;
+    return function_parameters(self, table, item);
 }
