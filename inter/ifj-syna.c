@@ -56,25 +56,23 @@ příkazové řádky atd.).*/
  **/
 int next_class(ifjInter *self)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, self->table);
     if ((active->type) == T_END)
     {
-        return_value =  0;
+        return 0;
     }
     else if (active->type == T_CLASS && !is_ID(self, self->table, &active))
     {
         active->childTable = ial_symbol_table_new();
         active->childTable->parent = self->table;
-        return_value = class_inside(self, active->childTable) &&
-                       next_class(self);
+        return !class_inside(self, active->childTable) &&
+               !next_class(self);
     }
     else
     {
         print_unexpected(self, active);
-        return_value = 2;
+        return 2;
     }
-    return return_value;
 }
 
 /**
@@ -85,19 +83,16 @@ int next_class(ifjInter *self)
  **/
 int class_inside(ifjInter *self, symbolTable *table)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type == T_LBLOCK)
     {
-        return_value = class_inside1(self, table);
+        return class_inside1(self, table);
     }
     else
     {
         print_unexpected(self, active);
-        return_value = 2;
+        return 2;
     }
-
-    return return_value;
 }
 
 /**
@@ -108,23 +103,23 @@ int class_inside(ifjInter *self, symbolTable *table)
  **/
 int class_inside1(ifjInter *self, symbolTable *table)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type != T_RBLOCK)
     {
         if (active->type == T_STATIC)
         {
-            return_value = !get_type_with_void(self, &active) &&
-                           !is_ID(self, table, &active) &&
-                           !class_inside2(self, table, active);
+            return !get_type_with_void(self, &active) &&
+                   !is_ID(self, table, &active) &&
+                   !class_inside2(self, table, active);
         }
         else
         {
             print_unexpected(self, active);
-            return_value = 2;
+            return 2;
         }
     }
-    return return_value;
+
+    return 0;
 }
 
 /**
@@ -224,35 +219,33 @@ int next_param(ifjInter *self, symbolTable *table, token *expected)
  **/
 int class_inside2(ifjInter *self, symbolTable *table, token *item)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, self->table);
     //function
     if (active->type == T_LPAREN)
     {
         item->childTable = ial_symbol_table_new();
         item->childTable->parent = table;
-        return_value = !function_declar(self, item) &&
-                       !function_inside(self, item) &&
-                       !class_inside1(self, table);
+        return !function_declar(self, item) &&
+               !function_inside(self, item) &&
+               !class_inside1(self, table);
     }
     //variable
     else if (active->type == T_SEMICOLON)
     {
         //check if not void here
-        return_value = class_inside1(self, table);
+        return class_inside1(self, table);
     }
     else if (active->type == T_ASSIGN)
     {
-        return_value = !expresion(self, table) &&
-                       !class_inside1(self, table);
+        return !expresion(self, table) &&
+               !class_inside1(self, table);
     }
     //some garbage
     else
     {
         print_unexpected(self, active);
-        return_value = 2;
+        return 2;
     }
-    return return_value;
 }
 
 /**
@@ -318,7 +311,6 @@ int get_type_without_void(ifjInter *self, token **item)
  **/
 int function_declar(ifjInter *self, token *item)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, item->childTable);
     switch(active->type)
     {
@@ -329,23 +321,22 @@ int function_declar(ifjInter *self, token *item)
             {
                 item->args = ifj_stack_new();
                 ifj_stack_push(item->args, active);
-                return_value = next_function_param(self, item);
+                return next_function_param(self, item);
             }
             else
             {
                 print_unexpected(self, active);
-                return_value = 2;
+                return 2;
             }
             break;
         case T_RPAREN:
-            return_value = 0;
+            return 0;
             break;
         default:
-            return_value = 2;
             print_unexpected(self, active);
+            return 2;
             break;
     }
-    return return_value;
 }
 
 /**
@@ -358,7 +349,6 @@ int function_declar(ifjInter *self, token *item)
  **/
 int next_function_param(ifjInter *self, token *item)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type == T_COMMA)
     {
@@ -366,21 +356,22 @@ int next_function_param(ifjInter *self, token *item)
            !is_ID(self, item->childTable, &active))
         {
             ifj_stack_push(item->args, active);
-            return_value = next_function_param(self, item);
+            return next_function_param(self, item);
         }
         else
         {
             print_unexpected(self, active);
-            return_value = 2;
+            return 2;
         }
 
     }
     else if(active->type != T_RPAREN)
     {
-        return_value = 2;
         print_unexpected(self, active);
+        return 2;
     }
-    return return_value;
+
+    return 0;
 }
 
 /**
@@ -573,18 +564,17 @@ int is_ASSIGN(ifjInter *self)
  **/
 int if_else1(ifjInter *self, symbolTable *table)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, table);
     if (active->type == T_ELSE)
     {
-        return_value = !is_LBLOCK(self) && !statement_inside1(self, table);
+        return !is_LBLOCK(self) &&
+               !statement_inside1(self, table);
     }
     else
     {
       self->pushBack = active;
-      return_value = 1;
+      return 1;
     }
-    return return_value;
 }
 
 /**
@@ -772,24 +762,22 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
  **/
 int next_function_parameters(ifjInter *self, symbolTable *table, token *item)
 {
-    int return_value = 0;
     token *active = lexa_next_token(self->lexa_module,self->table);
     token *expected = NULL; //TODO
     if (active->type == T_RPAREN)
     {
-        return_value = !is_semicolon(self);
+        return !is_semicolon(self);
     }
     else if (active->type == T_COMMA)
     {
-        return_value = next_param(self, table, expected) &&
-                       next_function_parameters(self, table, item);
+        return !next_param(self, table, expected) &&
+               !next_function_parameters(self, table, item);
     }
     else
     {
         print_unexpected(self, active);
-        return_value = 2;
+        return 2;
     }
-    return return_value;
 }
 
 /**
@@ -820,7 +808,6 @@ int sth_next(ifjInter *self, symbolTable *table, token *item)
 int rel_operator(ifjInter *self)
 {
   /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, self->table);
     switch (active->type)
     {
@@ -830,12 +817,11 @@ int rel_operator(ifjInter *self)
         case T_GREATER_EQUAL:
         case T_EQUAL:
         case T_NOT_EQUAL:
-        return_value = 1;
+        return 1;
         break;
         default:
-        return_value = 0;
+        return 0;
     }
-    return return_value;
 }
 
 int syna_run( ifjInter *self)
@@ -909,22 +895,20 @@ int next_function_parameters_for_exp(ifjInter *self,
                                      symbolTable *table,
                                      token *item)
 {
-    int return_value = 0;
     token *active = lexa_next_token(self->lexa_module,self->table);
     token *expected = NULL; //TODO
     if (active->type == T_RPAREN)
     {
-        return_value = !is_semicolon(self);
+        return !is_semicolon(self);
     }
     else if (active->type == T_COMMA)
     {
-        return_value = !next_param(self, table, expected) &&
-                       !next_function_parameters_for_exp(self, table, item);
+        return !next_param(self, table, expected) &&
+               !next_function_parameters_for_exp(self, table, item);
     }
     else
     {
         print_unexpected(self, active);
-        return_value = 2;
+        return 2;
     }
-    return return_value;
 }
