@@ -257,7 +257,7 @@ void print_unexpected(token *item)
             if (item->type < 256)
                 fprintf(stderr,"%c\"\n", item->type);
             else
-                fprintf(stderr,"code: %d\"", item->type);
+                fprintf(stderr,"code: %d\"\n", item->type);
             break;
     }
 }

@@ -20,7 +20,6 @@ int is_LBLOCK(ifjInter *self);
 
 int next_param(ifjInter *self, symbolTable *table, token *expected);
 
-int start(ifjInter *self);
 int next_class(ifjInter *self);
 
 int class_inside(ifjInter *self, symbolTable *table);
@@ -44,7 +43,9 @@ int next_function_parameters(ifjInter *self, symbolTable *table, token *item);
 int function_parameters_for_exp(ifjInter *self,
                                 symbolTable *table,
                                 token *item);
-int next_function_parameters_for_exp(ifjInter *self);
+int next_function_parameters_for_exp(ifjInter *self,
+                                     symbolTable *table,
+                                     token *item);
 
 int get_type_with_void(ifjInter *self, token **item);
 int get_type_without_void(ifjInter *self, token **item);

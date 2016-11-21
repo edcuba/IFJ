@@ -355,7 +355,7 @@ void ifj_print ( token_stack *inStack, int popNum )
 	            printf("%g", *((double *)item->data));
 	            break;
 	        case T_STRING:
-	            printf"%s", (char *)item->data);
+	            printf("%s", (char *)item->data);
 	            break;
 		}
 	}

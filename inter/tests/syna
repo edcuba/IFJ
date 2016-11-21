@@ -1,6 +1,6 @@
 class Main
 {
-  static int a,b,c;
+  static int a = 0;
   static String ahojky;
   static void run()
   {}

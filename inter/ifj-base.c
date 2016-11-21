@@ -7,8 +7,8 @@
 #include "ifj-inter.h"
 #include <stdio.h>
 
-
-#define check(arg) rc = arg; if(rc) do { ifj_inter_free(self); return rc;} while(0) //exit when return code not 0
+//exit when return code not 0
+#define check(arg) rc = arg; if(rc) do { ifj_inter_free(self); return rc;} while(0)
 
 int main (  int argc,
             char **argv)
@@ -18,7 +18,7 @@ int main (  int argc,
     //XXX
     self->debugMode = 1;
     check(self->load(argc, argv, self)); //load input file
-    check(self->syna(self)); //run syntactic analysis
+    check(syna_run(self)); //run syntactic analysis
 
 
     ifj_inter_free(self);

@@ -81,7 +81,6 @@ token * ifj_generate_token(symbolTable *table, int type)
     }
 }
 
-
 /**
  * Generate token for constant int value
  * - if constant is allready in symbol table, returns reference
@@ -111,7 +110,7 @@ token * ifj_generate_token_int ( symbolTable *table, int value )
 
         item = table->add_item(table, item, hashname);
         item->dataType = T_INTEGER;
-        *((int *) item->data) = value;
+        item->data = (void *)item->value;
 
         free(hashname);
         return item;
@@ -147,7 +146,7 @@ token * ifj_generate_token_double ( symbolTable *table, double value )
 
         item = table->add_item(table, item, hashname);
         item->dataType = T_DOUBLE;
-        *((double *) item->data) = value;
+        item->data = (void *)item->value;
 
         free(hashname);
         return item;
@@ -182,7 +181,7 @@ token * ifj_generate_token_str ( symbolTable *table, char *value )
         item = table->add_item(table, item, hashname);
 
         item->dataType = T_STRING;
-        (char *) item->data = value;
+        item->data = (void *)value;
 
         free(hashname);
         return item;

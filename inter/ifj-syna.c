@@ -49,47 +49,6 @@ výrazech, příp. špatný počet či typ parametrů u volání funkce.
 lokace paměti, chyba při otvírání souboru s řídicím programem, špatné parametry
 příkazové řádky atd.).*/
 
-/* TODO EDO  na zaciatku by mala byt vytvorena niejaka tabulka  globalna kde bude vsetko
-+ 1 tabulka pre classu Main sa urobi hned na zaciatku este pred pustenim  analyz*/
-/*TODO EDO kazda funkcia obsahuje premennu active kde je ulozeny akutualny  token
-2. parameter je vzdy self->table  nastaveny, len mi nieje jasne ako to urobit aby sa napriklad pri kazdom volani
-funkcie ukladalo do inej tabulky kedze stale sa bude volat ten isty kod, dufam ze tebe je :D*/
-/* TODO EDO  pri kazdom volani tokenu najdes popis o co sa jedna a  kde sa nachadza*/
-
-int start(ifjInter *self)
-{
-    int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
-    if (active->type ==  T_CLASS)
-    {
-        /*
-            TODO XXX JANY myslím, že by sme tu mali skočiť rovno do next_class
-        */
-        /* TODO EDO  uplne prve slovo  v zdrojaku cize  token class k prvej classe Main*/
-
-        //return_value = (is_ID(self) &&
-        /*TODO  JANY tu treba overit ci to is_ID je Main, cize bud  upravit funkciu
-        a spravit v nej 2 volania lexa_next_token,
-        alebo si urobit static premennu counter ktora to skontroluje ked sa
-        1.x zavola is_ID --> prve ID musi byt main
-
-        XXX tu to podla mna nemusime riešiť, to či je metóda Run v classe Main
-        definovaná si vieme jednoducho overiť po behu syntaktickej a rovno
-        aj nastaviť štartovací bod pre exekúT_FOR
-        */
-        //                class_inside(self) &&
-        //                next_class(self));
-
-
-    }
-    else
-    {
-        return_value = 0;
-    }
-    return  return_value;
-
-}
-
 /**
  * Next class or EOF
  * @param self global structure
@@ -106,7 +65,7 @@ int next_class(ifjInter *self)
     else if (active->type == T_CLASS && !is_ID(self, self->table, &active))
     {
         active->childTable = ial_symbol_table_new();
-        active->parent = self->table;
+        active->childTable->parent = self->table;
         return_value = class_inside(self, active->childTable) &&
                        next_class(self);
     }
@@ -116,7 +75,6 @@ int next_class(ifjInter *self)
         return_value = 2;
     }
     return return_value;
-
 }
 
 /**
@@ -131,7 +89,7 @@ int class_inside(ifjInter *self, symbolTable *table)
     token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type == T_LBLOCK)
     {
-        return_value = class_inside1(self);
+        return_value = class_inside1(self, table);
     }
     else
     {
@@ -156,9 +114,9 @@ int class_inside1(ifjInter *self, symbolTable *table)
     {
         if (active->type == T_STATIC)
         {
-            return_value = get_type_with_void(self, &active) &&
-                           is_ID(self, table, &active) &&
-                           class_inside2(self, table, active);
+            return_value = !get_type_with_void(self, &active) &&
+                           !is_ID(self, table, &active) &&
+                           !class_inside2(self, table, active);
         }
         else
         {
@@ -272,7 +230,7 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
     if (active->type == T_LPAREN)
     {
         item->childTable = ial_symbol_table_new();
-        item->parent = table;
+        item->childTable->parent = table;
         return_value = !function_declar(self, item) &&
                        !function_inside(self, item) &&
                        !class_inside1(self, table);
@@ -285,7 +243,9 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
     }
     else if (active->type == T_ASSIGN)
     {
-        return_value = !expresion(self) && !class_inside1(self, table);
+        return_value = !expresion(self, table) &&
+                       !is_semicolon(self) &&
+                       !class_inside1(self, table);
     }
     //some garbage
     else
@@ -432,19 +392,15 @@ int next_function_param(ifjInter *self, token *item)
  **/
 int function_inside(ifjInter *self, token *item)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type == T_LBLOCK)
     {
-        return_value = function_inside1(self, item);
+        return function_inside1(self, item);
     }
-    else
-    {
-        print_unexpected(active);
-        return_value = 2;
-    }
-    return return_value;
+    print_unexpected(active);
+    return 2;
 }
+
 
 /**
  * Inside function. Expects "}", "while", "break", "continue", "if", "return",
@@ -510,13 +466,13 @@ int function_inside1(ifjInter *self, token *item)
             break;
         case T_CONTINUE:
             return_value = !is_semicolon(self) &&
-                           !function_inside1(self);
+                           !function_inside1(self, item);
             break;
         case T_IF:
             return_value = (
                 !condition(self, item->childTable) &&
                 !statement_inside1(self, item->childTable) &&
-                !if_else1(self, table) &&
+                !if_else1(self, item->childTable) &&
                 !function_inside1(self, item)
             );
             break;
@@ -532,7 +488,7 @@ int function_inside1(ifjInter *self, token *item)
                            !function_inside1(self, item);
             break;
         case T_IDENTIFIER:
-            return_value = !fce(self) &&
+            return_value = !fce(self, item->childTable, active) &&
                            !function_inside1(self, item);
             break;
         default:
@@ -550,84 +506,57 @@ int function_inside1(ifjInter *self, token *item)
  **/
 int is_semicolon(ifjInter *self)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type != T_SEMICOLON)
     {
         print_unexpected(active);
-        return_value = 2;
+        return 2;
     }
-    return return_value;
+    return 0;
 }
-
 
 int is_while(ifjInter *self)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module,self->table);
-    /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
-    if (active->type == T_WHILE)
+    if (active->type != T_WHILE)
     {
-        return_value = 1;
+        print_unexpected(active);
+        return 2;
     }
-    else
-    {
-        return_value = 0;
-    }
-    return return_value;
+    return 0;
 }
-
 
 int is_LPAREN(ifjInter *self)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module,self->table);
-    /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
-    if (active->type == T_LPAREN)
+    if (active->type != T_LPAREN)
     {
-        return_value = 1;
+        print_unexpected(active);
+        return 2;
     }
-    else
-    {
-        return_value = 0;
-    }
-    return return_value;
+    return 0;
 }
-
 
 int is_RPAREN(ifjInter *self)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module,self->table);
-    /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
-    if (active->type == T_RPAREN)
+    if (active->type != T_RPAREN)
     {
-        return_value = 1;
+        print_unexpected(active);
+        return 2;
     }
-    else
-    {
-        return_value = 0;
-    }
-    return return_value;
+    return 0;
 }
-
-
 
 int is_ASSIGN(ifjInter *self)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module,self->table);
-    /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie, resp, momentalne
-    nevyuzivane vobec pouzivam pri DO a FOR ktore zatial niesu plne funkcne*/
-    if (active->type == T_ASSIGN)
+    if (active->type != T_ASSIGN)
     {
-        return_value = 1;
+        print_unexpected(active);
+        return 2;
     }
-    else
-    {
-        return_value = 0;
-    }
-    return return_value;
+    return 0;
 }
 
 /**
@@ -642,7 +571,7 @@ int if_else1(ifjInter *self, symbolTable *table)
     token * active = lexa_next_token(self->lexa_module, table);
     if (active->type == T_ELSE)
     {
-        return_value = is_LBLOCK(self) && statement_inside1(self);
+        return_value = !is_LBLOCK(self) && !statement_inside1(self, table);
     }
     else
     {
@@ -652,20 +581,20 @@ int if_else1(ifjInter *self, symbolTable *table)
     return return_value;
 }
 
+/**
+ * Fetch next token, expects "{"
+ * @param self global structure
+ * @return 0 if successful
+ **/
 int is_LBLOCK(ifjInter *self)
 {
-    int return_value = 0;
     token * active = lexa_next_token(self->lexa_module,self->table);
-    /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
-    if (active->type == T_LBLOCK)
+    if (active->type != T_LBLOCK)
     {
-        return_value = 1;
+        print_unexpected(active);
+        return 2;
     }
-    else
-    {
-        return_value = 0;
-    }
-    return return_value;
+    return 0;
 }
 
 /**
@@ -772,12 +701,13 @@ int fce(ifjInter *self, symbolTable *table, token *item)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type == T_LPAREN)
     {
-        return function_parameters(self) && !is_semicolon(self);
+        return !function_parameters(self, table, item) &&
+               !is_semicolon(self);
     }
     else if (active->type == T_ASSIGN)
     {
         //TODO typing + instruction
-        return expresion(self);
+        return !expresion(self, table);
     }
     print_unexpected(active);
     return 2;
@@ -801,7 +731,7 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
         active->type == T_DOUBLE_C ||
         active->type == T_STRING_C)
     {
-        return_value = next_function_parameters_for_exp(self, table, item);
+        return_value = !next_function_parameters(self, table, item);
     }
     else if (active->type != T_RPAREN)
     {
@@ -831,7 +761,7 @@ int next_function_parameters(ifjInter *self, symbolTable *table, token *item)
     else if (active->type == T_COMMA)
     {
         return_value = next_param(self, table, expected) &&
-                       next_function_parameters_for_exp(self);
+                       next_function_parameters(self, table, item);
     }
     else
     {
@@ -855,7 +785,7 @@ int sth_next(ifjInter *self, symbolTable *table, token *item)
     if (active->type == T_ASSIGN)
     {
         //TODO check typing
-        return_value = expresion(self);
+        return_value = !expresion(self, table);
         // TODO generate instruction
     }
     else if (active->type != T_SEMICOLON)
@@ -871,7 +801,7 @@ int rel_operator(ifjInter *self)
 {
   /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
     int return_value = 0;
-    token * active = lexa_next_token(self->lexa_module,self->table);
+    token * active = lexa_next_token(self->lexa_module, self->table);
     switch (active->type)
     {
         case T_LESS:
@@ -890,7 +820,7 @@ int rel_operator(ifjInter *self)
 
 int syna_run( ifjInter *self)
 {
-    int return_value = start(self);
+    int return_value = next_class(self);
 
     if(self->debugMode)
     {
@@ -953,8 +883,8 @@ int next_function_parameters_for_exp(ifjInter *self,
     }
     else if (active->type == T_COMMA)
     {
-        return_value = next_param(self, table, expected) &&
-                       next_function_parameters_for_exp(self);
+        return_value = !next_param(self, table, expected) &&
+                       !next_function_parameters_for_exp(self, table, item);
     }
     else
     {

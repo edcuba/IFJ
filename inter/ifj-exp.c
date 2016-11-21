@@ -158,7 +158,7 @@ int condition(ifjInter *self, symbolTable *table)
                 break;
         }
 
-        switch (self->predictCondition[a][b])
+        switch ((*syna->predictCondition)[a][b])
         {
             case T_EQUAL:
                 ifj_stack_push(syna->stack, active);
@@ -343,7 +343,7 @@ int condition(ifjInter *self, symbolTable *table)
                     case T_SUBTRACT:
                     ifj_stack_pop(syna->help_stack);
                     top_on_help_stack = ifj_stack_top(syna->help_stack);
-                    if (top_on_help_stack == E)
+                    if (top_on_help_stack == syna->E)
                     {
                         ifj_stack_pop(syna->help_stack);
                         if(ifj_stack_empty(syna->help_stack))
@@ -375,7 +375,7 @@ int condition(ifjInter *self, symbolTable *table)
 
                     case T_DIVIDE:ifj_stack_pop(syna->help_stack);
                     top_on_help_stack = ifj_stack_top(syna->help_stack);
-                    if (top_on_help_stack == E)
+                    if (top_on_help_stack == syna->E)
                     {
                         ifj_stack_pop(syna->help_stack);
                         if(ifj_stack_empty(syna->help_stack))
@@ -402,7 +402,7 @@ int condition(ifjInter *self, symbolTable *table)
                     case T_MULTIPLY:
                     ifj_stack_pop(syna->help_stack);
                     top_on_help_stack = ifj_stack_top(syna->help_stack);
-                    if (top_on_help_stack == E)
+                    if (top_on_help_stack == syna->E)
                     {
                         ifj_stack_pop(syna->help_stack);
                         if(ifj_stack_empty(syna->help_stack))
@@ -481,7 +481,7 @@ int condition(ifjInter *self, symbolTable *table)
                     case T_EQUAL:
                         ifj_stack_pop(syna->help_stack);
                         top_on_help_stack = ifj_stack_top(syna->help_stack);
-                        if (top_on_help_stack == E)
+                        if (top_on_help_stack == syna->E)
                         {
                             ifj_stack_pop(syna->help_stack);
                             if (ifj_stack_empty(syna->help_stack))
@@ -606,6 +606,7 @@ int expresion(ifjInter *self, symbolTable *table)
     {
         fprintf(stderr, "som v expresion\n");
     }
+    ifjSyna *syna = self->syna;
 
     int b;
     int a; // first symbol on stack is automatically $ --> 7;
@@ -697,14 +698,13 @@ int expresion(ifjInter *self, symbolTable *table)
                 return -1;
                 break;
         }
-        switch (self->predictExpresion[a][b])
+        switch ((*syna->predictExpresion)[a][b])
         {
             case T_EQUAL:
             ifj_stack_push(syna->stack,active);
             top_stack = ifj_stack_top(syna->stack);
             active = lexa_next_token(self->lexa_module, table);
             break;
-
 
             case  T_LESS:
                 if (ifj_stack_top(syna->stack)->type == E_TYPE)
