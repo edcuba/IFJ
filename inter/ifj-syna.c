@@ -59,18 +59,19 @@ int next_class(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module, self->table);
     if ((active->type) == T_END)
     {
-        return 0;
+        return 1;
     }
-    else if (active->type == T_CLASS && !is_ID(self, self->table, &active))
+    else if (active->type == T_CLASS && is_ID(self, self->table, &active))
     {
         active->childTable = ial_symbol_table_new();
         active->childTable->parent = self->table;
-        return !class_inside(self, active->childTable) &&
-               !next_class(self);
+        return class_inside(self, active->childTable) &&
+               next_class(self);
     }
 
     print_unexpected(self, active);
-    return 2;
+    self->returnCode = 2;
+    return 0;
 }
 
 /**
@@ -88,7 +89,8 @@ int class_inside(ifjInter *self, symbolTable *table)
     }
 
     print_unexpected(self, active);
-    return 2;
+    self->returnCode = 2;
+    return 0;
 }
 
 /**
@@ -104,18 +106,19 @@ int class_inside1(ifjInter *self, symbolTable *table)
     {
         if (active->type == T_STATIC)
         {
-            return !get_type_with_void(self, &active) &&
-                   !is_ID(self, table, &active) &&
-                   !class_inside2(self, table, active);
+            return get_type_with_void(self, &active) &&
+                   is_ID(self, table, &active) &&
+                   class_inside2(self, table, active);
         }
         else
         {
             print_unexpected(self, active);
-            return 2;
+            self->returnCode = 2;
+            return 0;
         }
     }
 
-    return 0;
+    return 1;
 }
 
 /**
@@ -162,7 +165,7 @@ int is_ID(ifjInter *self, symbolTable *table, token **item)
 
     print_unexpected(self, active);
     self->returnCode = 4;
-    return 4;
+    return 0;
 }
 
 /**
@@ -180,30 +183,32 @@ int next_param(ifjInter *self, symbolTable *table, token *expected)
         int rc = resolve_identifier(self, table, &active, 0);
         if(rc)
         {
-            self->returnCode = rc;
             return rc;
         }
-        if(expected && !check_typing(active, expected))
+        if(expected && check_typing(active, expected))
         {
-            return 0;
+            return 1;
         }
         print_mistyped(self, active, expected);
+        self->returnCode = 4;
         return 4;
     }
     else if(active->type == T_INTEGER_C ||
             active->type == T_DOUBLE_C ||
             active->type == T_STRING_C)
     {
-        if(expected && !check_typing(active, expected))
+        if(expected && check_typing(active, expected))
         {
-            return 0;
+            return 1;
         }
         print_mistyped(self, active, expected);
-        return 4;
+        self->returnCode = 4;
+        return 0;
     }
 
     print_unexpected(self, active);
-    return 2;
+    self->returnCode = 2;
+    return 0;
 }
 
 /**
@@ -222,9 +227,9 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
     {
         item->childTable = ial_symbol_table_new();
         item->childTable->parent = table;
-        return !function_declar(self, item) &&
-               !function_inside(self, item) &&
-               !class_inside1(self, table);
+        return function_declar(self, item) &&
+               function_inside(self, item) &&
+               class_inside1(self, table);
     }
     //variable
     else if (active->type == T_SEMICOLON)
@@ -234,13 +239,14 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
     }
     else if (active->type == T_ASSIGN)
     {
-        return !expresion(self, table) &&
-               !class_inside1(self, table);
+        return expresion(self, table) &&
+               class_inside1(self, table);
     }
     //some garbage
 
     print_unexpected(self, active);
-    return 2;
+    self->returnCode = 2;
+    return 0;
 }
 
 /**
@@ -259,11 +265,12 @@ int get_type_with_void(ifjInter *self, token **item)
         case T_DOUBLE:
         case T_STRING:
         case T_VOID:
-            return 0;
+            return 1;
     }
 
     print_unexpected(self, active);
-    return 2;
+    self->returnCode = 2;
+    return 0;
 }
 
 /**
@@ -281,11 +288,12 @@ int get_type_without_void(ifjInter *self, token **item)
         case T_INTEGER:
         case T_DOUBLE:
         case T_STRING:
-            return 0;
+            return 1;
     }
 
     print_unexpected(self, active);
-    return 2;
+    self->returnCode = 2;
+    return 0;
 }
 
 /**
@@ -304,7 +312,7 @@ int function_declar(ifjInter *self, token *item)
         case T_INTEGER:
         case T_DOUBLE:
         case T_STRING:
-            if(!is_ID(self, item->childTable, &active))
+            if(is_ID(self, item->childTable, &active))
             {
                 item->args = ifj_stack_new();
                 ifj_stack_push(item->args, active);
@@ -313,15 +321,17 @@ int function_declar(ifjInter *self, token *item)
             else
             {
                 print_unexpected(self, active);
-                return 2;
+                self->returnCode = 2;
+                return 0;
             }
 
         case T_RPAREN:
-            return 0;
+            return 1;
     }
 
     print_unexpected(self, active);
-    return 2;
+    self->returnCode = 2;
+    return 0;
 }
 
 /**
@@ -337,8 +347,8 @@ int next_function_param(ifjInter *self, token *item)
     token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type == T_COMMA)
     {
-        if(!get_type_without_void(self, &active) &&
-           !is_ID(self, item->childTable, &active))
+        if(get_type_without_void(self, &active) &&
+           is_ID(self, item->childTable, &active))
         {
             ifj_stack_push(item->args, active);
             return next_function_param(self, item);
@@ -346,16 +356,18 @@ int next_function_param(ifjInter *self, token *item)
         else
         {
             print_unexpected(self, active);
-            return 2;
+            self->returnCode = 2;
+            return 0;
         }
     }
     else if(active->type != T_RPAREN)
     {
         print_unexpected(self, active);
-        return 2;
+        self->returnCode = 2;
+        return 0;
     }
 
-    return 0;
+    return 1;
 }
 
 /**
@@ -373,7 +385,8 @@ int function_inside(ifjInter *self, token *item)
     }
 
     print_unexpected(self, active);
-    return 2;
+    self->returnCode = 2;
+    return 0;
 }
 
 
@@ -401,72 +414,72 @@ int function_inside1(ifjInter *self, token *item)
     switch (active->type)
     {
         case T_RBLOCK:
-            return 0;
+            return 1;
 
         case T_WHILE:
-            return !condition(self, item->childTable) &&
-                   !statement_inside1(self, item->childTable) &&
-                   !function_inside1(self, item);
+            return condition(self, item->childTable) &&
+                   statement_inside1(self, item->childTable) &&
+                   function_inside1(self, item);
 
       /*  case T_FOR:
-        return !is_LPAREN(self) &&
-               !tell_me_type_without_void(self) &&
-               !is_ID(self) &&
-               !is_ASSIGN(self) &&
-               !expresion(self) &&
-               !is_semicolon(self) &&
-               !condition(self) &&
-               !is_semicolon(self) &&
-               !is_ID(self) &&
-               !is_ASSIGN(self) &&
-               !expresion(self)&&
-               !is_RPAREN(self) &&
-               !statement_inside(self) &&
-               !function_inside1(self);*/
+        return is_LPAREN(self) &&
+               tell_me_type_without_void(self) &&
+               is_ID(self) &&
+               is_ASSIGN(self) &&
+               expresion(self) &&
+               is_semicolon(self) &&
+               condition(self) &&
+               is_semicolon(self) &&
+               is_ID(self) &&
+               is_ASSIGN(self) &&
+               expresion(self)&&
+               is_RPAREN(self) &&
+               statement_inside(self) &&
+               function_inside1(self);*/
 
       /*  case T_DO:
-        return !statement_inside(self) &&
-               !is_while(self) &&
-               !is_LPAREN(self) &&
-               !condition(self) &&
-               !is_RPAREN(self) &&
-               !is_semicolon(self) &&
-               !function_inside1(self));*/
+        return statement_inside(self) &&
+               is_while(self) &&
+               is_LPAREN(self) &&
+               condition(self) &&
+               is_RPAREN(self) &&
+               is_semicolon(self) &&
+               function_inside1(self));*/
 
         case T_BREAK:
-            return !is_semicolon(self) &&
-                   !function_inside1(self, item);
+            return is_semicolon(self) &&
+                   function_inside1(self, item);
 
         case T_CONTINUE:
-            return !is_semicolon(self) &&
-                   !function_inside1(self, item);
+            return is_semicolon(self) &&
+                   function_inside1(self, item);
 
         case T_IF:
-            return !condition(self, item->childTable) &&
-                   !statement_inside1(self, item->childTable) &&
-                   !if_else1(self, item->childTable) &&
-                   !function_inside1(self, item);
+            return condition(self, item->childTable) &&
+                   statement_inside1(self, item->childTable) &&
+                   if_else1(self, item->childTable) &&
+                   function_inside1(self, item);
 
         case T_RETURN:
-            return !expresion(self, item->childTable) &&
-                   !statement_inside1(self, item->childTable);
+            return expresion(self, item->childTable) &&
+                   statement_inside1(self, item->childTable);
 
         case T_INTEGER:
         case T_STRING:
         case T_DOUBLE:
-            return !is_ID(self, item->childTable, &active) &&
-                   !sth_next(self, item->childTable, active) &&
-                   !function_inside1(self, item);
+            return is_ID(self, item->childTable, &active) &&
+                   sth_next(self, item->childTable, active) &&
+                   function_inside1(self, item);
 
         case T_IDENTIFIER:
         {
             int rc;
             rc = resolve_identifier(self, item->childTable, &active, 0);
 
-            if(!rc)
+            if(rc)
             {
-                return !fce(self, item->childTable, active) &&
-                       !function_inside1(self, item);
+                return fce(self, item->childTable, active) &&
+                       function_inside1(self, item);
             }
 
             return rc;
@@ -474,7 +487,8 @@ int function_inside1(ifjInter *self, token *item)
     }
 
     print_unexpected(self, active);
-    return 2;
+    self->returnCode = 2;
+    return 0;
 }
 
 /**
@@ -488,10 +502,11 @@ int is_semicolon(ifjInter *self)
     if (active->type != T_SEMICOLON)
     {
         print_unexpected(self, active);
-        return 2;
+        self->returnCode = 2;
+        return 0;
     }
 
-    return 0;
+    return 1;
 }
 
 int is_while(ifjInter *self)
@@ -500,10 +515,11 @@ int is_while(ifjInter *self)
     if (active->type != T_WHILE)
     {
         print_unexpected(self, active);
-        return 2;
+        self->returnCode = 2;
+        return 0;
     }
 
-    return 0;
+    return 1;
 }
 
 int is_LPAREN(ifjInter *self)
@@ -512,10 +528,11 @@ int is_LPAREN(ifjInter *self)
     if (active->type != T_LPAREN)
     {
         print_unexpected(self, active);
-        return 2;
+        self->returnCode = 2;
+        return 0;
     }
 
-    return 0;
+    return 1;
 }
 
 int is_RPAREN(ifjInter *self)
@@ -524,10 +541,11 @@ int is_RPAREN(ifjInter *self)
     if (active->type != T_RPAREN)
     {
         print_unexpected(self, active);
-        return 2;
+        self->returnCode = 2;
+        return 0;
     }
 
-    return 0;
+    return 1;
 }
 
 int is_ASSIGN(ifjInter *self)
@@ -536,10 +554,11 @@ int is_ASSIGN(ifjInter *self)
     if (active->type != T_ASSIGN)
     {
         print_unexpected(self, active);
-        return 2;
+        self->returnCode = 2;
+        return 0;
     }
 
-    return 0;
+    return 1;
 }
 
 /**
@@ -553,12 +572,13 @@ int if_else1(ifjInter *self, symbolTable *table)
     token * active = lexa_next_token(self->lexa_module, table);
     if (active->type == T_ELSE)
     {
-        return !is_LBLOCK(self) &&
-               !statement_inside1(self, table);
+        return is_LBLOCK(self) &&
+               statement_inside1(self, table);
     }
 
     self->pushBack = active;
-    return 1;
+    self->returnCode = 1;
+    return 0;
 }
 
 /**
@@ -572,10 +592,11 @@ int is_LBLOCK(ifjInter *self)
     if (active->type != T_LBLOCK)
     {
         print_unexpected(self, active);
-        return 2;
+        self->returnCode = 2;
+        return 0;
     }
 
-    return 0;
+    return 1;
 }
 
 /**
@@ -602,65 +623,65 @@ int statement_inside1(ifjInter *self, symbolTable *table)
     {
         //END
         case T_RBLOCK:
-          return 0;
+          return 1;
 
         case T_WHILE:
-            return !condition(self, table) &&
-                   !statement_inside1(self, table) &&
-                   !statement_inside1(self, table);
+            return condition(self, table) &&
+                   statement_inside1(self, table) &&
+                   statement_inside1(self, table);
 
       /*  case T_FOR:
-        return !is_LPAREN(self) &&
-               !tell_me_type_without_void(self) &&
-               !is_ID(self) &&
-               !is_ASSIGN(self) &&
-               !expresion(self) &&
-               !is_semicolon(self) &&
-               !condition(self) &&
-               !is_semicolon(self) &&
-               !is_ID(self) &&
-               !is_ASSIGN(self) &&
-               !expresion(self) &&
-               !is_RPAREN(self) &&
-               !statement_inside(self) &&
-               !statement_inside1(self);
+        return is_LPAREN(self) &&
+               tell_me_type_without_void(self) &&
+               is_ID(self) &&
+               is_ASSIGN(self) &&
+               expresion(self) &&
+               is_semicolon(self) &&
+               condition(self) &&
+               is_semicolon(self) &&
+               is_ID(self) &&
+               is_ASSIGN(self) &&
+               expresion(self) &&
+               is_RPAREN(self) &&
+               statement_inside(self) &&
+               statement_inside1(self);
 
         case T_DO:
-        return !statement_inside(self) &&
-               !is_while(self) &&
-               !is_LPAREN(self) &&
-               !condition(self) &&
-               !is_RPAREN(self) &&
-               !is_semicolon(self) &&
-               !statement_inside1(self);*/
+        return statement_inside(self) &&
+               is_while(self) &&
+               is_LPAREN(self) &&
+               condition(self) &&
+               is_RPAREN(self) &&
+               is_semicolon(self) &&
+               statement_inside1(self);*/
 
         case T_BREAK:
-            return !is_semicolon(self) &&
-                   !statement_inside1(self, table);
+            return is_semicolon(self) &&
+                   statement_inside1(self, table);
 
         case T_CONTINUE:
-            return !is_semicolon(self) &&
-                   !statement_inside1(self, table);
+            return is_semicolon(self) &&
+                   statement_inside1(self, table);
 
         case T_IF:
-            return !condition(self, table) &&
-                   !statement_inside1(self, table) &&
-                   !if_else1(self, table) &&
-                   !statement_inside1(self, table);
+            return condition(self, table) &&
+                   statement_inside1(self, table) &&
+                   if_else1(self, table) &&
+                   statement_inside1(self, table);
 
         case T_RETURN:
-            return !expresion(self, table) &&
-                   !statement_inside1(self, table);
+            return expresion(self, table) &&
+                   statement_inside1(self, table);
 
         case T_IDENTIFIER:
         {
             int rc;
             rc = resolve_identifier(self, table, &active, 0);
 
-            if(!rc)
+            if(rc)
             {
-                return !fce(self, table, active) &&
-                       !statement_inside1(self, table);
+                return fce(self, table, active) &&
+                       statement_inside1(self, table);
             }
 
             return rc;
@@ -668,7 +689,8 @@ int statement_inside1(ifjInter *self, symbolTable *table)
     }
 
     print_unexpected(self, active);
-    return 2;
+    self->returnCode = 2;
+    return 0;
 }
 
 /**
@@ -692,7 +714,8 @@ int fce(ifjInter *self, symbolTable *table, token *item)
     }
 
     print_unexpected(self, active);
-    return 2;
+    self->returnCode = 2;
+    return 0;
 }
 
 /**
@@ -714,12 +737,11 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
     if (active->type == T_IDENTIFIER)
     {
         int rc = resolve_identifier(self, table, &active, 0);
-        if(rc)
+        if(!rc)
         {
-            self->returnCode = rc;
             return rc;
         }
-        if(expected && !check_typing(active, expected))
+        if(expected && check_typing(active, expected))
         {
             if(1 > item->args->top)
             {
@@ -732,13 +754,14 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
             return next_function_parameters(self, table, item, expected, 1);
         }
         print_mistyped(self, active, expected);
-        return 4;
+        self->returnCode = 4;
+        return 0;
     }
     else if(active->type == T_INTEGER_C ||
             active->type == T_DOUBLE_C ||
             active->type == T_STRING_C)
     {
-        if(expected && !check_typing(active, expected))
+        if(expected && check_typing(active, expected))
         {
             if(1 > item->args->top)
             {
@@ -751,18 +774,21 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
             return next_function_parameters(self, table, item, expected, 1);
         }
         print_mistyped(self, active, expected);
-        return 4;
+        self->returnCode = 4;
+        return 0;
     }
     else if (active->type == T_RPAREN)
     {
         if(item->args && item->args->top == 0)
-            return 0;
+            return 1;
         print_mistyped(self, active, expected);
-        return 4;
+        self->returnCode = 4;
+        return 0;
     }
 
     print_unexpected(self, active);
-    return 2;
+    self->returnCode = 2;
+    return 0;
 }
 
 /**
@@ -784,13 +810,14 @@ int next_function_parameters(ifjInter *self,
         if(item->args && item->args->top == idx - 1)
             return is_semicolon(self);
         print_mistyped(self, active, expected);
-        return 4;
+        self->returnCode = 4;
+        return 0;
 
     }
     else if (active->type == T_COMMA)
     {
         int rc = next_param(self, table, expected);
-        if(!rc)
+        if(rc)
         {
             if(idx > item->args->top)
             {
@@ -806,7 +833,8 @@ int next_function_parameters(ifjInter *self,
         return rc;
     }
     print_unexpected(self, active);
-    return 2;
+    self->returnCode = 2;
+    return 0;
 }
 
 /**
@@ -827,11 +855,12 @@ int sth_next(ifjInter *self, symbolTable *table, token *item)
     }
     else if (active->type == T_SEMICOLON)
     {
-        return 0;
+        return 1;
     }
 
     print_unexpected(self, active);
-    return 2;
+    self->returnCode = 2;
+    return 0;
 }
 
 //TODO XXX JANY načo je toto?
@@ -847,10 +876,10 @@ int rel_operator(ifjInter *self)
         case T_GREATER_EQUAL:
         case T_EQUAL:
         case T_NOT_EQUAL:
-            return 1;
+            return 0;
     }
 
-    return 0;
+    return 1;
 }
 
 int syna_run( ifjInter *self)
@@ -859,7 +888,7 @@ int syna_run( ifjInter *self)
 
     if(self->debugMode)
     {
-        fprintf(stderr, "Syna result: %d\n", return_value);
+        fprintf(stderr, "Syna result: %d\n", self->returnCode);
     }
 
     if(self->debugMode)

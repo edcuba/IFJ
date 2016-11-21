@@ -25,7 +25,7 @@ to budu robit robove instrukcie ktorych volanie ja en d pisem do kodu ? TODO EDO
 
 int condition(ifjInter *self, symbolTable *table)
 {
-    int return_value = 0;
+    int return_value = 1;
     ifjSyna *syna = self->syna;
 
     int b;
@@ -36,6 +36,8 @@ int condition(ifjInter *self, symbolTable *table)
     token * active = lexa_next_token(self->lexa_module, table);
     ifj_stack_clear(syna->stack);
     ifj_stack_clear(syna->help_stack);
+
+    fprintf(stderr, "Som v condition\n");
 
     ifj_stack_push(syna->stack, syna->semicolon);
     top_stack = ifj_stack_top(syna->stack);
@@ -591,7 +593,7 @@ int condition(ifjInter *self, symbolTable *table)
         }
     } while((active->type != T_LBLOCK) || (top_stack->type != T_LBLOCK));
 
-    return_value = 0;
+    return_value = 1;
     if(self->debugMode)
     {
         fprintf(stderr, "vraciam sa z condition\n");
@@ -601,7 +603,7 @@ int condition(ifjInter *self, symbolTable *table)
 
 int expresion(ifjInter *self, symbolTable *table)
 {
-    int return_value = 0;
+    int return_value = 1;
 
     if(self->debugMode)
     {
@@ -659,7 +661,6 @@ int expresion(ifjInter *self, symbolTable *table)
                 break;
             default:
                 return -1;
-                break;
         }
 
         switch (top_stack->type)
@@ -981,7 +982,7 @@ int expresion(ifjInter *self, symbolTable *table)
         }
 
     } while((active->type != T_SEMICOLON) || (top_stack->type != T_SEMICOLON));
-    return_value = 0;
+    return_value = 1;
     if(self->debugMode)
     {
         fprintf(stderr, "vraciam sa z expresion\n");

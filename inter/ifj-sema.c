@@ -32,7 +32,7 @@ int resolve_identifier(ifjInter *self,
             ifj_token_free(seek);
             *item = NULL;
             self->returnCode = 3;
-            return 3;
+            return 0;
         }
 
         //extract class and id
@@ -58,7 +58,7 @@ int resolve_identifier(ifjInter *self,
             ifj_token_free(seek);
             *item = NULL;
             self->returnCode = 3;
-            return 3;
+            return 0;
         }
 
         token *child = self->table->get_item(class->childTable,
@@ -76,7 +76,7 @@ int resolve_identifier(ifjInter *self,
             ifj_token_free(seek);
             *item = NULL;
             self->returnCode = 3;
-            return 3;
+            return 0;
         }
 
         free(id_id);
@@ -84,7 +84,7 @@ int resolve_identifier(ifjInter *self,
         ifj_token_free(seek);
 
         *item = child;
-        return 0;
+        return 1;
 
     }
     if(isDefiniton)
@@ -96,12 +96,12 @@ int resolve_identifier(ifjInter *self,
             *item = NULL;
             fprintf(stderr, "ERROR: Identifier \"%s\" redefined!\n", (char*)seek->value);
             self->returnCode = 3;
-            return 3;
+            return 0;
         }
         else
         { // proper definition
             table->add_item(table, seek, NULL);
-            return 0;
+            return 1;
         }
     }
     else
@@ -116,7 +116,7 @@ int resolve_identifier(ifjInter *self,
                 *item = NULL;
                 // return found token
                 *item = prev;
-                return 0;
+                return 1;
             }
             context = context->parent;
         }
@@ -124,7 +124,7 @@ int resolve_identifier(ifjInter *self,
         ifj_token_free(seek);
         *item = NULL;
         self->returnCode = 3;
-        return 3;
+        return 0;
     }
 }
 
@@ -139,17 +139,17 @@ int check_typing(token *first, token *second)
 
     if(first->dataType == second->dataType)
     {
-        return 0;
+        return 1;
     }
     else if(first->dataType == T_DOUBLE && second->dataType == T_INTEGER)
     {
-        return 0;
+        return 1;
     }
     else if(first->dataType == T_INTEGER && second->dataType == T_DOUBLE)
     {
-        return 0;
+        return 1;
     }
-    return 1;
+    return 0;
 }
 
 void print_table(symbolTable *table, int level)
