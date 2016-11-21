@@ -181,7 +181,7 @@ int next_param(ifjInter *self, symbolTable *table, token *expected)
     if (active->type == T_IDENTIFIER)
     {
         int rc = resolve_identifier(self, table, &active, 0);
-        if(rc)
+        if(!rc)
         {
             return rc;
         }

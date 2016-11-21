@@ -24,12 +24,15 @@ class Main
     String str2;
     str2 = str1 + ", ktery jeste trochu obohatime";
     int abc = Func(1, "str", 3);
+    String
+    asds;
 
     String str;
     ifj16.sort(str1);
     //ifj16.print("Pozice retezce \"text\" v retezci str2: " + x + "\n");
     ifj16.find(str, str);
     int cmp;
+
     while (cmp !=0)
     {}
     if (0 >= 8 )
