@@ -65,6 +65,7 @@ struct _token
 struct _ifjSyna
 {
     token *semicolon;
+    token *lblock;
     token *t_less;
     token *E;
     token_stack *stack;

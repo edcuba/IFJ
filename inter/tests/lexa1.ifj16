@@ -1,7 +1,7 @@
 /* Program 1: Vypocet faktorialu (iterativne) */
 class Main
 {
-    void run()
+    static void Run()
     {
         int a;
         ifj16.print("Zadejte cislo pro vypocet faktorialu: ");

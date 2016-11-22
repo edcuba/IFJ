@@ -9,23 +9,28 @@
 #include "ifj-util.h"
 #include "ifj-lexa.h"
 #include "ifj-token.h"
+#include "ial.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
 int run_exec ( ifjInter *self )
 {
+	if (self->debugMode)
+	{
+		fprintf(stderr, "%s\n", "---------------- Executor started ----------------");
+	}
+	
 	instruction *instruc = self->code->first;
 	token_stack *stack = ifj_stack_new();
 
 	bool jumped = false;
 
-	// ZAPNUT DEBUG, vypisat aku intrukciu robim
 	while (instruc != NULL)
 	{
 		if (self->debugMode)
 		{
-			fprintf(stderr, "%s %d\n", "Actual instruction: ", instruc->type);
+			fprintf(stderr, "%s %d\n", "Actual instruction type: ", instruc->type);
 		}
 
 		switch (instruc->type)
@@ -187,8 +192,10 @@ int run_exec ( ifjInter *self )
 
 				// Check division by zero
 				if ( *((int *) instruc->op2->data) == 0 )
+				{
 					fprintf(stderr, "%s\n", "Division by zero");
 					return 9;
+				}
 
 				// Calculate (a / b)
 				token *tempToken = NULL;
@@ -264,50 +271,139 @@ int run_exec ( ifjInter *self )
 
 			case I_CALL:
 			{
-				for (int i = instruc->op1->args->top; i >= 0; i--)
+				// Stack of arguments for IFJ16 functions
+				token_stack *argsStack = ifj_stack_new();
+
+				if (instruc->op1->args != NULL)
 				{
-					token *myToken = ifj_stack_pop(stack);
-					token *argToken = instruc->op1->args->elements[i];
-
-					// Alloc memory for uninicialized variables
-					if (argToken->data == NULL)
+					for (int i = instruc->op1->args->top; i >= 0; i--)
 					{
-						if (argToken->dataType == T_DOUBLE)
+						token *myToken = ifj_stack_pop(stack);
+
+						// Check if variable is inicialized
+						if (myToken->data == NULL)
 						{
-							argToken->data = (void*) malloc (sizeof(double));
+							fprintf(stderr, "%s\n", "Variable is not inicialized");
+							return 8;
 						}
-						if (argToken->dataType == T_INTEGER)
+
+						ifj_stack_push(argsStack, myToken);
+						token *argToken = instruc->op1->args->elements[i];
+
+						// Alloc memory for uninicialized variables
+						if (argToken->data == NULL)
 						{
-							argToken->data = (void*) malloc (sizeof(int));
+							if (argToken->dataType == T_DOUBLE)
+							{
+								argToken->data = (void*) malloc (sizeof(double));
+							}
+							if (argToken->dataType == T_INTEGER)
+							{
+								argToken->data = (void*) malloc (sizeof(int));
+							}
+						}
+
+						// Set data to argToken
+						switch(argToken->dataType)
+						{
+							case T_STRING:
+								argToken->data = (void *) strdup(myToken->data);
+								break;
+
+							case T_DOUBLE:
+								*((double *) argToken->data) = *((double *) myToken->data);
+								break;
+
+							case T_INTEGER:
+								*((int *) argToken->data) = *((int *) myToken->data);
+								break;
+
+							default:
+								fprintf(stderr, "%s %d\n", "Executor ERROR, invalid dataType: ", argToken->dataType);
+								return 10;
 						}
 					}
-
-					// Set data to argToken
-					switch(argToken->dataType)
-					{
-						case T_STRING:
-							argToken->data = (void *) strdup(myToken->data);
-							break;
-						case T_DOUBLE:
-							*((double *) argToken->data) = *((double *) myToken->data);
-							break;
-						case T_INTEGER:
-							*((int *) argToken->data) = *((int *) myToken->data);
-							break;
-						default:
-							fprintf(stderr, "%s %d\n", "Executor ERROR, invalid dataType: ", argToken->dataType);
-							return 10;
-					}
-
-					// Free temp token
-					if (myToken->type == T_TMP)
-						ifj_token_free(myToken);
 				}
+				
+				token *output = NULL;
+				switch(instruc->op1->method)
+				{
+					case IFJ16_PRINT:
+						ifj_print(argsStack, argsStack->top + 1);
+						break;
 
-				ifj_stack_push(stack, instruc->op1);
+					case IFJ16_READINT:
+						output = ifj_read_int();
+						if (!output)
+							return 7;
+						break;
 
-				instruc = instruc->op1->jump;
-				jumped = true;
+					case IFJ16_READDOUBLE:
+						output = ifj_read_double();
+						if (!output)
+							return 7;
+						break;
+
+					case IFJ16_READSTRING:
+						output = ifj_read_string();
+						if (!output)
+							return 10;
+						break;
+
+					case IFJ16_FIND:
+						output = ifj_find(
+							(char *) ifj_stack_pop(argsStack)->data,
+							(char *) ifj_stack_pop(argsStack)->data
+							);
+						if (!output)
+							return 10;
+						break;
+
+					case IFJ16_SORT:
+						output = ifj_sort(
+							(char *) ifj_stack_pop(argsStack)->data
+							);
+						if (!output)
+							return 10;
+						break;
+
+					case IFJ16_LENGTH:
+						output = ifj_length(
+							(char *) ifj_stack_pop(argsStack)->data
+							);
+						if (!output)
+							return 10;
+						break;
+
+					case IFJ16_SUBSTR:
+						output = ifj_substr(
+							(char *) ifj_stack_pop(argsStack)->data,
+							*((int *) ifj_stack_pop(argsStack)->data),
+							*((int *) ifj_stack_pop(argsStack)->data)
+							);
+						if (!output)
+							return 10;
+						break;
+
+					case IFJ16_COMPARE:
+						output = ifj_compare(
+							(char *) ifj_stack_pop(argsStack)->data,
+							(char *) ifj_stack_pop(argsStack)->data
+							);
+						if (!output)
+							return 10;
+						break;
+
+					default:
+						ifj_stack_push(stack, instruc->op1);
+						instruc = instruc->op1->jump;
+						jumped = true;
+						break;
+				}
+				if (output != NULL)
+					ifj_stack_push(stack, output);
+
+				ifj_stack_drop(argsStack);
 				break;
 			}
 
@@ -394,7 +490,7 @@ int run_exec ( ifjInter *self )
 
 			default:
 			{
-				fprintf(stderr, "%s %d\n", "Undefined instruction, value: ", instruc->type);
+				fprintf(stderr, "%s %d\n", "Executor ERROR: Undefined instruction, value: ", instruc->type);
 				break;
 			}
 		}
@@ -406,6 +502,12 @@ int run_exec ( ifjInter *self )
 	}
 
 	ifj_stack_drop(stack);
+
+	if (self->debugMode)
+	{
+		fprintf(stderr, "%s\n", "---------------- Executor ended ----------------");
+	}
+
 	return 0;
 }
 

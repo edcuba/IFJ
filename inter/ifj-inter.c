@@ -123,6 +123,7 @@ ifjSyna *ifj_syna_new(ifjInter* inter)
         exit(99);
     }
     self->semicolon = ifj_generate_token(inter->table, T_SEMICOLON);
+    self->lblock = ifj_generate_token(inter->table, T_LBLOCK);
     self->t_less =  ifj_generate_token(inter->table, T_LARRAY);
     self->stack  = ifj_stack_new();
     self->help_stack = ifj_stack_new();

@@ -2,12 +2,13 @@
  *
  * Copyright (C) 2016 SsYoloSwag41 Inc.
  * Authors: Robert Kolcun <xkolcu00@stud.fit.vutbr.cz>
- *          Jan Demcak < DOPISAT >
  *          Ondrej Kurak < DOPISAT >
  */
 
 #include "ifj-util.h"
 #include "ifj-inter.h"
+#include "ifj-token.h"
+#include "ifj-lexa.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -389,9 +390,11 @@ void ifj_print ( token_stack *inStack, int popNum )
  * @param inputString
  * @return number length of inputString
 */
-int ifj_length ( const char *inputString )
+token *ifj_length ( const char *inputString )
 {
-	return strlen(inputString);
+	int result = strlen(inputString);
+	token *temp = ifj_generate_temp(T_INTEGER, &result);
+	return temp;
 }
 
 /**
@@ -402,7 +405,7 @@ int ifj_length ( const char *inputString )
  * @param length substring length
  * @return
 */
-char * ifj_substr (	const char *inputString,
+token * ifj_substr (	const char *inputString,
 					int i,
 					int n )
 {
@@ -424,18 +427,12 @@ char * ifj_substr (	const char *inputString,
 		outputString[j - i + 1] = '\0';
 	}
 
-	return outputString;
+	token *temp = ifj_generate_temp(T_STRING, (char *) outputString);
+	return temp;
 }
 
-/**
- * Compare two input strings
- * - simulate function compareTo from Java
- * @param first input string
- * @param second input string
- * @return 0 - s1 and s2 are same, 1 - s1 is greater than s2, -1 - another situation
-*/
-int ifj_compare (	const char *s1,
-					const char *s2 )
+static int ifj_compare_help (	const char *s1,
+								const char *s2 )
 {
 	for (int i = 0; ; ++i)
 	{
@@ -456,7 +453,23 @@ int ifj_compare (	const char *s1,
 			return s1[i] - s2[i] > 0 ? 1 : -1;
 		}
 	}
+
 	return 0;
+}
+
+/**
+ * Compare two input strings
+ * - simulate function compareTo from Java
+ * @param first input string
+ * @param second input string
+ * @return 0 - s1 and s2 are same, 1 - s1 is greater than s2, -1 - another situation
+*/
+token *ifj_compare (const char *s1,
+					const char *s2 )
+{
+	int output = ifj_compare_help(s1, s2);
+	token *temp = ifj_generate_temp(T_INTEGER, &output);
+	return temp;
 }
 
 /**
