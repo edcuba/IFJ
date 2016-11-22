@@ -443,14 +443,6 @@ int function_inside1(ifjInter *self, token *item)
                is_semicolon(self) &&
                function_inside1(self));*/
 
-        case T_BREAK:
-            return is_semicolon(self) &&
-                   function_inside1(self, item);
-
-        case T_CONTINUE:
-            return is_semicolon(self) &&
-                   function_inside1(self, item);
-
         case T_IF:
             return condition(self, item->childTable) &&
                    statement_inside1(self, item->childTable) &&
@@ -649,14 +641,14 @@ int statement_inside1(ifjInter *self, symbolTable *table)
                is_RPAREN(self) &&
                is_semicolon(self) &&
                statement_inside1(self);*/
-
+    /*
         case T_BREAK:
             return is_semicolon(self) &&
-                   statement_inside1(self, table);
-
+                   statement_inside1(self, table);*/
+/*
         case T_CONTINUE:
             return is_semicolon(self) &&
-                   statement_inside1(self, table);
+                   statement_inside1(self, table);*/
 
         case T_IF:
             return condition(self, table) &&
