@@ -195,6 +195,8 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                 if (newChar == '*') {
                     state = LS_MULTI_COMMENT_END;
                     break;
+                } else if (newChar == '\n') {
+                    l->line_number++;
                 } else if (newChar == EOF) {
                     free(t);
                     return NULL;
