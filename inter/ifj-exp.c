@@ -23,18 +23,13 @@ to budu robit robove instrukcie ktorych volanie ja en d pisem do kodu ? TODO EDO
 
 #include "ifj-exp.h"
 
-extern inline int condition_check_active(token *active, int *b);
-extern inline int condition_check_top_stack(token *top_stack, int *a);
-
-extern inline int expresion_check_active(token *active, int *b);
-extern inline int expresion_check_top_stack(token *top_stack, int *a);
-
 int condition(ifjInter *self, symbolTable *table)
 {
     ifjSyna *syna = self->syna;
 
     int b;
     int a; // first symbol on stack is automatically $ --> 7;
+    int rc;
 
     token * top_stack;
     token * top_on_help_stack;
@@ -56,8 +51,12 @@ int condition(ifjInter *self, symbolTable *table)
                 break;
 
             case 2:
-                resolve_identifier(self, table, &active, 0);
+            {
+                rc = resolve_identifier(self, table, &active, 0);
+                if(!rc)
+                    return rc;
                 break;
+            }
         }
 
 
@@ -495,6 +494,8 @@ int expresion(ifjInter *self, symbolTable *table)
 
     int b;
     int a; // first symbol on stack is automatically $ --> 7;
+    int rc;
+
     token * top_stack;
     token * top_on_help_stack;
     token * active = lexa_next_token(self->lexa_module, table);
@@ -512,7 +513,9 @@ int expresion(ifjInter *self, symbolTable *table)
                 break;
 
             case 2:
-                resolve_identifier(self, table, &active, 0);
+                rc = resolve_identifier(self, table, &active, 0);
+                if (!rc)
+                    return 0;
                 break;
         }
 

@@ -30,7 +30,8 @@ class Main
     ifj16.sort(str1);
     //ifj16.print("Pozice retezce \"text\" v retezci str2: " + x + "\n");
     ifj16.find(str, str);
-    int cmp;
+    //int cmp;
+    a = cmp;
     while (cmp != 0)
     {
 
