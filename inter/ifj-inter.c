@@ -125,8 +125,11 @@ ifjSyna *ifj_syna_new(ifjInter* inter)
     self->semicolon = ifj_generate_token(inter->table, T_SEMICOLON);
     self->lblock = ifj_generate_token(inter->table, T_LBLOCK);
     self->t_less =  ifj_generate_token(inter->table, T_LARRAY);
+    self->t_integer =  ifj_generate_token(inter->table, T_INTEGER_C);
+    self->t_string =  ifj_generate_token(inter->table, T_STRING_C);
     self->stack  = ifj_stack_new();
     self->help_stack = ifj_stack_new();
+    self->type_stack = ifj_stack_new();
     self->E = ifj_generate_token(inter->table, E_TYPE);
     self->predictCondition = &predictCondition;
     self->predictExpresion = &predictExpresion;
@@ -140,6 +143,7 @@ void ifj_syna_free(ifjSyna *self)
 {
     ifj_stack_drop(self->stack);
     ifj_stack_drop(self->help_stack);
+    ifj_stack_drop(self->type_stack);
     free(self);
 }
 

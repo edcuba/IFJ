@@ -68,6 +68,9 @@ struct _ifjSyna
     token *lblock;
     token *t_less;
     token *E;
+    token *t_integer;
+    token *t_string;
+    token_stack *type_stack;
     token_stack *stack;
     token_stack *help_stack;
     int (*predictExpresion)[11][11];
