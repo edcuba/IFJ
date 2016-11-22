@@ -17,4 +17,6 @@
 int expresion(ifjInter *self, symbolTable *table);
 int condition(ifjInter *self, symbolTable *table);
 
+
+
 #endif
