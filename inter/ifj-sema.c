@@ -27,7 +27,8 @@ int resolve_identifier(ifjInter *self,
     {
         if(isDefiniton)
         {
-           fprintf(stderr, "ERROR: Identifier \"%s\" defined in foreign class!\n",
+           fprintf(stderr, "ERROR: line %d Identifier \"%s\" defined in foreign class!\n",
+                   self->lexa_module->line_number,
                    (char *)seek->value);
             ifj_token_free(seek);
             *item = NULL;
@@ -52,7 +53,9 @@ int resolve_identifier(ifjInter *self,
                                              NULL);
         if(!class || !class->childTable)
         {
-            fprintf(stderr, "ERROR: Class \"%s\" undefined!\n", id_class);
+            fprintf(stderr, "ERROR: line %d Class \"%s\" undefined!\n",
+                    self->lexa_module->line_number,
+                    id_class);
             free(id_class);
             free(id_id);
             ifj_token_free(seek);
@@ -68,7 +71,8 @@ int resolve_identifier(ifjInter *self,
 
         if(!child)
         {
-            fprintf(stderr, "ERROR: Identifier \"%s\" from class \"%s\" undefined!\n",
+            fprintf(stderr, "ERROR: line %d Identifier \"%s\" from class \"%s\" undefined!\n",
+                    self->lexa_module->line_number,
                     id_id,
                     id_class);
             free(id_class);
@@ -92,7 +96,9 @@ int resolve_identifier(ifjInter *self,
         token *prev = table->get_item(table, seek->value, T_IDENTIFIER, NULL);
         if (prev) //redefined
         {
-            fprintf(stderr, "ERROR: Identifier \"%s\" redefined!\n", (char*)seek->value);
+            fprintf(stderr, "ERROR: line %d Identifier \"%s\" redefined!\n",
+                    self->lexa_module->line_number,
+                    (char*)seek->value);
             ifj_token_free(seek);
             *item = NULL;
             self->returnCode = 3;
@@ -120,7 +126,9 @@ int resolve_identifier(ifjInter *self,
             }
             context = context->parent;
         }
-        fprintf(stderr, "ERROR: Identifier \"%s\" undefined!\n", (char*)seek->value);
+        fprintf(stderr, "ERROR: line %d Identifier \"%s\" undefined!\n",
+                self->lexa_module->line_number,
+                (char*)seek->value);
         ifj_token_free(seek);
         *item = NULL;
         self->returnCode = 3;
