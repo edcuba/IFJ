@@ -143,6 +143,13 @@ void ifj_lexa_add_reserved(ifj_lexa *l, char *word, int token_type);
 int ifj_lexa_is_reserved(ifj_lexa *l, char *word);
 
 /**
+ * Function rewinds input file to start
+ * @param lexa structure
+ * @return
+ */
+void ifj_lexa_rewind_input(ifj_lexa *lexa);
+
+/**
  * Read next token from input file and process it
  *
  * @param l Lexical analysis structure

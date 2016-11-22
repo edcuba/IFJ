@@ -58,6 +58,10 @@ void ifj_lexa_free(ifj_lexa *l) {
     free(l);
 }
 
+void ifj_lexa_rewind_input(ifj_lexa *lexa) {
+    rewind(lexa->inputFile);
+}
+
 int ifj_lexa_is_reserved(ifj_lexa *l, char *word) {
     token *item = l->reserved_words->get_item(l->reserved_words, word, 0, NULL);
     if (item == NULL) {
