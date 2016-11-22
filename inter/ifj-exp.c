@@ -59,7 +59,7 @@ int condition(ifjInter *self, symbolTable *table)
            }
            else
            {
-               return 4;
+               return 0; self->returnCode = 4;
            }
        }
        else
@@ -120,7 +120,7 @@ int condition(ifjInter *self, symbolTable *table)
                        }
                        else
                        {
-                           return 4;
+                           return 0; self->returnCode = 4;
                        }
                    }
                    else
@@ -167,7 +167,7 @@ int condition(ifjInter *self, symbolTable *table)
                        }
                        else
                        {
-                           return 4;
+                           return 0; self->returnCode = 4;
                        }
                    }
                    else
@@ -314,7 +314,8 @@ int condition(ifjInter *self, symbolTable *table)
                                     ifj_stack_push(syna->stack, syna->E);
                                     if(type_control_plus(self) == 4)
                                     {
-                                      return 4;
+                                      self->returnCode = 4;
+                                      return 0;
                                     }
                                     //TODO ROBO instrukcia ADD
                                     if(self->debugMode)
@@ -344,7 +345,7 @@ int condition(ifjInter *self, symbolTable *table)
                                     ifj_stack_push(syna->stack, syna->E);
                                     if(type_control(self) == 4)
                                     {
-                                      return 4;
+                                      return 0; self->returnCode = 4;
                                     }
                                     //TODO ROBO instrukcia SUB
                                     if(self->debugMode)
@@ -374,7 +375,7 @@ int condition(ifjInter *self, symbolTable *table)
                                     ifj_stack_push(syna->stack, syna->E);
                                     if(type_control(self) == 4)
                                     {
-                                      return 4;
+                                      return 0; self->returnCode = 4;
                                     }
                                     //TODO ROBO instrukcia DIV
                                     if(self->debugMode)
@@ -404,7 +405,7 @@ int condition(ifjInter *self, symbolTable *table)
                                     ifj_stack_push(syna->stack, syna->E);
                                     if(type_control(self) == 4)
                                     {
-                                      return 4;
+                                      return 0; self->returnCode = 4;
                                     }
                                     //TODO ROBO instrukcia MUL
                                     if(self->debugMode)
@@ -435,7 +436,7 @@ int condition(ifjInter *self, symbolTable *table)
                                     ifj_stack_push(syna->stack, syna->E);
                                     if(type_control(self) == 4)
                                     {
-                                      return 4;
+                                      return 0; self->returnCode = 4;
                                     }
                                     //TODO ROBO instrukcia condition parameter >
                                     if(self->debugMode)
@@ -466,7 +467,7 @@ int condition(ifjInter *self, symbolTable *table)
                                     ifj_stack_push(syna->stack, syna->E);
                                     if(type_control(self) == 4)
                                     {
-                                      return 4;
+                                      return 0; self->returnCode = 4;
                                     }
                                     //TODO ROBO instrukcia condition parameter <
                                     if(self->debugMode)
@@ -496,7 +497,7 @@ int condition(ifjInter *self, symbolTable *table)
                                     ifj_stack_push(syna->stack, syna->E);
                                     if(type_control(self) == 4)
                                     {
-                                      return 4;
+                                      return 0; self->returnCode = 4;
                                     }
                                     //TODO ROBO instrukcia condition parameter ==
                                     if(self->debugMode)
@@ -527,7 +528,7 @@ int condition(ifjInter *self, symbolTable *table)
                                     ifj_stack_push(syna->stack, syna->E);
                                     if(type_control(self) == 4)
                                     {
-                                      return 4;
+                                      return 0; self->returnCode = 4;
                                     }
                                     //TODO ROBO instrukcia condition parameter >=
                                     if(self->debugMode)
@@ -558,7 +559,7 @@ int condition(ifjInter *self, symbolTable *table)
                                     ifj_stack_push(syna->stack, syna->E);
                                     if(type_control(self) == 4)
                                     {
-                                      return 4;
+                                      return 0; self->returnCode = 4;
                                     }
                                     //TODO ROBO instrukcia condition parameter <=
                                     if(self->debugMode)
@@ -588,7 +589,7 @@ int condition(ifjInter *self, symbolTable *table)
                                     ifj_stack_push(syna->stack, syna->E);
                                     if(type_control(self) == 4)
                                     {
-                                      return 4;
+                                      return 0; self->returnCode = 4;
                                     }
                                     //TODO ROBO instrukcia condition parameter !=
                                     if(self->debugMode)
@@ -661,7 +662,7 @@ int expresion(ifjInter *self, symbolTable *table)
            }
            else
            {
-               return 4;
+               return 0; self->returnCode = 4;
            }
        }
        else
@@ -721,7 +722,7 @@ int expresion(ifjInter *self, symbolTable *table)
                        }
                        else
                        {
-                           return 4;
+                           return 0; self->returnCode = 4;
                        }
                    }
                    else
@@ -765,7 +766,7 @@ int expresion(ifjInter *self, symbolTable *table)
                        }
                        else
                        {
-                           return 4;
+                           return 0; self->returnCode = 4;
                        }
                    }
                    else
@@ -912,7 +913,8 @@ int expresion(ifjInter *self, symbolTable *table)
                                         ifj_stack_push(syna->stack, syna->E);
                                         if(type_control_plus(self) == 4)
                                         {
-                                          return 4;
+                                          self->returnCode = 4;
+                                          return 0;
                                         }
                                         //TODO ROBO instrukcia ADD
                                         if(self->debugMode)
@@ -941,7 +943,7 @@ int expresion(ifjInter *self, symbolTable *table)
                                         ifj_stack_push(syna->stack, syna->E);
                                         if(type_control(self) == 4)
                                         {
-                                          return 4;
+                                          return 0; self->returnCode = 4;
                                         }
                                         //TODO ROBO instrukcia SUB
                                         if(self->debugMode)
@@ -970,7 +972,7 @@ int expresion(ifjInter *self, symbolTable *table)
                                         ifj_stack_push(syna->stack, syna->E);
                                         if(type_control(self) == 4)
                                         {
-                                          return 4;
+                                          return 0; self->returnCode = 4;
                                         }
                                         //TODO ROBO instrukcia DIV
                                         if(self->debugMode)
@@ -1000,7 +1002,7 @@ int expresion(ifjInter *self, symbolTable *table)
                                         ifj_stack_push(syna->stack, syna->E);
                                         if(type_control(self) == 4)
                                         {
-                                          return 4;
+                                          return 0; self->returnCode = 4;
                                         }
                                         //TODO ROBO instrukcia MUL
                                         if(self->debugMode)
