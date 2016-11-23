@@ -4,11 +4,6 @@ class Main
   static String ahojky;
   static int x;
 
-  static int Func(int a)
-  {
-
-  }
-
   static void Abc(String a, String b)
   {
 
@@ -21,7 +16,7 @@ class Main
     String str1;
     Main.x = 88 + ahoj;
     str1 = "Toto je nejaky text";
-    String str2;
+    String str2 = prazdny_class.yolo();
     str2 = str1 + ", ktery jeste trochu obohatime";
     int abc = Func(1);
     abc = ifj16.readInt();
@@ -67,8 +62,16 @@ class Main
         return a + b +c / 55;
     }
   }
+  static int Func(int a)
+  {
+
+  }
 }
 class prazdny_class
 {
+    static String yolo()
+    {
+    
+    }
 
 }

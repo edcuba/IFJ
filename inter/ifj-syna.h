@@ -10,7 +10,7 @@
 #include "ifj-inter.h"
 #include "ifj-exp.h"
 
-int is_ID(ifjInter *self, symbolTable *table, token **item);
+int is_ID(ifjInter *self, symbolTable *table, token **item, int stat);
 int is_while(ifjInter *self);
 int is_LPAREN(ifjInter *self);
 int is_RPAREN(ifjInter *self);
@@ -53,7 +53,9 @@ int function_parameters_for_exp(ifjInter *self,
 
 int get_type_with_void(ifjInter *self, token **item);
 int get_type_without_void(ifjInter *self, token **item);
-int rel_operator(ifjInter *self);
 
 int syna_run( ifjInter *self);
+
+void skip_to_semicolon(ifjInter *self);
+int skip_to_rblock(ifjInter *self);
 #endif

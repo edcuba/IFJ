@@ -170,6 +170,7 @@ ifjInter* ifj_inter_new()
     self->returnCode = 0;
     self->syna = ifj_syna_new(self);
     self->pushBack = NULL;
+    self->preLoad = 1;
     return self;
 }
 
@@ -198,17 +199,16 @@ void ifj_token_free( token *item )
             free(item->data);
         }
     }
-
-    if(item->childTable)
-    {
-        ial_symbol_table_drop(item->childTable);
-    }
-
     if(item->args)
     {
         //token themselfs are freed with symbol table
         ifj_stack_drop(item->args);
     }
+    if(item->childTable)
+    {
+        ial_symbol_table_drop(item->childTable);
+    }
+
     free(item);
 }
 
@@ -287,6 +287,9 @@ void print_unexpected(ifjInter *self, token *item)
             break;
         case T_STRING_C:
             fprintf(stderr,"%s\"\n", (char *)item->value);
+            break;
+        case T_END:
+            fprintf(stderr,"EOF\"\n");
             break;
         default:
             if (item->type < 256)

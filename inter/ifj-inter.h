@@ -111,6 +111,7 @@ struct _ifjInter
     int     ( *sema )( ifjInter* );
     ifjSyna *syna;
     token *pushBack;
+    int preLoad;
     int returnCode;
 };
 

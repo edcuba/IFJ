@@ -58,10 +58,14 @@ int next_class(ifjInter *self)
     {
         return 1;
     }
-    else if (active->type == T_CLASS && is_ID(self, self->table, &active))
+    else if (active->type == T_CLASS && is_ID(self, self->table, &active, 1))
     {
-        active->childTable = ial_symbol_table_new();
-        active->childTable->parent = self->table;
+        if(self->preLoad)
+        {
+            active->childTable = ial_symbol_table_new();
+            active->childTable->parent = self->table;
+        }
+        if(active->childTable)
         return class_inside(self, active->childTable) &&
                next_class(self);
     }
@@ -104,7 +108,7 @@ int class_inside1(ifjInter *self, symbolTable *table)
         if (active->type == T_STATIC)
         {
             return get_type_with_void(self, &active) &&
-                   is_ID(self, table, &active) &&
+                   is_ID(self, table, &active, 1) &&
                    class_inside2(self, table, active);
         }
         else
@@ -122,40 +126,43 @@ int class_inside1(ifjInter *self, symbolTable *table)
  * Fetch next token, assert idenfifier type, set datatype
  * @param self global structure
  * @param item reference to last token, reference to new token returned
+ * @param stat 1 if idenfifier is static, else 0
  * @return 1 if successfull
  **/
-int is_ID(ifjInter *self, symbolTable *table, token **item)
+int is_ID(ifjInter *self, symbolTable *table, token **item, int stat)
 {
     token *active = lexa_next_token(self->lexa_module, table);
     token *prev = *item;
     *item = active;
+    int flag = !stat || (stat && self->preLoad);
     if (active->type == T_IDENTIFIER)
     {
         switch (prev->type)
         {
             //declarations
             case T_CLASS:
-                return resolve_identifier(self, table, &active, 1);
+                active->dataType = T_CLASS;
+                return resolve_identifier(self, table, item, flag);
 
             case T_INTEGER:
                 active->dataType = T_INTEGER;
-                return resolve_identifier(self, table, &active, 1);
+                return resolve_identifier(self, table, item, flag);
 
             case T_DOUBLE:
                 active->dataType = T_DOUBLE;
-                return resolve_identifier(self, table, &active, 1);
+                return resolve_identifier(self, table, item, flag);
 
             case T_STRING:
                 active->dataType = T_STRING;
-                return resolve_identifier(self, table, &active, 1);
+                return resolve_identifier(self, table, item, flag);
 
             case T_VOID:
                 active->dataType = T_VOID;
-                return resolve_identifier(self, table, &active, 1);
+                return resolve_identifier(self, table, item, flag);
 
             //not a declaration
             default:
-                return resolve_identifier(self, table, &active, 0);
+                return resolve_identifier(self, table, item, 0);
 
         }
     }
@@ -209,6 +216,56 @@ int next_param(ifjInter *self, symbolTable *table, token *expected)
 }
 
 /**
+ * Skip code until next semicolon - used when NOT in preLoad
+ * @param self global structure
+ **/
+void skip_to_semicolon(ifjInter *self)
+{
+    token * active = lexa_next_token(self->lexa_module, self->table);
+    while (active->type != T_SEMICOLON)
+    {
+        if(active->type == T_IDENTIFIER)
+        {
+            ifj_token_free(active);
+        }
+        active = lexa_next_token(self->lexa_module, self->table);
+    }
+}
+
+/**
+ * Skip code until next rblock ("}") - used when in preLoad
+ * @param self global structure
+ * @return 1 if rblock found else 0
+ **/
+int skip_to_rblock(ifjInter *self)
+{
+    token * active = lexa_next_token(self->lexa_module, self->table);
+    int rc;
+    while(active->type != T_RBLOCK && active->type != T_END)
+    {
+        //when another sub-block found, skip to its "}" recursively
+        if(active->type == T_IDENTIFIER)
+        {
+            ifj_token_free(active);
+        }
+        else if(active->type == T_LBLOCK)
+        {
+            rc = skip_to_rblock(self);
+            if(!rc)
+                return rc;
+        }
+        active = lexa_next_token(self->lexa_module, self->table);
+    }
+    if(active->type == T_END)
+    {
+        print_unexpected(self, active);
+        self->returnCode = 2;
+        return 0;
+    }
+    return 1;
+}
+
+/**
  * Fetch next token. Now we are in state "type identifier". We expect "(" for
  * function declaration, ";" or "=" for variable declaration
  * @param self global structure
@@ -222,8 +279,11 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
     //function
     if (active->type == T_LPAREN)
     {
-        item->childTable = ial_symbol_table_new();
-        item->childTable->parent = table;
+        if(self->preLoad)
+        {
+            item->childTable = ial_symbol_table_new();
+            item->childTable->parent = table;
+        }
         return function_declar(self, item) &&
                function_inside(self, item) &&
                class_inside1(self, table);
@@ -231,13 +291,22 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
     //variable
     else if (active->type == T_SEMICOLON)
     {
-        //check if not void here
+        //TODO check if not void here
         return class_inside1(self, table);
     }
     else if (active->type == T_ASSIGN)
     {
-        return expresion(self, table) &&
-               class_inside1(self, table);
+        if(self->preLoad)
+        {
+            //TODO check if not void here
+            //TODO initialize static variable here
+            return expresion(self, table) && class_inside1(self, table);
+        }
+        else
+        {
+            skip_to_semicolon(self);
+            return class_inside1(self, table);
+        }
     }
     //some garbage
 
@@ -309,10 +378,13 @@ int function_declar(ifjInter *self, token *item)
         case T_INTEGER:
         case T_DOUBLE:
         case T_STRING:
-            if(is_ID(self, item->childTable, &active))
+            if(is_ID(self, item->childTable, &active, 1))
             {
-                item->args = ifj_stack_new();
-                ifj_stack_push(item->args, active);
+                if(self->preLoad)
+                {
+                    item->args = ifj_stack_new();
+                    ifj_stack_push(item->args, active);
+                }
                 return next_function_param(self, item);
             }
             else
@@ -345,9 +417,12 @@ int next_function_param(ifjInter *self, token *item)
     if (active->type == T_COMMA)
     {
         if(get_type_without_void(self, &active) &&
-           is_ID(self, item->childTable, &active))
+           is_ID(self, item->childTable, &active, 1))
         {
-            ifj_stack_push(item->args, active);
+            if(self->preLoad)
+            {
+                ifj_stack_push(item->args, active);
+            }
             return next_function_param(self, item);
         }
         else
@@ -369,6 +444,7 @@ int next_function_param(ifjInter *self, token *item)
 
 /**
  * Fetch next token. Expects "{".
+ * Skips until "}" found when preLoad active
  * @param self global structure
  * @param current function token
  * @return 1 if successfull
@@ -376,7 +452,11 @@ int next_function_param(ifjInter *self, token *item)
 int function_inside(ifjInter *self, token *item)
 {
     token * active = lexa_next_token(self->lexa_module, self->table);
-    if (active->type == T_LBLOCK)
+    if(self->preLoad)
+    {
+        return skip_to_rblock(self);
+    }
+    if(active->type == T_LBLOCK)
     {
         return function_inside1(self, item);
     }
@@ -456,7 +536,7 @@ int function_inside1(ifjInter *self, token *item)
         case T_INTEGER:
         case T_STRING:
         case T_DOUBLE:
-            return is_ID(self, item->childTable, &active) &&
+            return is_ID(self, item->childTable, &active, 0) &&
                    sth_next(self, item->childTable, active) &&
                    function_inside1(self, item);
 
@@ -850,28 +930,21 @@ int sth_next(ifjInter *self, symbolTable *table, token *item)
     return 0;
 }
 
-//TODO XXX JANY načo je toto?
-int rel_operator(ifjInter *self)
-{
-  /* TODO EDO   vyuzivane vyhradne vo vnutri funkcie*/
-    token * active = lexa_next_token(self->lexa_module, self->table);
-    switch (active->type)
-    {
-        case T_LESS:
-        case T_GREATER:
-        case T_LESS_EQUAL:
-        case T_GREATER_EQUAL:
-        case T_EQUAL:
-        case T_NOT_EQUAL:
-            return 0;
-    }
-
-    return 1;
-}
-
-int syna_run( ifjInter *self)
+/**
+ * Run parser
+ * Performs preLoad, when successful continues to full check
+ * @param self global structure
+ * @return 0 if successful, else error code
+ **/
+int syna_run(ifjInter *self)
 {
     int return_value = next_class(self);
+    if(return_value)
+    {
+        self->preLoad = 0;
+        ifj_lexa_rewind_input(self->lexa_module);
+        return_value = next_class(self);
+    }
 
     if(self->debugMode)
     {
@@ -881,7 +954,7 @@ int syna_run( ifjInter *self)
     if(self->debugMode)
         print_table(self->table, 0);
 
-    return return_value;
+    return self->returnCode;
 }
 
 /**

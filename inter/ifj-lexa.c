@@ -59,6 +59,7 @@ void ifj_lexa_free(ifj_lexa *l) {
 }
 
 void ifj_lexa_rewind_input(ifj_lexa *lexa) {
+    lexa->line_number = 1;
     rewind(lexa->inputFile);
 }
 
