@@ -25,6 +25,7 @@ struct _linear_list
 {
 	instruction *active;
 	instruction *first;
+	instruction *last;
 };
 
 // Stack functions

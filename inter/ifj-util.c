@@ -162,6 +162,7 @@ linear_list *ifj_list_new ()
 
 	newList->active = NULL;
 	newList->first = NULL;
+	newList->last = NULL;
 
 	return newList;
 }
@@ -187,6 +188,11 @@ int ifj_insert_first (	linear_list *list,
 
 	newInstruction->next = list->first;
 	list->first = newInstruction;
+	
+	if (list->last == NULL)
+	{
+		list->last = newInstruction;
+	}
 
 	newInstruction->type = inputType;
 	newInstruction->op1 = oper1;
@@ -215,21 +221,19 @@ int ifj_insert_last (	linear_list *list,
 		return 99;
 	}
 
-	instruction *tempIntruction = list->first;
-
-	if (tempIntruction == NULL)
-	{
-		free(newInstruction);
-		return ifj_insert_first(list, inputType, oper1, oper2, oper3);
-	}
-
-	while (tempIntruction->next != NULL)
-	{
-		tempIntruction = tempIntruction->next;
-	}
-
-	tempIntruction->next = newInstruction;
 	newInstruction->next = NULL;
+	instruction *temp = list->last;
+	list->last = newInstruction;
+
+	if (list->first == NULL)
+	{
+		list->first = newInstruction;
+		temp = NULL;
+	}
+	else
+	{
+		temp->next = newInstruction;
+	}
 
 	newInstruction->type = inputType;
 	newInstruction->op1 = oper1;
@@ -256,6 +260,7 @@ void ifj_drop_list ( linear_list *list )
 
 	list->active = NULL;
 	list->first = NULL;
+	list->last = NULL;
 
 	while (tempIntruction != NULL)
 	{

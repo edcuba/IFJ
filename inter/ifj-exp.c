@@ -14,7 +14,8 @@ verzí) ve výrazech pro popsané operátory jsou považovány za chybu 4. */
 v momente ked sa bude vykonvat niejaka redukčná akcia ktora bude vyzadovat 2 operandy
 skontroluje ak bude treba urobit typovie zavola Edovu funkciu na pretypovanie a
 vysledny typ pushne na zasobnik s5 , nevyhodnocujem  vysledok  resp. nenazim sa manualne pocitat vysledok
-to budu robit robove instrukcie ktorych volanie ja en d pisem do kodu ? TODO EDO skontroluj ci som dobre pochopil*/
+to budu robit robove instrukcie ktorych volanie ja en d pisem do kodu ?
+TODO EDO skontroluj ci som dobre pochopil */
 
 
 
@@ -31,6 +32,7 @@ int condition(ifjInter *self, symbolTable *table)
     int a; // first symbol on stack is automatically $ --> 7;
     int rc;
 
+    token * instructHelp;
     token * top_stack;
     token * top_on_help_stack;
     token * active = lexa_next_token(self->lexa_module, table);
@@ -38,39 +40,40 @@ int condition(ifjInter *self, symbolTable *table)
     ifj_stack_clear(syna->help_stack);
     ifj_stack_clear(syna->type_stack);
 
-    // if token is ID or constant  add token into  type_stack
-   // type_stack is using for type control in expresion
-   // there are 3 places where is this construction used
-   // (always when function lexa_next_token() is called)
-    if(active->type == T_IDENTIFIER ||
-      active->type == T_STRING_C ||
-      active->type == T_INTEGER_C ||
-      active ->type == T_DOUBLE_C)
-   {
-       if(active->type == T_IDENTIFIER)
-       {
-           if ( (active->dataType == T_INTEGER_C) || (active->dataType == T_DOUBLE_C) )
-           {
-               ifj_stack_push(syna->type_stack, syna->t_integer);
-           }
-           else if ( active->dataType == T_STRING_C)
-           {
-               ifj_stack_push(syna->type_stack, syna->t_string);
-           }
-           else
-           {
-               return 0; self->returnCode = 4;
-           }
-       }
-       else
-       {
-           ifj_stack_push(syna->type_stack, active);
-       }
+    // If token is ID or constant add token into type_stack
+    // Type_stack is using for type control in expresion
+    // There are 3 places where is this construction used
+    // (always when function lexa_next_token() is called)
+    if (active->type == T_IDENTIFIER ||
+        active->type == T_STRING_C ||
+        active->type == T_INTEGER_C ||
+        active ->type == T_DOUBLE_C)
+    {
+        if (active->type == T_IDENTIFIER)
+        {
+            if ( (active->dataType == T_INTEGER_C) || (active->dataType == T_DOUBLE_C) )
+            {
+                ifj_stack_push(syna->type_stack, syna->t_integer);
+            }
+            else if ( active->dataType == T_STRING_C)
+            {
+                ifj_stack_push(syna->type_stack, syna->t_string);
+            }
+            else
+            {
+                self->returnCode = 4;
+                return 0;
+            }
+        }
+        else
+        {
+            ifj_stack_push(syna->type_stack, active);
+        }
     }
 
     if(self->debugMode)
     {
-    fprintf(stderr, "Som v condition\n");
+        fprintf(stderr, "Som v condition\n");
     }
 
     ifj_stack_push(syna->stack, syna->lblock);
@@ -93,7 +96,6 @@ int condition(ifjInter *self, symbolTable *table)
             }
         }
 
-
         if (!condition_check_top_stack(top_stack, &a))
             return 0; // nahradenie povodnej -1
 
@@ -103,30 +105,32 @@ int condition(ifjInter *self, symbolTable *table)
                 ifj_stack_push(syna->stack, active);
                 top_stack = active;
                 active = lexa_next_token(self->lexa_module, table);
-                if(active->type == T_IDENTIFIER ||
-                  active->type == T_STRING_C ||
-                  active->type == T_INTEGER_C ||
-                  active ->type == T_DOUBLE_C)
-               {
-                   if(active->type == T_IDENTIFIER)
-                   {
-                       if ( (active->dataType == T_INTEGER_C) || (active->dataType == T_DOUBLE_C) )
-                       {
-                           ifj_stack_push(syna->type_stack, syna->t_integer);
-                       }
-                       else if ( active->dataType == T_STRING_C)
-                       {
-                           ifj_stack_push(syna->type_stack, syna->t_string);
-                       }
-                       else
-                       {
-                           return 0; self->returnCode = 4;
-                       }
-                   }
-                   else
-                   {
-                       ifj_stack_push(syna->type_stack, active);
-                   }
+            
+                if (active->type == T_IDENTIFIER ||
+                    active->type == T_STRING_C ||
+                    active->type == T_INTEGER_C ||
+                    active ->type == T_DOUBLE_C)
+                {
+                    if(active->type == T_IDENTIFIER)
+                    {
+                        if ( (active->dataType == T_INTEGER_C) || (active->dataType == T_DOUBLE_C) )
+                        {
+                            ifj_stack_push(syna->type_stack, syna->t_integer);
+                        }
+                        else if ( active->dataType == T_STRING_C)
+                        {
+                            ifj_stack_push(syna->type_stack, syna->t_string);
+                        }
+                        else
+                        {
+                            self->returnCode = 4;
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        ifj_stack_push(syna->type_stack, active);
+                    }
                 }
 
                 /*stale taha dalsie a dalsie tokeny bezime v do-while cykle*/
@@ -136,6 +140,7 @@ int condition(ifjInter *self, symbolTable *table)
                 if (ifj_stack_pop(syna->stack)->type == E_TYPE)
                 {
                     top_stack = active; // new top of stack
+
                     // add T_LESS token on top of stack
                     ifj_stack_push(syna->stack, syna->t_less);
                     ifj_stack_push(syna->stack, syna->E);
@@ -143,40 +148,43 @@ int condition(ifjInter *self, symbolTable *table)
                 else
                 {
                     top_stack = active; // new top of stack
+
                     // add T_LESS token on top stack
                     ifj_stack_push(syna->stack, syna->t_less);
                 }
+
                 // add next token to the top of stack
                 ifj_stack_push(syna->stack, top_stack);
                 // take another token from scanner
                 active = lexa_next_token(self->lexa_module, table);
-                if(active->type == T_IDENTIFIER ||
-                  active->type == T_STRING_C ||
-                  active->type == T_INTEGER_C ||
-                  active ->type == T_DOUBLE_C)
-               {
-                   if(active->type == T_IDENTIFIER)
-                   {
-                       if ( (active->dataType == T_INTEGER_C) || (active->dataType == T_DOUBLE_C) )
-                       {
-                           ifj_stack_push(syna->type_stack, syna->t_integer);
-                       }
-                       else if ( active->dataType == T_STRING_C)
-                       {
-                           ifj_stack_push(syna->type_stack, syna->t_string);
-                       }
-                       else
-                       {
-                           return 0; self->returnCode = 4;
-                       }
-                   }
-                   else
-                   {
-                       ifj_stack_push(syna->type_stack, active);
-                   }
-                }
 
-            break;
+                if (active->type == T_IDENTIFIER ||
+                    active->type == T_STRING_C ||
+                    active->type == T_INTEGER_C ||
+                    active ->type == T_DOUBLE_C)
+                {
+                    if(active->type == T_IDENTIFIER)
+                    {
+                        if ( (active->dataType == T_INTEGER_C) || (active->dataType == T_DOUBLE_C) )
+                        {
+                            ifj_stack_push(syna->type_stack, syna->t_integer);
+                        }
+                        else if ( active->dataType == T_STRING_C)
+                        {
+                            ifj_stack_push(syna->type_stack, syna->t_string);
+                        }
+                        else
+                        {
+                            self->returnCode = 4;
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        ifj_stack_push(syna->type_stack, active);
+                    }
+                }
+                break;
 
             case  T_END:
                 return 0; // Nahradenie povodnej -1
@@ -235,7 +243,9 @@ int condition(ifjInter *self, symbolTable *table)
 
                         top_stack = ifj_stack_top(syna->stack);
                         ifj_stack_push(syna->stack, syna->E);
+
                         //TODO ROBO  v premennej top_on_help_stack je id instrukcia PUSH
+                        ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
 
                         if(self->debugMode)
                         {
@@ -253,7 +263,10 @@ int condition(ifjInter *self, symbolTable *table)
                     {
                         top_stack = ifj_stack_top(syna->stack);
                         ifj_stack_push(syna->stack, syna->E);
+
                         //TODO ROBO  v premennej top_on_help_stack je string_c instrukcia PUSH
+                        ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
+
                         if(self->debugMode)
                         {
                             fprintf(stderr, "E --> string\n");
@@ -270,7 +283,10 @@ int condition(ifjInter *self, symbolTable *table)
                     {
                         top_stack = ifj_stack_top(syna->stack);
                         ifj_stack_push(syna->stack, syna->E);
+
                         //TODO ROBO  v premennej top_on_help_stack je integer_c instrukcia PUSH
+                        ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
+
                         if(self->debugMode)
                         {
                             fprintf(stderr, "E --> integer\n");
@@ -287,7 +303,10 @@ int condition(ifjInter *self, symbolTable *table)
                     {
                         top_stack = ifj_stack_top(syna->stack);
                         ifj_stack_push(syna->stack, syna->E);
+
                         //TODO ROBO  v premennej top_on_help_stack je double_c instrukcia PUSH
+                        ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
+
                         if(self->debugMode)
                         {
                             fprintf(stderr, "E --> double\n");
@@ -301,6 +320,7 @@ int condition(ifjInter *self, symbolTable *table)
 
                 case E_TYPE: //E value
                     top_on_help_stack = ifj_stack_pop(syna->help_stack);
+                    instructHelp = top_on_help_stack;
 
                     switch (top_on_help_stack->type)
                     {
@@ -312,17 +332,20 @@ int condition(ifjInter *self, symbolTable *table)
                                 {
                                     top_stack = ifj_stack_top(syna->stack);
                                     ifj_stack_push(syna->stack, syna->E);
+                                    
                                     if(type_control_plus(self) == 4)
                                     {
-                                      self->returnCode = 4;
-                                      return 0;
+                                        self->returnCode = 4;
+                                        return 0;
                                     }
+
                                     //TODO ROBO instrukcia ADD
+                                    ifj_insert_last(self->code, I_ADD, NULL, NULL, NULL);
+
                                     if(self->debugMode)
                                     {
                                         fprintf(stderr, "E --> E + E\n");
                                     }
-                                    // TODO ROBO teoreticka instrukcia
                                 }
                                 else
                                 {
@@ -343,16 +366,20 @@ int condition(ifjInter *self, symbolTable *table)
                                 {
                                     top_stack = ifj_stack_top(syna->stack);
                                     ifj_stack_push(syna->stack, syna->E);
+
                                     if(type_control(self) == 4)
                                     {
-                                      return 0; self->returnCode = 4;
+                                        self->returnCode = 4;
+                                        return 0;
                                     }
+
                                     //TODO ROBO instrukcia SUB
+                                    ifj_insert_last(self->code, I_SUB, NULL, NULL, NULL);
+
                                     if(self->debugMode)
                                     {
                                         fprintf(stderr, "E --> E - E\n");
                                     }
-                                    // TODO ROBO teoreticka instrukcia
                                 }
                                 else
                                 {
@@ -373,11 +400,16 @@ int condition(ifjInter *self, symbolTable *table)
                                 {
                                     top_stack = ifj_stack_top(syna->stack);
                                     ifj_stack_push(syna->stack, syna->E);
+                                    
                                     if(type_control(self) == 4)
                                     {
-                                      return 0; self->returnCode = 4;
+                                        self->returnCode = 4;
+                                        return 0;
                                     }
+
                                     //TODO ROBO instrukcia DIV
+                                    ifj_insert_last(self->code, I_DIV, NULL, NULL, NULL);
+
                                     if(self->debugMode)
                                     {
                                         fprintf(stderr, "E --> E / E\n");
@@ -403,17 +435,21 @@ int condition(ifjInter *self, symbolTable *table)
                                 {
                                     top_stack = ifj_stack_top(syna->stack);
                                     ifj_stack_push(syna->stack, syna->E);
+
                                     if(type_control(self) == 4)
                                     {
-                                      return 0; self->returnCode = 4;
+                                        self->returnCode = 4;
+                                        return 0;
                                     }
+
                                     //TODO ROBO instrukcia MUL
+                                    ifj_insert_last(self->code, I_MUL, NULL, NULL, NULL);
+
                                     if(self->debugMode)
                                     {
                                         fprintf(stderr, "E --> E * E\n");
 
                                     }
-                                    // TODO ROBO teoreticka instrukcia
                                 }
                                 else
                                 {
@@ -434,17 +470,21 @@ int condition(ifjInter *self, symbolTable *table)
                                 {
                                     top_stack = ifj_stack_top(syna->stack);
                                     ifj_stack_push(syna->stack, syna->E);
+                                    
                                     if(type_control(self) == 4)
                                     {
-                                      return 0; self->returnCode = 4;
+                                        self->returnCode = 4;
+                                        return 0;
                                     }
+
                                     //TODO ROBO instrukcia condition parameter >
+                                    ifj_insert_last(self->code, I_CONDITION, NULL, NULL, instructHelp);
+
                                     if(self->debugMode)
                                     {
                                         fprintf(stderr, "E --> E > E\n");
 
                                     }
-                                    // TODO ROBO teoreticka instrukcia
                                 }
                                 else
                                 {
@@ -465,16 +505,20 @@ int condition(ifjInter *self, symbolTable *table)
                                 {
                                     top_stack = ifj_stack_top(syna->stack);
                                     ifj_stack_push(syna->stack, syna->E);
+                                    
                                     if(type_control(self) == 4)
                                     {
-                                      return 0; self->returnCode = 4;
+                                        self->returnCode = 4;
+                                        return 0;
                                     }
+
                                     //TODO ROBO instrukcia condition parameter <
+                                    ifj_insert_last(self->code, I_CONDITION, NULL, NULL, instructHelp);
+
                                     if(self->debugMode)
                                     {
                                         fprintf(stderr, "E --> E < E\n");
                                     }
-                                    // TODO ROBO teoreticka instrukcia
                                 }
                                 else
                                 {
@@ -495,16 +539,20 @@ int condition(ifjInter *self, symbolTable *table)
                                 {
                                     top_stack = ifj_stack_top(syna->stack);
                                     ifj_stack_push(syna->stack, syna->E);
+                                    
                                     if(type_control(self) == 4)
                                     {
-                                      return 0; self->returnCode = 4;
+                                        self->returnCode = 4;
+                                        return 0;
                                     }
+
                                     //TODO ROBO instrukcia condition parameter ==
+                                    ifj_insert_last(self->code, I_CONDITION, NULL, NULL, instructHelp);
+
                                     if(self->debugMode)
                                     {
                                         fprintf(stderr, "E --> E == E\n");
                                     }
-                                    // TODO ROBO teoreticka instrukcia
                                 }
                                 else
                                 {
@@ -526,16 +574,20 @@ int condition(ifjInter *self, symbolTable *table)
                                 {
                                     top_stack = ifj_stack_top(syna->stack);
                                     ifj_stack_push(syna->stack, syna->E);
+                                    
                                     if(type_control(self) == 4)
                                     {
-                                      return 0; self->returnCode = 4;
+                                        self->returnCode = 4;
+                                        return 0;
                                     }
+
                                     //TODO ROBO instrukcia condition parameter >=
+                                    ifj_insert_last(self->code, I_CONDITION, NULL, NULL, instructHelp);
+
                                     if(self->debugMode)
                                     {
                                         fprintf(stderr, "E --> E >= E\n");
                                     }
-                                    // TODO ROBO teoreticka instrukcia
                                 }
                                 else
                                 {
@@ -557,16 +609,20 @@ int condition(ifjInter *self, symbolTable *table)
                                 {
                                     top_stack = ifj_stack_top(syna->stack);
                                     ifj_stack_push(syna->stack, syna->E);
+                                    
                                     if(type_control(self) == 4)
                                     {
-                                      return 0; self->returnCode = 4;
+                                        self->returnCode = 4;
+                                        return 0;
                                     }
+
                                     //TODO ROBO instrukcia condition parameter <=
+                                    ifj_insert_last(self->code, I_CONDITION, NULL, NULL, instructHelp);
+
                                     if(self->debugMode)
                                     {
                                         fprintf(stderr, "E --> E <= E\n");
                                     }
-                                    // TODO ROBO teoreticka instrukcia
                                 }
                                 else
                                 {
@@ -587,16 +643,20 @@ int condition(ifjInter *self, symbolTable *table)
                                 {
                                     top_stack = ifj_stack_top(syna->stack);
                                     ifj_stack_push(syna->stack, syna->E);
+                                    
                                     if(type_control(self) == 4)
                                     {
-                                      return 0; self->returnCode = 4;
+                                        self->returnCode = 4;
+                                        return 0;
                                     }
+
                                     //TODO ROBO instrukcia condition parameter !=
+                                    ifj_insert_last(self->code, I_CONDITION, NULL, NULL, instructHelp);
+
                                     if(self->debugMode)
                                     {
                                         fprintf(stderr, "E --> E != E\n");
                                     }
-                                    // TODO ROBO teoreticka instrukcia
                                 }
                                 else
                                 {
@@ -645,30 +705,31 @@ int expresion(ifjInter *self, symbolTable *table)
     ifj_stack_clear(syna->help_stack);
     ifj_stack_clear(syna->type_stack);
 
-    if(active->type == T_IDENTIFIER ||
-      active->type == T_STRING_C ||
-      active->type == T_INTEGER_C ||
-      active ->type == T_DOUBLE_C)
-   {
-       if(active->type == T_IDENTIFIER)
-       {
-           if ( (active->dataType == T_INTEGER_C) || (active->dataType == T_DOUBLE_C) )
-           {
-               ifj_stack_push(syna->type_stack, syna->t_integer);
-           }
-           else if ( active->dataType == T_STRING_C)
-           {
-               ifj_stack_push(syna->type_stack, syna->t_string);
-           }
-           else
-           {
-               return 0; self->returnCode = 4;
-           }
-       }
-       else
-       {
-           ifj_stack_push(syna->type_stack, active);
-       }
+    if (active->type == T_IDENTIFIER ||
+        active->type == T_STRING_C ||
+        active->type == T_INTEGER_C ||
+        active ->type == T_DOUBLE_C)
+    {
+        if(active->type == T_IDENTIFIER)
+        {
+            if ( (active->dataType == T_INTEGER_C) || (active->dataType == T_DOUBLE_C) )
+            {
+                ifj_stack_push(syna->type_stack, syna->t_integer);
+            }
+            else if ( active->dataType == T_STRING_C)
+            {
+                ifj_stack_push(syna->type_stack, syna->t_string);
+            }
+            else
+            {
+                self->returnCode = 4;
+                return 0;
+            }
+        }
+        else
+        {
+            ifj_stack_push(syna->type_stack, active);
+        }
     }
 
     ifj_stack_push(syna->stack, syna->semicolon);
@@ -693,44 +754,46 @@ int expresion(ifjInter *self, symbolTable *table)
         if (!expresion_check_top_stack(top_stack, &a))
             return 0; // nahradenie povodnej -1
 
-
-
-      /*  if(self->debugMode)
+        /*
+        if(self->debugMode)
         {
             fprintf(stderr, "a je %d a b je %d\n",a,b);
-        }*/
+        }
+        */
+
         switch ((*syna->predictExpresion)[a][b])
         {
             case T_EQUAL:
                 ifj_stack_push(syna->stack,active);
                 top_stack = ifj_stack_top(syna->stack);
                 active = lexa_next_token(self->lexa_module, table);
-                if(active->type == T_IDENTIFIER ||
-                  active->type == T_STRING_C ||
-                  active->type == T_INTEGER_C ||
-                  active ->type == T_DOUBLE_C)
-               {
-                   if(active->type == T_IDENTIFIER)
-                   {
-                       if ( (active->dataType == T_INTEGER_C) || (active->dataType == T_DOUBLE_C) )
-                       {
-                           ifj_stack_push(syna->type_stack, syna->t_integer);
-                       }
-                       else if ( active->dataType == T_STRING_C)
-                       {
-                           ifj_stack_push(syna->type_stack, syna->t_string);
-                       }
-                       else
-                       {
-                           return 0; self->returnCode = 4;
-                       }
-                   }
-                   else
-                   {
-                       ifj_stack_push(syna->type_stack, active);
-                   }
-                }
 
+                if (active->type == T_IDENTIFIER ||
+                    active->type == T_STRING_C ||
+                    active->type == T_INTEGER_C ||
+                    active ->type == T_DOUBLE_C)
+                {
+                    if(active->type == T_IDENTIFIER)
+                    {
+                        if ( (active->dataType == T_INTEGER_C) || (active->dataType == T_DOUBLE_C) )
+                        {
+                            ifj_stack_push(syna->type_stack, syna->t_integer);
+                        }
+                        else if ( active->dataType == T_STRING_C)
+                        {
+                           ifj_stack_push(syna->type_stack, syna->t_string);
+                        }
+                        else
+                        {
+                            self->returnCode = 4;
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        ifj_stack_push(syna->type_stack, active);
+                    }
+                }
                 break;
 
             case  T_LESS:
@@ -749,36 +812,39 @@ int expresion(ifjInter *self, symbolTable *table)
 
                 ifj_stack_push(syna->stack, top_stack); // add next token to the top of stack
                 active = lexa_next_token(self->lexa_module, table); // take another token from scanner
-                if(active->type == T_IDENTIFIER ||
-                  active->type == T_STRING_C ||
-                  active->type == T_INTEGER_C ||
-                  active ->type == T_DOUBLE_C)
-               {
-                   if(active->type == T_IDENTIFIER)
-                   {
-                       if ( (active->dataType == T_INTEGER_C) || (active->dataType == T_DOUBLE_C) )
-                       {
-                           ifj_stack_push(syna->type_stack, syna->t_integer);
-                       }
-                       else if ( active->dataType == T_STRING_C)
-                       {
-                           ifj_stack_push(syna->type_stack, syna->t_string);
-                       }
-                       else
-                       {
-                           return 0; self->returnCode = 4;
-                       }
-                   }
-                   else
-                   {
-                       ifj_stack_push(syna->type_stack, active);
-                   }
-                }
 
+                if (active->type == T_IDENTIFIER ||
+                    active->type == T_STRING_C ||
+                    active->type == T_INTEGER_C ||
+                    active ->type == T_DOUBLE_C)
+                {
+                    if(active->type == T_IDENTIFIER)
+                    {
+                        if ( (active->dataType == T_INTEGER_C) || (active->dataType == T_DOUBLE_C) )
+                        {
+                            ifj_stack_push(syna->type_stack, syna->t_integer);
+                        }
+                        else if ( active->dataType == T_STRING_C)
+                        {
+                            ifj_stack_push(syna->type_stack, syna->t_string);
+                        }
+                        else
+                        {
+                            self->returnCode = 4;
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        ifj_stack_push(syna->type_stack, active);
+                    }
+                }
                 break;
+
             /* musim niekde ulozit token co je na vrchu zasobniku,
-            to je ID funkcie a predat ho rekurzivnemu sestupu
-            + nezabudnut pridat "(" */
+             * to je ID funkcie a predat ho rekurzivnemu sestupu
+             * + nezabudnut pridat "("
+            */
             case  T_COMMA:
                 return function_parameters_for_exp(self, table, ifj_stack_top(syna->stack));
 
@@ -835,7 +901,10 @@ int expresion(ifjInter *self, symbolTable *table)
                         {
                             top_stack = ifj_stack_top(syna->stack);
                             ifj_stack_push(syna->stack, syna->E);
+
                             //TODO ROBO  v premennej top_on_help_stack je id instrukcia PUSH
+                            ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
+
                             if(self->debugMode)
                             {
                                 fprintf(stderr, "E --> id\n");
@@ -852,7 +921,10 @@ int expresion(ifjInter *self, symbolTable *table)
                         {
                             top_stack = ifj_stack_top(syna->stack);
                             ifj_stack_push(syna->stack, syna->E);
+
                             //TODO ROBO  v premennej top_on_help_stack je string_c instrukcia PUSH
+                            ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
+
                             if(self->debugMode)
                             {
                                 fprintf(stderr, "E --> string\n");
@@ -869,7 +941,10 @@ int expresion(ifjInter *self, symbolTable *table)
                         {
                             top_stack = ifj_stack_top(syna->stack);
                             ifj_stack_push(syna->stack, syna->E);
+
                             //TODO ROBO  v premennej top_on_help_stack je integer_c instrukcia PUSH
+                            ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
+
                             if(self->debugMode)
                             {
                                 fprintf(stderr, "E --> integer\n");
@@ -887,7 +962,10 @@ int expresion(ifjInter *self, symbolTable *table)
                         {
                             top_stack = ifj_stack_top(syna->stack);
                             ifj_stack_push(syna->stack, syna->E);
+
                             //TODO ROBO  v premennej top_on_help_stack je double_c instrukcia PUSH
+                            ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
+
                             if(self->debugMode)
                             {
                                 fprintf(stderr, "E --> double\n");
@@ -911,12 +989,16 @@ int expresion(ifjInter *self, symbolTable *table)
                                     {
                                         top_stack = ifj_stack_top(syna->stack);
                                         ifj_stack_push(syna->stack, syna->E);
+
                                         if(type_control_plus(self) == 4)
                                         {
-                                          self->returnCode = 4;
-                                          return 0;
+                                            self->returnCode = 4;
+                                            return 0;
                                         }
+
                                         //TODO ROBO instrukcia ADD
+                                        ifj_insert_last(self->code, I_ADD, NULL, NULL, NULL);
+
                                         if(self->debugMode)
                                         {
                                             fprintf(stderr, "E --> E + E\n");
@@ -941,11 +1023,16 @@ int expresion(ifjInter *self, symbolTable *table)
                                     {
                                         top_stack = ifj_stack_top(syna->stack);
                                         ifj_stack_push(syna->stack, syna->E);
+
                                         if(type_control(self) == 4)
                                         {
-                                          return 0; self->returnCode = 4;
+                                            self->returnCode = 4;
+                                            return 0;
                                         }
+
                                         //TODO ROBO instrukcia SUB
+                                        ifj_insert_last(self->code, I_SUB, NULL, NULL, NULL);
+
                                         if(self->debugMode)
                                         {
                                             fprintf(stderr, "E --> E - E\n");
@@ -970,11 +1057,16 @@ int expresion(ifjInter *self, symbolTable *table)
                                     {
                                         top_stack = ifj_stack_top(syna->stack);
                                         ifj_stack_push(syna->stack, syna->E);
+                                        
                                         if(type_control(self) == 4)
                                         {
-                                          return 0; self->returnCode = 4;
+                                            self->returnCode = 4;
+                                            return 0;
                                         }
+
                                         //TODO ROBO instrukcia DIV
+                                        ifj_insert_last(self->code, I_DIV, NULL, NULL, NULL);
+
                                         if(self->debugMode)
                                         {
                                             fprintf(stderr, "E --> E / E\n");
@@ -1000,11 +1092,16 @@ int expresion(ifjInter *self, symbolTable *table)
                                     {
                                         top_stack = ifj_stack_top(syna->stack);
                                         ifj_stack_push(syna->stack, syna->E);
+                                        
                                         if(type_control(self) == 4)
                                         {
-                                          return 0; self->returnCode = 4;
+                                            self->returnCode = 4;
+                                            return 0;
                                         }
+
                                         //TODO ROBO instrukcia MUL
+                                        ifj_insert_last(self->code, I_MUL, NULL, NULL, NULL);
+
                                         if(self->debugMode)
                                         {
                                             fprintf(stderr, "E --> E * E\n");
@@ -1020,10 +1117,12 @@ int expresion(ifjInter *self, symbolTable *table)
                                     return 0;
                                 }
                                 break;
+
                             default:
                                 return 0;
                         }
                         break;
+
                     default:
                         return 0;
             }
@@ -1111,6 +1210,7 @@ inline int condition_check_active(token *active, int *b)
             *b = 16;
             return 1;
     }
+
     *b = -1;
     return 0;
 }
@@ -1186,13 +1286,13 @@ inline int condition_check_top_stack(token *top_stack, int *a)
         case T_NOT_EQUAL:
             *a = 16;
             return 1;
-
     }
+
     *a = -1;
     return 0;
 }
 
-extern inline int expresion_check_active(token *active, int *b)
+inline int expresion_check_active(token *active, int *b)
 {
     switch (active->type)
     {
@@ -1245,7 +1345,8 @@ extern inline int expresion_check_active(token *active, int *b)
     *b = -1;
     return 0;
 }
-extern inline int expresion_check_top_stack(token *top_stack, int *a)
+
+inline int expresion_check_top_stack(token *top_stack, int *a)
 {
     switch (top_stack->type)
     {
@@ -1293,44 +1394,46 @@ extern inline int expresion_check_top_stack(token *top_stack, int *a)
             *a = 10;
             return 1;
     }
+
     *a = -1;
     return 0;
 }
 
 int type_control(ifjInter *self)
 {
-  ifjSyna *syna = self->syna;
-  token * first_type_stack_token = ifj_stack_pop(syna->type_stack);
-  token * second_type_stack_token = ifj_stack_pop(syna->type_stack);
-  if ((first_type_stack_token->type == T_STRING_C) || (second_type_stack_token->type == T_STRING_C))
-  {
-      return 4;
-  }
-  else
-  {
-      ifj_stack_push(syna->type_stack, syna->t_integer);
-      return 0;
-  }
+    ifjSyna *syna = self->syna;
+    token * first_type_stack_token = ifj_stack_pop(syna->type_stack);
+    token * second_type_stack_token = ifj_stack_pop(syna->type_stack);
+
+    if ((first_type_stack_token->type == T_STRING_C) || (second_type_stack_token->type == T_STRING_C))
+    {
+        return 4;
+    }
+    else
+    {
+        ifj_stack_push(syna->type_stack, syna->t_integer);
+        return 0;
+    }
 }
 
 int type_control_plus(ifjInter *self)
 {
-  ifjSyna *syna = self->syna;
-  token * first_type_stack_token = ifj_stack_pop(syna->type_stack);
-  token * second_type_stack_token = ifj_stack_pop(syna->type_stack);
-  if ((first_type_stack_token->type == T_STRING_C) && (second_type_stack_token->type == T_STRING_C))
-  {
-      ifj_stack_push(syna->type_stack, syna->t_string);
-      return 0;
+    ifjSyna *syna = self->syna;
+    token * first_type_stack_token = ifj_stack_pop(syna->type_stack);
+    token * second_type_stack_token = ifj_stack_pop(syna->type_stack);
 
-  }
-  else if ((first_type_stack_token->type == T_STRING_C) || (second_type_stack_token->type == T_STRING_C))
-  {
-      return 4;
-  }
-  else
-  {
-      ifj_stack_push(syna->type_stack, syna->t_integer);
-      return 0;
-  }
+    if ((first_type_stack_token->type == T_STRING_C) && (second_type_stack_token->type == T_STRING_C))
+    {
+        ifj_stack_push(syna->type_stack, syna->t_string);
+        return 0;
+    }
+    else if ((first_type_stack_token->type == T_STRING_C) || (second_type_stack_token->type == T_STRING_C))
+    {
+        return 4;
+    }
+    else
+    {
+        ifj_stack_push(syna->type_stack, syna->t_integer);
+        return 0;
+    }
 }
