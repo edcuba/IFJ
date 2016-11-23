@@ -241,6 +241,14 @@ int run_exec ( ifjInter *self )
 					return 8;
 				}
 
+				// Function called with return value,
+				// but return value is not needed to set
+				if (instruc->op3 == NULL)
+				{
+					ifj_stack_pop(stack);
+					break;
+				}
+
 				// Set value
 				if (instruc->op1->dataType == T_STRING)
 				{
