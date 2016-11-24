@@ -11,8 +11,9 @@ class Main
 
   static int Run(int a, String b, double c)
   {
-    int ahoj = (5 + 8 * 9 - 9 + (5 +4) + 5 * (8+5)*7 + 5) ;
-    ahoj = ahoj + 8 / 7;
+    prazdny_class.yolo();
+    //int ahoj = (5 + 8 * 9 - 9 + (5 +4) + 5 * (8+5)*7 + 5) ;
+    int ahoj = ahoj + 8 / 7;
     String str1;
     Main.x = 88 + ahoj;
     str1 = "Toto je nejaky text";
@@ -25,7 +26,7 @@ class Main
     ifj16.sort(str1);
     //ifj16.print("Pozice retezce \"text\" v retezci str2: " + x + "\n");
     ifj16.find(str, str);
-    //int cmp;
+    int cmp;
     a = cmp;
     while (cmp != 0)
     {
@@ -67,6 +68,7 @@ class Main
 
   }
 }
+
 class prazdny_class
 {
     static String yolo()

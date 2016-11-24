@@ -148,6 +148,18 @@ void ifj_stack_clear ( token_stack *inStack )
 }
 
 /**
+ * Print type of every token in stack
+*/
+void ifj_stack_print ( token_stack *inStack )
+{
+	for (int i = inStack->top; i >= 0; i--)
+	{
+		fprintf(stderr, "%d - %s %d - %c\n", i, "token type: ", inStack->elements[i]->type, inStack->elements[i]->type);
+	}
+	fprintf(stderr, "%s\n", "--------------------");
+}
+
+/**
  * Initialize and allocate new linear_list
  * @return allocated linear_list
 */
