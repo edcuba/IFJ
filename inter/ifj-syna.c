@@ -522,13 +522,15 @@ int function_inside1(ifjInter *self, token *item)
                is_RPAREN(self) &&
                is_semicolon(self) &&
                function_inside1(self));*/
-
+            
+        //TODO generate jump + else jump
         case T_IF:
             return condition(self, item->childTable) &&
                    statement_inside1(self, item->childTable) &&
                    if_else1(self, item->childTable) &&
                    function_inside1(self, item);
 
+        //TODO generate jump
         case T_RETURN:
             return expresion(self, item->childTable) &&
                    statement_inside1(self, item->childTable);
@@ -729,13 +731,14 @@ int statement_inside1(ifjInter *self, symbolTable *table)
         case T_CONTINUE:
             return is_semicolon(self) &&
                    statement_inside1(self, table);*/
-
+        //TODO generate jump + else jump
         case T_IF:
             return condition(self, table) &&
                    statement_inside1(self, table) &&
                    if_else1(self, table) &&
                    statement_inside1(self, table);
-
+            
+        //TODO generate jump
         case T_RETURN:
             return expresion(self, table) &&
                    statement_inside1(self, table);
@@ -788,6 +791,7 @@ int fce(ifjInter *self, symbolTable *table, token *item)
 /**
  * Resolving functon call with return
  * fetch next token. Expect ")" or next function param
+ * //TODO generate parameter push
  * @param self global structure
  * @param table symbol table for current function (not called one!)
  * @param item called function structure
@@ -860,6 +864,7 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
 
 /**
  * Resolving function call, fetch next token. Expect ");" or next func param
+ * //TODO generate parameter push
  * @param self global structure
  * @param table symbol table for current function (not called one!)
  * @param item called function structure
@@ -916,7 +921,6 @@ int sth_next(ifjInter *self, symbolTable *table, token *item)
     token * active = lexa_next_token(self->lexa_module, table);
     if (active->type == T_ASSIGN)
     {
-        //TODO check typing
         return expresion(self, table);
         // TODO generate instruction
     }
@@ -964,7 +968,7 @@ int syna_run(ifjInter *self)
  * @param table symbol table for current function (not called one!)
  * @param item called function structure
  * @return 1 if successful
- * TODO resolve return
+ * TODO generate set
  **/
 int function_parameters_for_exp(ifjInter *self,
                                 symbolTable *table,
