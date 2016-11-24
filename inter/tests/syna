@@ -11,11 +11,12 @@ class Main
 
   static int Run(int a, String b, double c)
   {
+      int ah = 0 + 1;
     prazdny_class.yolo();
     //int ahoj = (5 + 8 * 9 - 9 + (5 +4) + 5 * (8+5)*7 + 5) ;
     int ahoj = ahoj + 8 / 7;
     String str1;
-    Main.x = 88 + ahoj;
+    Main.x = 2;
     str1 = "Toto je nejaky text";
     String str2 = prazdny_class.yolo();
     str2 = str1 + ", ktery jeste trochu obohatime";
@@ -52,15 +53,15 @@ class Main
               while (0)
               {
                 a = ifj16.readInt();
-                if (a + b) { return 10;}
-                else { return; }
+                if (a) { return 10;}
+            //    else { return 10; }
               }
           }
         }
     }
     else
     {
-        return a + b +c / 55;
+        return a +c / 55;
     }
   }
   static int Func(int a)
@@ -73,7 +74,7 @@ class prazdny_class
 {
     static String yolo()
     {
-    
+
     }
 
 }

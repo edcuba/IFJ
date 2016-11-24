@@ -40,6 +40,11 @@ int condition(ifjInter *self, symbolTable *table)
     ifj_stack_clear(syna->help_stack);
     ifj_stack_clear(syna->type_stack);
 
+    if(self->debugMode)
+    {
+        fprintf(stderr, "Som v condition\n");
+    }
+
     // If token is ID or constant add token into type_stack
     // Type_stack is using for type control in expresion
     // There are 3 places where is this construction used
@@ -49,12 +54,13 @@ int condition(ifjInter *self, symbolTable *table)
         active->type == T_INTEGER_C ||
         active ->type == T_DOUBLE_C)
     {
+        if(active->type == T_IDENTIFIER)
+        {
+            rc = resolve_identifier(self, table, &active, 0);
+            if(!rc)
+                return rc;
+        }
         ifj_stack_push(syna->type_stack, active);
-    }
-
-    if(self->debugMode)
-    {
-        fprintf(stderr, "Som v condition\n");
     }
 
     ifj_stack_push(syna->stack, syna->lblock);
@@ -62,7 +68,7 @@ int condition(ifjInter *self, symbolTable *table)
 
     do
     {
-        switch (condition_check_active(active, &b))
+        switch (condition_check_active(self, active, &b))
         {
             case 0:
                 return 0; // Nahradenie povodnej -1
@@ -70,14 +76,17 @@ int condition(ifjInter *self, symbolTable *table)
 
             case 2:
             {
-                rc = resolve_identifier(self, table, &active, 0);
-                if(!rc)
-                    return rc;
+                if(!active->dataType)
+                {
+                    rc = resolve_identifier(self, table, &active, 0);
+                    if(!rc)
+                        return rc;
+                }
                 break;
             }
         }
 
-        if (!condition_check_top_stack(top_stack, &a))
+        if (!condition_check_top_stack(self, top_stack, &a))
         {
             return 0; // nahradenie povodnej -1
         }
@@ -88,6 +97,15 @@ int condition(ifjInter *self, symbolTable *table)
                 ifj_stack_push(syna->stack, active);
                 top_stack = active;
                 active = lexa_next_token(self->lexa_module, table);
+
+                if(active->type == T_IDENTIFIER)
+                {
+                    rc = resolve_identifier(self, table, &active, 0);
+                    if(!rc)
+                    {
+                        return rc;
+                    }
+                }
 
                 if (active->type == T_IDENTIFIER ||
                     active->type == T_STRING_C ||
@@ -124,6 +142,15 @@ int condition(ifjInter *self, symbolTable *table)
                 // take another token from scanner
                 active = lexa_next_token(self->lexa_module, table);
 
+                if(active->type == T_IDENTIFIER)
+                {
+                    rc = resolve_identifier(self, table, &active, 0);
+                    if(!rc)
+                    {
+                        return rc;
+                    }
+                }
+
                 if (active->type == T_IDENTIFIER ||
                     active->type == T_STRING_C ||
                     active->type == T_INTEGER_C ||
@@ -134,6 +161,8 @@ int condition(ifjInter *self, symbolTable *table)
                 break;
 
             case  T_END:
+                print_unexpected(self, active);
+                self->returnCode = 2;
                 return 0; // Nahradenie povodnej -1
                 break;
 
@@ -170,16 +199,22 @@ int condition(ifjInter *self, symbolTable *table)
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
                             }
                             else
                             {
+                                print_unexpected(self, active);
+                                self->returnCode = 2;
                                 return 0;
                             }
                         }
                         else
                         {
+                            print_unexpected(self, active);
+                            self->returnCode = 2;
                             return 0;
                         }
                     break;
@@ -201,6 +236,8 @@ int condition(ifjInter *self, symbolTable *table)
                     }
                     else
                     {
+                        print_unexpected(self, active);
+                        self->returnCode = 2;
                         return 0;
                     }
                     break;
@@ -221,6 +258,8 @@ int condition(ifjInter *self, symbolTable *table)
                     }
                     else
                     {
+                        print_unexpected(self, active);
+                        self->returnCode = 2;
                         return 0;
                     }
                     break;
@@ -241,6 +280,8 @@ int condition(ifjInter *self, symbolTable *table)
                     }
                     else
                     {
+                        print_unexpected(self, active);
+                        self->returnCode = 2;
                         return 0;
                     }
                     break;
@@ -261,6 +302,8 @@ int condition(ifjInter *self, symbolTable *table)
                     }
                     else
                     {
+                        print_unexpected(self, active);
+                        self->returnCode = 2;
                         return 0;
                     }
                     break;
@@ -297,11 +340,15 @@ int condition(ifjInter *self, symbolTable *table)
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
                             }
                             else
                             {
+                                print_unexpected(self, active);
+                                self->returnCode = 2;
                                 return 0;
                             }
                             break;
@@ -332,11 +379,15 @@ int condition(ifjInter *self, symbolTable *table)
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
                             }
                             else
                             {
+                                print_unexpected(self, active);
+                                self->returnCode = 2;
                                 return 0;
                             }
                             break;
@@ -368,11 +419,15 @@ int condition(ifjInter *self, symbolTable *table)
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
                             }
                             else
                             {
+                                print_unexpected(self, active);
+                                self->returnCode = 2;
                                 return 0;
                             }
                             break;
@@ -404,11 +459,15 @@ int condition(ifjInter *self, symbolTable *table)
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
                             }
                             else
                             {
+                                print_unexpected(self, active);
+                                self->returnCode = 2;
                                 return 0;
                             }
                             break;
@@ -440,11 +499,15 @@ int condition(ifjInter *self, symbolTable *table)
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
                             }
                             else
                             {
+                                print_unexpected(self, active);
+                                self->returnCode = 2;
                                 return 0;
                             }
                             break;
@@ -475,11 +538,15 @@ int condition(ifjInter *self, symbolTable *table)
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
                             }
                             else
                             {
+                                print_unexpected(self, active);
+                                self->returnCode = 2;
                                 return 0;
                             }
                             break;
@@ -512,12 +579,16 @@ int condition(ifjInter *self, symbolTable *table)
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
 
                             }
                             else
                             {
+                                print_unexpected(self, active);
+                                self->returnCode = 2;
                                 return 0;
                             }
                             break;
@@ -548,12 +619,16 @@ int condition(ifjInter *self, symbolTable *table)
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
 
                             }
                             else
                             {
+                                print_unexpected(self, active);
+                                self->returnCode = 2;
                                 return 0;
                             }
                             break;
@@ -584,11 +659,15 @@ int condition(ifjInter *self, symbolTable *table)
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
                             }
                             else
                             {
+                                print_unexpected(self, active);
+                                self->returnCode = 2;
                                 return 0;
                             }
                             break;
@@ -619,19 +698,25 @@ int condition(ifjInter *self, symbolTable *table)
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
 
                             }
                             else
                             {
+                                print_unexpected(self, active);
+                                self->returnCode = 2;
                                 return 0;
                             }
                             break;
 
                         default:
-                        return 0;
-                        break;
+                            print_unexpected(self, active);
+                            self->returnCode = 2;
+                            return 0;
+                            break;
                     }
             }
             break;
@@ -673,6 +758,12 @@ int expresion(ifjInter *self, symbolTable *table)
         active->type == T_INTEGER_C ||
         active ->type == T_DOUBLE_C)
     {
+        if(active->type == T_IDENTIFIER)
+        {
+            rc = resolve_identifier(self, table, &active, 0);
+            if(!rc)
+                return rc;
+        }
         ifj_stack_push(syna->type_stack, active);
     }
 
@@ -681,21 +772,23 @@ int expresion(ifjInter *self, symbolTable *table)
 
     do
     {
-        switch (expresion_check_active(active, &b))
+        switch (expresion_check_active(self, active, &b))
         {
             case 0:
                 return 0; // Nahradenie povodnej -1
                 break;
 
             case 2:
-                rc = resolve_identifier(self, table, &active, 0);
-                if (!rc)
-                    return 0;
+                if(!active->dataType)
+                {
+                    rc = resolve_identifier(self, table, &active, 0);
+                    if(!rc)
+                        return rc;
+                }
                 break;
         }
 
-
-        if (!expresion_check_top_stack(top_stack, &a))
+        if (!expresion_check_top_stack(self, top_stack, &a))
         {
             return 0; // nahradenie povodnej -1
         }
@@ -703,9 +796,18 @@ int expresion(ifjInter *self, symbolTable *table)
         switch ((*syna->predictExpresion)[a][b])
         {
             case T_EQUAL:
-                ifj_stack_push(syna->stack,active);
+                ifj_stack_push(syna->stack, active);
                 top_stack = ifj_stack_top(syna->stack);
                 active = lexa_next_token(self->lexa_module, table);
+
+                if(active->type == T_IDENTIFIER)
+                {
+                    rc = resolve_identifier(self, table, &active, 0);
+                    if(!rc)
+                    {
+                        return rc;
+                    }
+                }
 
                 if (active->type == T_IDENTIFIER ||
                     active->type == T_STRING_C ||
@@ -733,6 +835,15 @@ int expresion(ifjInter *self, symbolTable *table)
                 ifj_stack_push(syna->stack, top_stack); // add next token to the top of stack
                 active = lexa_next_token(self->lexa_module, table); // take another token from scanner
 
+                if(active->type == T_IDENTIFIER)
+                {
+                    rc = resolve_identifier(self, table, &active, 0);
+                    if(!rc)
+                    {
+                        return rc;
+                    }
+                }
+
                 if (active->type == T_IDENTIFIER ||
                     active->type == T_STRING_C ||
                     active->type == T_INTEGER_C ||
@@ -751,6 +862,8 @@ int expresion(ifjInter *self, symbolTable *table)
                 return function_parameters_for_exp(self, table, ifj_stack_top(syna->stack));
 
             case  T_END:
+                print_unexpected(self, active);
+                self->returnCode = 2;
                 return 0;
 
             case T_GREATER:
@@ -785,16 +898,22 @@ int expresion(ifjInter *self, symbolTable *table)
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
                             }
                             else
                             {
+                                print_unexpected(self, active);
+                                self->returnCode = 2;
                                 return 0;
                             }
                         }
                         else
                         {
+                            print_unexpected(self, active);
+                            self->returnCode = 2;
                             return 0;
                         }
                         break;
@@ -816,6 +935,8 @@ int expresion(ifjInter *self, symbolTable *table)
                         }
                         else
                         {
+                            print_unexpected(self, active);
+                            self->returnCode = 2;
                             return 0;
                         }
                         break;
@@ -836,6 +957,8 @@ int expresion(ifjInter *self, symbolTable *table)
                         }
                         else
                         {
+                            print_unexpected(self, active);
+                            self->returnCode = 2;
                             return 0;
                         }
                         break;
@@ -856,6 +979,8 @@ int expresion(ifjInter *self, symbolTable *table)
                         }
                         else
                         {
+                            print_unexpected(self, active);
+                            self->returnCode = 2;
                             return 0;
                         }
                         break;
@@ -877,6 +1002,8 @@ int expresion(ifjInter *self, symbolTable *table)
                         }
                         else
                         {
+                            print_unexpected(self, active);
+                            self->returnCode = 2;
                             return 0;
                         }
                         break;
@@ -911,11 +1038,15 @@ int expresion(ifjInter *self, symbolTable *table)
                                     }
                                     else
                                     {
+                                        print_unexpected(self, active);
+                                        self->returnCode = 2;
                                         return 0;
                                     }
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
                                 break;
@@ -946,11 +1077,15 @@ int expresion(ifjInter *self, symbolTable *table)
                                     }
                                     else
                                     {
+                                        print_unexpected(self, active);
+                                        self->returnCode = 2;
                                         return 0;
                                     }
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
                                 break;
@@ -982,11 +1117,15 @@ int expresion(ifjInter *self, symbolTable *table)
                                     }
                                     else
                                     {
+                                        print_unexpected(self, active);
+                                        self->returnCode = 2;
                                         return 0;
                                     }
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
                                 break;
@@ -1017,21 +1156,29 @@ int expresion(ifjInter *self, symbolTable *table)
                                     }
                                     else
                                     {
+                                        print_unexpected(self, active);
+                                        self->returnCode = 2;
                                         return 0;
                                     }
                                 }
                                 else
                                 {
+                                    print_unexpected(self, active);
+                                    self->returnCode = 2;
                                     return 0;
                                 }
                                 break;
 
                             default:
+                                print_unexpected(self, active);
+                                self->returnCode = 2;
                                 return 0;
                         }
                         break;
 
                     default:
+                        print_unexpected(self, active);
+                        self->returnCode = 2;
                         return 0;
             }
         }
@@ -1045,7 +1192,7 @@ int expresion(ifjInter *self, symbolTable *table)
     return 1;
 }
 
-inline int condition_check_active(token *active, int *b)
+inline int condition_check_active(ifjInter *self, token *active, int *b)
 {
     switch (active->type)
     {
@@ -1075,7 +1222,6 @@ inline int condition_check_active(token *active, int *b)
 
         case T_IDENTIFIER:
             *b = 6;
-            // return_value = resolve_identifier(self, table, &active, 0);
             return 2;
 
         case T_LBLOCK:
@@ -1120,10 +1266,12 @@ inline int condition_check_active(token *active, int *b)
     }
 
     *b = -1;
+    print_unexpected(self, active);
+    self->returnCode = 2;
     return 0;
 }
 
-inline int condition_check_top_stack(token *top_stack, int *a)
+inline int condition_check_top_stack(ifjInter *self, token *top_stack, int *a)
 {
     switch (top_stack->type)
     {
@@ -1197,10 +1345,12 @@ inline int condition_check_top_stack(token *top_stack, int *a)
     }
 
     *a = -1;
+    print_unexpected(self, top_stack);
+    self->returnCode = 2;
     return 0;
 }
 
-inline int expresion_check_active(token *active, int *b)
+inline int expresion_check_active(ifjInter *self, token *active, int *b)
 {
     switch (active->type)
     {
@@ -1229,7 +1379,6 @@ inline int expresion_check_active(token *active, int *b)
             return 1;
 
         case T_IDENTIFIER:
-            //resolve_identifier(self, table, &active, 0);
             *b = 6;
             return 2;
 
@@ -1251,10 +1400,12 @@ inline int expresion_check_active(token *active, int *b)
     }
 
     *b = -1;
+    print_unexpected(self, active);
+    self->returnCode = 2;
     return 0;
 }
 
-inline int expresion_check_top_stack(token *top_stack, int *a)
+inline int expresion_check_top_stack(ifjInter *self, token *top_stack, int *a)
 {
     switch (top_stack->type)
     {
@@ -1304,6 +1455,8 @@ inline int expresion_check_top_stack(token *top_stack, int *a)
     }
 
     *a = -1;
+    print_unexpected(self, top_stack);
+    self->returnCode = 2;
     return 0;
 }
 
@@ -1315,6 +1468,8 @@ int type_control(ifjInter *self)
 
     if ((first_type_stack_token->dataType == T_STRING) || (second_type_stack_token->dataType == T_STRING))
     {
+        print_mistyped(self, first_type_stack_token, second_type_stack_token);
+        self->returnCode = 4;
         return 4;
     }
     else
@@ -1330,13 +1485,15 @@ int type_control_plus(ifjInter *self)
     token * first_type_stack_token = ifj_stack_pop(syna->type_stack);
     token * second_type_stack_token = ifj_stack_pop(syna->type_stack);
 
-    if ((first_type_stack_token->dataType == T_STRING) && (second_type_stack_token->dataType == T_STRING))
+    if (first_type_stack_token->dataType == T_STRING && second_type_stack_token->dataType == T_STRING)
     {
         ifj_stack_push(syna->type_stack, first_type_stack_token);
         return 0;
     }
-    else if ((first_type_stack_token->dataType == T_STRING) || (second_type_stack_token->dataType == T_STRING))
+    else if (first_type_stack_token->dataType == T_STRING || second_type_stack_token->dataType == T_STRING)
     {
+        print_mistyped(self, first_type_stack_token, second_type_stack_token);
+        self->returnCode = 4;
         return 4;
     }
     else

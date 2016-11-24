@@ -116,10 +116,13 @@ int resolve_identifier(ifjInter *self,
         while(context)
         {
             token *prev = context->get_item(context, seek->value, T_IDENTIFIER, NULL);
+            if (prev == seek) //allready resolved
+            {
+                return 1;
+            }
             if (prev) //found
             {
                 ifj_token_free(seek);
-                *item = NULL;
                 // return found token
                 *item = prev;
                 return 1;

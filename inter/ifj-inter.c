@@ -16,6 +16,10 @@
  */
 void ifj_inter_free(ifjInter *self)
 {
+    if(self->syna)
+    {
+        ifj_syna_free(self->syna);
+    }
     if(self->table)
     {
         self->table->drop(self->table);
@@ -28,10 +32,6 @@ void ifj_inter_free(ifjInter *self)
         ifj_token_free(self->pushBack);
     }
     self->table = NULL;
-    if(self->syna)
-    {
-        ifj_syna_free(self->syna);
-    }
     free(self);
 }
 

@@ -135,14 +135,14 @@ void ifj_stack_drop ( token_stack *inStack )
 */
 void ifj_stack_clear ( token_stack *inStack )
 {
-	free(inStack->elements);
+	/*free(inStack->elements);
 	inStack->elements = malloc(inStack->size * sizeof(token *));
 
 	if (inStack->elements == NULL)
 	{
 		// TODO chyba pamate
 		return;
-	}
+	}*/
 
 	inStack->top = -1;
 }
@@ -154,7 +154,11 @@ void ifj_stack_print ( token_stack *inStack )
 {
 	for (int i = inStack->top; i >= 0; i--)
 	{
-		fprintf(stderr, "%d - %s %d - %c\n", i, "token type: ", inStack->elements[i]->type, inStack->elements[i]->type);
+		fprintf(stderr, "%s %d - token type: %d %d\n",
+				(char *)inStack->elements[i]->value,
+				i,
+				inStack->elements[i]->type,
+				inStack->elements[i]->dataType);
 	}
 	fprintf(stderr, "%s\n", "--------------------");
 }
@@ -200,7 +204,7 @@ int ifj_insert_first (	linear_list *list,
 
 	newInstruction->next = list->first;
 	list->first = newInstruction;
-	
+
 	if (list->last == NULL)
 	{
 		list->last = newInstruction;

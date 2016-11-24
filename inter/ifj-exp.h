@@ -18,10 +18,10 @@
 int expresion(ifjInter *self, symbolTable *table);
 int condition(ifjInter *self, symbolTable *table);
 
-int condition_check_active(token *active, int *b);
-int condition_check_top_stack(token *top_stack, int *a);
-int expresion_check_active(token *active, int *b);
-int expresion_check_top_stack(token *top_stack, int *a);
+int condition_check_active(ifjInter *self, token *active, int *b);
+int condition_check_top_stack(ifjInter *self, token *top_stack, int *a);
+int expresion_check_active(ifjInter *self, token *active, int *b);
+int expresion_check_top_stack(ifjInter *self, token *top_stack, int *a);
 
 int type_control(ifjInter *self);
 int type_control_plus(ifjInter *self);
