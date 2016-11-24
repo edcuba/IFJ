@@ -1,12 +1,21 @@
 class Main
 {
-  static void Run()
-  {
-      int a = 5;
-      String abc = "abc1";
-      String def = "def1";
-      String abcdef = abc + def;
-      ifj16.print(abcdef);
-      ifj16.print("yolo");
-  }
+ 	static void Run()
+ 	{
+ 		int a = 5;
+ 		String abc = "abc1";
+ 		String def = "def1";
+ 		String abcdef = abc + def;
+ 		ifj16.print(abcdef);
+ 		ifj16.print("yolo");
+
+ 		String b = Cislo();
+ 		ifj16.print(b);
+ 	}
+
+	static String Cislo()
+	{
+		String s1 = "sdf";
+		return s1;
+	}
 }
