@@ -111,6 +111,7 @@ struct _ifjInter
     token *pushBack;
     int preLoad;
     int returnCode;
+    instruction *bootstrap;
 };
 
 ifjInter    *ifj_inter_new();

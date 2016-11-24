@@ -17,7 +17,7 @@
 */
 
 /*TODO JANY funcia run je bezparametricka staticka   */
-/*TODO JANY ak je void funkcia tak  nesmie obsahovat return*/
+/*TODO JANY ak je void funkcia tak  nesmie obsahovat return XXX not sure*/
 /*TODO JANNY Každá funkce vrací hodnotu danou vyhodnocením výrazu v příkazu return . V pří-
 padě chybějící návratové hodnoty kvůli neprovedení příkazu return dojde k chybě 8.*/
 /* TODO JANNY Nedošlo-li k vykonání žádného příkazu return a nejedná se o void -funkci, nastává
@@ -191,7 +191,7 @@ int next_param(ifjInter *self, symbolTable *table, token *expected)
         }
         if(expected && check_typing(active, expected))
         {
-            return 1;
+            return ifj_insert_last(self->code, I_PUSH, active, NULL, NULL);
         }
         print_mistyped(self, active, expected);
         self->returnCode = 4;
@@ -203,7 +203,7 @@ int next_param(ifjInter *self, symbolTable *table, token *expected)
     {
         if(expected && check_typing(active, expected))
         {
-            return 1;
+            return ifj_insert_last(self->code, I_PUSH, active, NULL, NULL);
         }
         print_mistyped(self, active, expected);
         self->returnCode = 4;
@@ -299,8 +299,9 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
         if(self->preLoad)
         {
             //TODO check if not void here
-            //TODO initialize static variable here
-            return expresion(self, table) && class_inside1(self, table);
+            return expresion(self, table) &&
+                   ifj_insert_last(self->code, I_SET, NULL, NULL, item) &&
+                   class_inside1(self, table);
         }
         else
         {
@@ -458,6 +459,8 @@ int function_inside(ifjInter *self, token *item)
     }
     if(active->type == T_LBLOCK)
     {
+        ifj_insert_last(self->code, I_LABEL, item, NULL, NULL);
+        item->jump = self->code->last;
         return function_inside1(self, item);
     }
 
@@ -522,7 +525,7 @@ int function_inside1(ifjInter *self, token *item)
                is_RPAREN(self) &&
                is_semicolon(self) &&
                function_inside1(self));*/
-            
+
         //TODO generate jump + else jump
         case T_IF:
             return condition(self, item->childTable) &&
@@ -530,9 +533,9 @@ int function_inside1(ifjInter *self, token *item)
                    if_else1(self, item->childTable) &&
                    function_inside1(self, item);
 
-        //TODO generate jump
         case T_RETURN:
             return expresion(self, item->childTable) &&
+                   ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
                    statement_inside1(self, item->childTable);
 
         case T_INTEGER:
@@ -737,10 +740,10 @@ int statement_inside1(ifjInter *self, symbolTable *table)
                    statement_inside1(self, table) &&
                    if_else1(self, table) &&
                    statement_inside1(self, table);
-            
-        //TODO generate jump
+
         case T_RETURN:
             return expresion(self, table) &&
+                   ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
                    statement_inside1(self, table);
 
         case T_IDENTIFIER:
@@ -775,12 +778,24 @@ int fce(ifjInter *self, symbolTable *table, token *item)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type == T_LPAREN)
     {
-        return function_parameters(self, table, item);
+        //TODO check if item is func
+        if(item->dataType == T_VOID)
+        {
+            return function_parameters(self, table, item) &&
+                   ifj_insert_last(self->code, I_CALL, item, NULL, NULL);
+        }
+        else
+        {
+            return function_parameters(self, table, item) &&
+                   ifj_insert_last(self->code, I_CALL, item, NULL, NULL) &&
+                   ifj_insert_last(self->code, I_SET, NULL, NULL, NULL);
+        }
+
     }
     else if (active->type == T_ASSIGN)
     {
-        //TODO typing + instruction
-        return expresion(self, table);
+        return expresion(self, table) &&
+               ifj_insert_last(self->code, I_SET, NULL, NULL, item);
     }
 
     print_unexpected(self, active);
@@ -791,7 +806,6 @@ int fce(ifjInter *self, symbolTable *table, token *item)
 /**
  * Resolving functon call with return
  * fetch next token. Expect ")" or next function param
- * //TODO generate parameter push
  * @param self global structure
  * @param table symbol table for current function (not called one!)
  * @param item called function structure
@@ -822,7 +836,8 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
             {
                 expected = item->args->elements[1];
             }
-            return next_function_parameters(self, table, item, expected, 1);
+            return ifj_insert_last(self->code, I_PUSH, active, NULL, NULL) &&
+                   next_function_parameters(self, table, item, expected, 1);
         }
         print_mistyped(self, active, expected);
         self->returnCode = 4;
@@ -842,7 +857,8 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
             {
                 expected = item->args->elements[1];
             }
-            return next_function_parameters(self, table, item, expected, 1);
+            return ifj_insert_last(self->code, I_PUSH, active, NULL, NULL) &&
+                   next_function_parameters(self, table, item, expected, 1);
         }
         print_mistyped(self, active, expected);
         self->returnCode = 4;
@@ -864,7 +880,6 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
 
 /**
  * Resolving function call, fetch next token. Expect ");" or next func param
- * //TODO generate parameter push
  * @param self global structure
  * @param table symbol table for current function (not called one!)
  * @param item called function structure
@@ -921,8 +936,8 @@ int sth_next(ifjInter *self, symbolTable *table, token *item)
     token * active = lexa_next_token(self->lexa_module, table);
     if (active->type == T_ASSIGN)
     {
-        return expresion(self, table);
-        // TODO generate instruction
+        return expresion(self, table) &&
+               ifj_insert_last(self->code, I_SET, NULL, NULL, item);
     }
     else if (active->type == T_SEMICOLON)
     {
@@ -946,6 +961,8 @@ int syna_run(ifjInter *self)
     if(return_value)
     {
         self->preLoad = 0;
+        ifj_insert_last(self->code, I_GOTO, NULL, NULL, NULL);
+        self->bootstrap = self->code->last;
         ifj_lexa_rewind_input(self->lexa_module);
         return_value = next_class(self);
     }
@@ -958,21 +975,24 @@ int syna_run(ifjInter *self)
     if(self->debugMode)
         print_table(self->table, 0);
 
-    return self->returnCode;
-}
+    if(return_value && !self->returnCode)
+    {
+        token *run = ifj_generate_temp(T_VOID, NULL);
+        run->type = T_IDENTIFIER;
+        run->value = (void *) strdup("Main.Run");
+        return_value = resolve_identifier(self, self->table, &run, 0);
+        if(!return_value)
+        {
+            return self->returnCode;
+        }
+        if(!run->jump)
+        {
+            fprintf(stderr, "Error: Run function undefined!\n");
+            self->returnCode = 3;
+            return self->returnCode;
+        }
+        self->bootstrap->op3 = run;
+    }
 
-/**
- * Resolving functon call with return
- * fetch next token. Expect ")" or next function param
- * @param self global structure
- * @param table symbol table for current function (not called one!)
- * @param item called function structure
- * @return 1 if successful
- * TODO generate set
- **/
-int function_parameters_for_exp(ifjInter *self,
-                                symbolTable *table,
-                                token *item)
-{
-    return function_parameters(self, table, item);
+    return self->returnCode;
 }

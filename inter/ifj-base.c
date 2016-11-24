@@ -19,6 +19,7 @@ int main (  int argc,
     self->debugMode = 1;
     check(self->load(argc, argv, self)); //load input file
     check(syna_run(self)); //run syntactic analysis
+    check(run_exec(self)); //run executor
 
 
     ifj_inter_free(self);

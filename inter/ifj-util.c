@@ -222,7 +222,7 @@ int ifj_insert_first (	linear_list *list,
  * Add new item at last place in linear_list
  * @param list linear_list
  * @param instruction stored in variable data in item
- * @return 0, -1 when unsuccessful
+ * @return 1, 0 when unsuccessful
 */
 int ifj_insert_last (	linear_list *list,
 						int inputType,
@@ -234,7 +234,8 @@ int ifj_insert_last (	linear_list *list,
 
 	if (newInstruction == NULL)
 	{
-		return 99;
+		//TODO ROBO global flag
+		return 0;
 	}
 
 	newInstruction->next = NULL;
@@ -256,7 +257,7 @@ int ifj_insert_last (	linear_list *list,
 	newInstruction->op2 = oper2;
 	newInstruction->op3 = oper3;
 
-	return 0;
+	return 1;
 }
 
 /**
@@ -404,6 +405,7 @@ void ifj_print ( token_stack *inStack, int popNum )
 	            break;
 		}
 	}
+	printf("\n");
 }
 
 /**

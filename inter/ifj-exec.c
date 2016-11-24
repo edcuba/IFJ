@@ -20,7 +20,7 @@ int run_exec ( ifjInter *self )
 	{
 		fprintf(stderr, "%s\n", "---------------- Executor started ----------------");
 	}
-	
+
 	instruction *instruc = self->code->first;
 	token_stack *stack = ifj_stack_new();
 
@@ -30,7 +30,7 @@ int run_exec ( ifjInter *self )
 	{
 		if (self->debugMode)
 		{
-			fprintf(stderr, "%s %d\n", "Actual instruction type: ", instruc->type);
+			fprintf(stderr, "%s %d\n", "instruction: ", instruc->type);
 		}
 
 		switch (instruc->type)
@@ -38,10 +38,10 @@ int run_exec ( ifjInter *self )
 			case I_MUL:
 			{
 				// Get tokens from stack
-				if (instruc->op1 == NULL)
-					instruc->op1 = ifj_stack_pop(stack);
 				if (instruc->op2 == NULL)
 					instruc->op2 = ifj_stack_pop(stack);
+				if (instruc->op1 == NULL)
+					instruc->op1 = ifj_stack_pop(stack);
 
 				// Check if variables are inicialized
 				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
@@ -78,10 +78,10 @@ int run_exec ( ifjInter *self )
 			case I_ADD:
 			{
 				// Get tokens from stack
-				if (instruc->op1 == NULL)
-					instruc->op1 = ifj_stack_pop(stack);
 				if (instruc->op2 == NULL)
 					instruc->op2 = ifj_stack_pop(stack);
+				if (instruc->op1 == NULL)
+					instruc->op1 = ifj_stack_pop(stack);
 
 				// Check if variables are inicialized
 				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
@@ -138,10 +138,10 @@ int run_exec ( ifjInter *self )
 			case I_SUB:
 			{
 				// Get tokens from stack
-				if (instruc->op1 == NULL)
-					instruc->op1 = ifj_stack_pop(stack);
 				if (instruc->op2 == NULL)
 					instruc->op2 = ifj_stack_pop(stack);
+				if (instruc->op1 == NULL)
+					instruc->op1 = ifj_stack_pop(stack);
 
 				// Check if variables are inicialized
 				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
@@ -178,10 +178,10 @@ int run_exec ( ifjInter *self )
 			case I_DIV:
 			{
 				// Get tokens from stack
-				if (instruc->op1 == NULL)
-					instruc->op1 = ifj_stack_pop(stack);
 				if (instruc->op2 == NULL)
 					instruc->op2 = ifj_stack_pop(stack);
+				if (instruc->op1 == NULL)
+					instruc->op1 = ifj_stack_pop(stack);
 
 				// Check if variables are inicialized
 				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
@@ -191,7 +191,7 @@ int run_exec ( ifjInter *self )
 				}
 
 				// Check division by zero
-				if ( *((int *) instruc->op2->data) == 0 )
+				if ( *((double *) instruc->op2->data) == (double) 0 )
 				{
 					fprintf(stderr, "%s\n", "Division by zero");
 					return 9;
@@ -235,7 +235,7 @@ int run_exec ( ifjInter *self )
 					instruc->op1 = ifj_stack_pop(stack);
 
 				// Check if variable is inicialized
-				if (instruc->op1->data == NULL)
+				if (instruc->op1 && instruc->op1->data == NULL)
 				{
 					fprintf(stderr, "%s\n", "Variable is not inicialized");
 					return 8;
@@ -261,12 +261,20 @@ int run_exec ( ifjInter *self )
 				{
 					if (instruc->op3->dataType == T_DOUBLE)
 					{
+						if(!instruc->op3->data)
+						{
+							instruc->op3->data = malloc(sizeof(double));
+						}
 						// double a = 3.14(double) , double a = 1(int)
 						*((double *) instruc->op3->data) = *((double *) instruc->op1->data);
 					}
-					
+
 					if (instruc->op3->dataType == T_INTEGER)
 					{
+						if(!instruc->op3->data)
+						{
+							instruc->op3->data = malloc(sizeof(int));
+						}
 						// int a = 2(int) , int a = 3.14(double)
 						*((int *) instruc->op3->data) = *((int *) instruc->op1->data);
 					}
@@ -315,6 +323,10 @@ int run_exec ( ifjInter *self )
 						switch(argToken->dataType)
 						{
 							case T_STRING:
+								if(argToken->data != NULL)
+								{
+									free(argToken->data);
+								}
 								argToken->data = (void *) strdup(myToken->data);
 								break;
 
@@ -332,7 +344,7 @@ int run_exec ( ifjInter *self )
 						}
 					}
 				}
-				
+
 				token *output = NULL;
 				switch(instruc->op1->method)
 				{
@@ -403,7 +415,8 @@ int run_exec ( ifjInter *self )
 						break;
 
 					default:
-						ifj_stack_push(stack, instruc->op1);
+						output = ifj_generate_temp(T_VOID, NULL);
+						output->jump = instruc->next;
 						instruc = instruc->op1->jump;
 						jumped = true;
 						break;

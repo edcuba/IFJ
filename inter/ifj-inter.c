@@ -169,6 +169,7 @@ ifjInter* ifj_inter_new()
     self->syna = ifj_syna_new(self);
     self->pushBack = NULL;
     self->preLoad = 1;
+    self->bootstrap = NULL;
     return self;
 }
 
@@ -180,7 +181,7 @@ void ifj_token_free( token *item )
 {
     if(!item)
         return;
-
+        
     if (item->value == item->data)
     {
         free(item->data);

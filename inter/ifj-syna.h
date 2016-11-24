@@ -46,11 +46,6 @@ int next_function_parameters(ifjInter *self,
                              token *expected,
                              int idx);
 
-int function_parameters_for_exp(ifjInter *self,
-                                symbolTable *table,
-                                token *item);
-
-
 int get_type_with_void(ifjInter *self, token **item);
 int get_type_without_void(ifjInter *self, token **item);
 

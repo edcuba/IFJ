@@ -859,7 +859,7 @@ int expresion(ifjInter *self, symbolTable *table)
              * + nezabudnut pridat "("
             */
             case  T_COMMA:
-                return function_parameters_for_exp(self, table, ifj_stack_top(syna->stack));
+                return function_parameters(self, table, ifj_stack_top(syna->stack));
 
             case  T_END:
                 print_unexpected(self, active);
