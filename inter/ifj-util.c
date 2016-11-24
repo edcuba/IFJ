@@ -9,6 +9,7 @@
 #include "ifj-inter.h"
 #include "ifj-token.h"
 #include "ifj-lexa.h"
+#include "ifj-exec.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -334,6 +335,17 @@ void ifj_set_active_next ( linear_list *list )
 	}
 
 	list->active = list->active->next;
+}
+
+void ifj_list_print ( linear_list *list )
+{
+	instruction *temp = list->first;
+	while (temp != NULL)
+	{
+		fprintf(stderr, "%d ", temp->type);
+		printInstruction(temp->type);
+		temp = temp->next;
+	}
 }
 
 /**

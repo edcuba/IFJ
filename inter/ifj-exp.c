@@ -859,7 +859,8 @@ int expresion(ifjInter *self, symbolTable *table)
              * + nezabudnut pridat "("
             */
             case  T_COMMA:
-                return function_parameters(self, table, ifj_stack_top(syna->stack));
+                return function_parameters(self, table, ifj_stack_top(syna->stack)) &&
+                       ifj_insert_last(self->code, I_CALL, ifj_stack_top(syna->stack), NULL, NULL);
 
             case  T_END:
                 print_unexpected(self, active);

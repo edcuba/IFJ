@@ -1,21 +1,36 @@
 class Main
 {
+	static int Test()
+	{
+		String a;
+		a = "abc" + "bcd";
+		return a;
+	}
+
  	static void Run()
  	{
- 		int a = 5;
- 		String abc = "abc1";
- 		String def = "def1";
- 		String abcdef = abc + def;
- 		ifj16.print(abcdef);
- 		ifj16.print("yolo");
-
  		String b = Cislo();
  		ifj16.print(b);
+ 		String test = Test();
+ 		ifj16.print(test);
+
+ 		String vystup = TestClass.novyString();
+ 		ifj16.print(vystup);
  	}
 
 	static String Cislo()
 	{
 		String s1 = "sdf";
+		//ifj16.print(s1);
 		return s1;
+	}
+}
+
+class TestClass
+{
+	static String novyString()
+	{
+		String as = "EDO ";
+		return as + "CUBA";
 	}
 }

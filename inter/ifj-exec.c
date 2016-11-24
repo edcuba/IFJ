@@ -30,7 +30,13 @@ int run_exec ( ifjInter *self )
 	{
 		if (self->debugMode)
 		{
-			fprintf(stderr, "%s %d\n", "instruction: ", instruc->type);
+			fprintf(stderr, "%s %d ", "instruction: ", instruc->type);
+			printInstruction(instruc->type);
+
+			//ifj_stack_print(stack);
+
+			//ifj_list_print(self->code);
+			//return 0;
 		}
 
 		switch (instruc->type)
@@ -232,7 +238,14 @@ int run_exec ( ifjInter *self )
 			{
 				// Get token from stack
 				if (instruc->op1 == NULL)
-					instruc->op1 = ifj_stack_pop(stack);
+				{
+					instruc->op1 = ifj_stack_top(stack);
+					if (instruc->op1 && instruc->op1->dataType == T_VOID)
+					{
+						break;
+					}
+					ifj_stack_pop(stack);
+				}
 
 				// Check if variable is inicialized
 				if (instruc->op1 && instruc->op1->data == NULL)
@@ -417,7 +430,7 @@ int run_exec ( ifjInter *self )
 					default:
 						output = ifj_generate_temp(T_VOID, NULL);
 						output->jump = instruc->next;
-						instruc = instruc->op1->jump;
+						instruc = instruc->op1->jump->next;
 						jumped = true;
 						break;
 				}
@@ -430,7 +443,7 @@ int run_exec ( ifjInter *self )
 
 			case I_GOTO:
 			{
-				instruc = instruc->op3->jump;
+				instruc = instruc->op3->jump->next;
 				jumped = true;
 				break;
 			}
@@ -441,7 +454,7 @@ int run_exec ( ifjInter *self )
 
 				if ( *((int *)output->data) )
 				{
-					instruc = instruc->op3->jump;
+					instruc = instruc->op3->jump->next;
 					jumped = true;
 				}
 
@@ -454,6 +467,15 @@ int run_exec ( ifjInter *self )
 
 			case I_RETURN:
 			{
+				if (instruc->op1 == NULL)
+				{
+					instruc->op1 = ifj_stack_top(stack);
+					if (instruc->op1->dataType != T_VOID)
+					{
+						ifj_stack_pop(stack);
+					}
+				}
+
 				token *label = ifj_stack_pop(stack);
 
 				if (instruc->op1 != NULL)
@@ -506,6 +528,7 @@ int run_exec ( ifjInter *self )
 
 			case I_LABEL:
 			{
+				return 0;
 				break;
 			}
 
@@ -519,7 +542,9 @@ int run_exec ( ifjInter *self )
 		if (!jumped)
 			instruc = instruc->next;
 		else
+		{
 			jumped = false;
+		}
 	}
 
 	ifj_stack_drop(stack);
@@ -612,5 +637,48 @@ void freeTempTokens (instruction *inputInstruc)
 	{
 		ifj_token_free(inputInstruc->op2);
 		inputInstruc->op2 = NULL;
+	}
+}
+
+void printInstruction(int type)
+{
+	switch(type)
+	{
+		case I_MUL:
+			fprintf(stderr, "%s\n", "MUL");
+			break;
+		case I_ADD:
+			fprintf(stderr, "%s\n", "ADD");
+			break;
+		case I_SUB:
+			fprintf(stderr, "%s\n", "SUB");
+			break;
+		case I_DIV:
+			fprintf(stderr, "%s\n", "DIV");
+			break;
+		case I_PUSH:
+			fprintf(stderr, "%s\n", "PUSH");
+			break;
+		case I_SET:
+			fprintf(stderr, "%s\n", "SET");
+			break;
+		case I_CALL:
+			fprintf(stderr, "%s\n", "CALL");
+			break;
+		case I_GOTO:
+			fprintf(stderr, "%s\n", "GOTO");
+			break;
+		case I_GOTO_CONDITION:
+			fprintf(stderr, "%s\n", "GOTO_CONDITION");
+			break;
+		case I_RETURN:
+			fprintf(stderr, "%s\n", "RETURN");
+			break;
+		case I_CONDITION:
+			fprintf(stderr, "%s\n", "CONDITION");
+			break;
+		case I_LABEL:
+			fprintf(stderr, "%s\n", "LABEL");
+			break;
 	}
 }
