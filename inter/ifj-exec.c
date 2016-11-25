@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-int run_exec ( ifjInter *self )
+int exec_run ( ifjInter *self )
 {
 	if (self->debugMode)
 	{
@@ -53,7 +53,8 @@ int run_exec ( ifjInter *self )
 				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
 				{
 					fprintf(stderr, "%s\n", "Variable is not inicialized");
-					return 8;
+					self->returnCode = 8;
+					return 0;
 				}
 
 				// Calculate (a * b)
@@ -93,7 +94,8 @@ int run_exec ( ifjInter *self )
 				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
 				{
 					fprintf(stderr, "%s\n", "Variable is not inicialized");
-					return 8;
+					self->returnCode = 8;
+					return 0;
 				}
 
 				// Calculate (a + b)
@@ -153,7 +155,8 @@ int run_exec ( ifjInter *self )
 				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
 				{
 					fprintf(stderr, "%s\n", "Variable is not inicialized");
-					return 8;
+					self->returnCode = 8;
+					return 0;
 				}
 
 				// Calculate (a - b)
@@ -193,14 +196,16 @@ int run_exec ( ifjInter *self )
 				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
 				{
 					fprintf(stderr, "%s\n", "Variable is not inicialized");
-					return 8;
+					self->returnCode = 8;
+					return 0;
 				}
 
 				// Check division by zero
 				if ( *((double *) instruc->op2->data) == (double) 0 )
 				{
 					fprintf(stderr, "%s\n", "Division by zero");
-					return 9;
+					self->returnCode = 9;
+					return 0;
 				}
 
 				// Calculate (a / b)
@@ -240,20 +245,14 @@ int run_exec ( ifjInter *self )
 				if (instruc->op1 == NULL)
 				{
 					instruc->op1 = ifj_stack_pop(stack);
-					/*
-					if (instruc->op1 && instruc->op1->dataType == T_VOID)
-					{
-						break;
-					}
-					ifj_stack_pop(stack);
-					*/
 				}
 
 				// Check if variable is inicialized
 				if (instruc->op1 && instruc->op1->data == NULL)
 				{
 					fprintf(stderr, "%s\n", "Variable is not inicialized");
-					return 8;
+					self->returnCode = 8;
+					return 0;
 				}
 
 				// Function called with return value,
@@ -315,7 +314,8 @@ int run_exec ( ifjInter *self )
 						if (myToken->data == NULL)
 						{
 							fprintf(stderr, "%s\n", "Variable is not inicialized");
-							return 8;
+							self->returnCode = 8;
+							return 0;
 						}
 
 						ifj_stack_push(argsStack, myToken);
@@ -355,7 +355,8 @@ int run_exec ( ifjInter *self )
 
 							default:
 								fprintf(stderr, "%s %d\n", "Executor ERROR, invalid dataType: ", argToken->dataType);
-								return 10;
+								self->returnCode = 10;
+								return 0;
 						}
 					}
 				}
@@ -373,19 +374,28 @@ int run_exec ( ifjInter *self )
 					case IFJ16_READINT:
 						output = ifj_read_int();
 						if (!output)
-							return 7;
+						{
+							self->returnCode = 7;
+							return 0;
+						}
 						break;
 
 					case IFJ16_READDOUBLE:
 						output = ifj_read_double();
 						if (!output)
-							return 7;
+						{
+							self->returnCode = 7;
+							return 0;
+						}
 						break;
 
 					case IFJ16_READSTRING:
 						output = ifj_read_string();
 						if (!output)
-							return 10;
+						{
+							self->returnCode = 10;
+							return 0;
+						}
 						break;
 
 					case IFJ16_FIND:
@@ -394,7 +404,10 @@ int run_exec ( ifjInter *self )
 							(char *) ifj_stack_pop(argsStack)->data
 							);
 						if (!output)
-							return 10;
+						{
+							self->returnCode = 10;
+							return 0;
+						}
 						break;
 
 					case IFJ16_SORT:
@@ -402,7 +415,10 @@ int run_exec ( ifjInter *self )
 							(char *) ifj_stack_pop(argsStack)->data
 							);
 						if (!output)
-							return 10;
+						{
+							self->returnCode = 10;
+							return 0;
+						}
 						break;
 
 					case IFJ16_LENGTH:
@@ -410,7 +426,10 @@ int run_exec ( ifjInter *self )
 							(char *) ifj_stack_pop(argsStack)->data
 							);
 						if (!output)
-							return 10;
+						{
+							self->returnCode = 10;
+							return 0;
+						}
 						break;
 
 					case IFJ16_SUBSTR:
@@ -420,7 +439,10 @@ int run_exec ( ifjInter *self )
 							*((int *) ifj_stack_pop(argsStack)->data)
 							);
 						if (!output)
-							return 10;
+						{
+							self->returnCode = 10;
+							return 0;
+						}
 						break;
 
 					case IFJ16_COMPARE:
@@ -429,7 +451,10 @@ int run_exec ( ifjInter *self )
 							(char *) ifj_stack_pop(argsStack)->data
 							);
 						if (!output)
-							return 10;
+						{
+							self->returnCode = 10;
+							return 0;
+						}
 						break;
 
 					default:
@@ -489,7 +514,8 @@ int run_exec ( ifjInter *self )
 					if (instruc->op1->data == NULL)
 					{
 						fprintf(stderr, "%s\n", "Variable is not inicialized");
-						return 8;
+						self->returnCode = 8;
+						return 0;
 					}
 
 					ifj_stack_push(stack, instruc->op1);
@@ -517,7 +543,8 @@ int run_exec ( ifjInter *self )
 				if (output == 10)
 				{
 					fprintf(stderr, "%s\n", "Executor ERROR: condition error");
-					return 10;
+					self->returnCode = 10;
+					return 0;
 				}
 
 				output = !output;
@@ -533,9 +560,14 @@ int run_exec ( ifjInter *self )
 
 			case I_LABEL:
 			{
+				if (self->debugMode)
+				{
+					fprintf(stderr, "%s\n", "---------------- Executor ended ----------------");
+				}
+
 				ifj_stack_drop(stack);
+				self->returnCode = 0;
 				return 0;
-				break;
 			}
 
 			default:
@@ -557,9 +589,10 @@ int run_exec ( ifjInter *self )
 
 	if (self->debugMode)
 	{
-		fprintf(stderr, "%s\n", "---------------- Executor ended ----------------");
+		fprintf(stderr, "%s\n", "---------------- Executor ended 2 ----------------");
 	}
 
+	self->returnCode = 0;
 	return 0;
 }
 
