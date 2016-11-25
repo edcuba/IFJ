@@ -384,7 +384,7 @@ token *ifj_read_string ()
         }
         dyn_buffer_append(buffer, ch);
     }
-    token *t = ifj_generate_temp(T_STRING, dyn_buffer_get_content(buffer));
+    token *t = ifj_generate_temp(T_STRING, strdup(dyn_buffer_get_content(buffer)));
     dyn_buffer_free(buffer);
 	return t;
 }
@@ -430,7 +430,7 @@ void ifj_print ( token_stack *inStack, int popNum )
 */
 token *ifj_length ( const char *inputString )
 {
-	int result = strlen(inputString);
+	int result = (int) strlen(inputString);
 	token *temp = ifj_generate_temp(T_INTEGER, &result);
 	return temp;
 }
@@ -486,7 +486,7 @@ static int ifj_compare_help (	const char *s1,
 		{
 			if (s1[i] == '\0' || s2[i] == '\0')
 			{
-				return ifj_length(s1) - ifj_length(s2) > 0 ? 1 : -1;
+				return (int) strlen(s1) - (int) strlen(s2) > 0 ? 1 : -1;
 			}
 			return s1[i] - s2[i] > 0 ? 1 : -1;
 		}
