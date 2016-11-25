@@ -35,8 +35,8 @@ int exec_run ( ifjInter *self )
 
 			//ifj_stack_print(stack);
 
-			//ifj_list_print(self->code);
-			//return 0;
+			ifj_list_print(self->code);
+			return 0;
 		}
 
 		switch (instruc->type)
@@ -367,7 +367,6 @@ int exec_run ( ifjInter *self )
 					case IFJ16_PRINT:
 						output = ifj_stack_pop(stack);
 						ifj_print(stack, *((int *) output->data));
-						ifj_token_free(output);
 						output = NULL;
 						break;
 
@@ -492,6 +491,13 @@ int exec_run ( ifjInter *self )
 				if (output->type == T_TMP)
 					ifj_token_free(output);
 
+				/*
+				if (tempOp3 && tempOp3->type == T_TMP)
+				{
+					ifj_token_free(tempOp3);
+				}
+				*/
+
 				break;
 			}
 
@@ -536,18 +542,28 @@ int exec_run ( ifjInter *self )
 				// Get tokens from stack
 				if (instruc->op2 == NULL)
 					instruc->op2 = ifj_stack_pop(stack);
-				if (instruc->op1 == NULL)
-					instruc->op1 = ifj_stack_pop(stack);
 
-				int output = checkCondition(instruc->op1, instruc->op2, instruc->op3);
-				if (output == 10)
+				int output = 0;
+				if (instruc->op3 != NULL)
 				{
-					fprintf(stderr, "%s\n", "Executor ERROR: condition error");
-					self->returnCode = 10;
-					return 0;
-				}
+					if (instruc->op1 == NULL)
+						instruc->op1 = ifj_stack_pop(stack);
 
-				output = !output;
+					output = checkCondition(instruc->op1, instruc->op2, instruc->op3);
+					if (output == 10)
+					{
+						fprintf(stderr, "%s\n", "Executor ERROR: condition error");
+						self->returnCode = 10;
+						return 0;
+					}
+
+					output = !output;
+				}
+				else
+				{
+					output = *((int *) instruc->op2);
+					printf("%d\n", output);
+				}
 
 				token *tempToken = ifj_generate_temp(
 					T_INTEGER,
@@ -559,6 +575,11 @@ int exec_run ( ifjInter *self )
 			}
 
 			case I_LABEL:
+			{
+				break;
+			}
+
+			case I_END:
 			{
 				if (self->debugMode)
 				{
@@ -717,6 +738,9 @@ void printInstruction(int type)
 			fprintf(stderr, "%s\n", "CONDITION");
 			break;
 		case I_LABEL:
+			fprintf(stderr, "%s\n", "LABEL");
+			break;
+		case I_END:
 			fprintf(stderr, "%s\n", "LABEL");
 			break;
 	}

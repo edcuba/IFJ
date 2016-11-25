@@ -6,6 +6,7 @@
 
 #include "ifj-syna.h"
 #include "ifj-inter.h"
+#include <string.h>
 
 //rules
 //terminals
@@ -522,6 +523,11 @@ int function_inside(ifjInter *self, token *item)
     {
         ifj_insert_last(self->code, I_LABEL, item, NULL, NULL);
         item->jump = self->code->last;
+        if ( !strcmp((char *) item->value, "Run") )
+        {
+            return function_inside1(self, item) &&
+                   ifj_insert_last(self->code, I_END, NULL, NULL, NULL);
+        }
         return function_inside1(self, item);
     }
 
@@ -556,9 +562,33 @@ int function_inside1(ifjInter *self, token *item)
             return 1;
 
         case T_WHILE:
-            return condition(self, item->childTable) &&
-                   statement_inside1(self, item->childTable) &&
-                   function_inside1(self, item);
+        {
+            ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+            token *beg = ifj_generate_temp(T_VOID, NULL);
+            beg->jump = self->code->last;
+
+            if (!condition(self, item->childTable))
+            {
+                return 0;
+            }
+
+            ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
+            instruction *go = self->code->last;
+
+            if (!statement_inside1(self, item->childTable))
+            {
+                return 0;
+            }
+
+            ifj_insert_last(self->code, I_GOTO, NULL, NULL, beg);
+            ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+            beg = ifj_generate_temp(T_VOID, NULL);
+            beg->jump = self->code->last;
+
+            go->op3 = beg;
+
+            return function_inside1(self, item);
+        }
 
       /*  case T_FOR:
         return is_LPAREN(self) &&
@@ -585,12 +615,24 @@ int function_inside1(ifjInter *self, token *item)
                is_semicolon(self) &&
                function_inside1(self));*/
 
-        //TODO generate jump + else jump
         case T_IF:
-            return condition(self, item->childTable) &&
-                   statement_inside1(self, item->childTable) &&
-                   if_else1(self, item->childTable) &&
+        {
+            if (!condition(self, item->childTable))
+            {
+                return 0;
+            }
+
+            ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
+            instruction *ifend = self->code->last;
+
+            if (!statement_inside1(self, item->childTable))
+            {
+                return 0;
+            }
+
+            return if_else1(self, item->childTable, ifend) &&
                    function_inside1(self, item);
+        }
 
         case T_RETURN:
             return expresion(self, item->childTable) &&
@@ -699,14 +741,37 @@ int is_ASSIGN(ifjInter *self)
  * @param table table for current function
  * @return 1 if else, 1 if pushBack
  **/
-int if_else1(ifjInter *self, symbolTable *table)
+int if_else1(ifjInter *self, symbolTable *table, instruction *ifend)
 {
     token * active = lexa_next_token(self->lexa_module, table);
     if (active->type == T_ELSE)
     {
-        return is_LBLOCK(self) &&
-               statement_inside1(self, table);
+        ifj_insert_last(self->code, I_GOTO, NULL, NULL, NULL);
+        instruction *ifgoto = self->code->last;
+
+        token *temp = ifj_generate_temp(T_VOID, NULL);
+        ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+        temp->jump = self->code->last;
+        ifend->op3 = temp;
+
+        if (!is_LBLOCK(self) || !statement_inside1(self, table))
+        {
+            return 0;
+        }
+
+        temp = ifj_generate_temp(T_VOID, NULL);
+        ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+        temp->jump = self->code->last;
+        ifgoto->op3 = temp;
+
+        return 1;
     }
+    
+    token *temp = ifj_generate_temp(T_VOID, NULL);
+    ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+    temp->jump = self->code->last;
+    ifend->op3 = temp;
+
     self->pushBack = active;
     return 1;
 }
@@ -756,9 +821,33 @@ int statement_inside1(ifjInter *self, symbolTable *table)
           return 1;
 
         case T_WHILE:
-            return condition(self, table) &&
-                   statement_inside1(self, table) &&
-                   statement_inside1(self, table);
+        {
+            ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+            token *beg = ifj_generate_temp(T_VOID, NULL);
+            beg->jump = self->code->last;
+
+            if (!condition(self, table))
+            {
+                return 0;
+            }
+
+            ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
+            instruction *go = self->code->last;
+
+            if (!statement_inside1(self, table))
+            {
+                return 0;
+            }
+
+            ifj_insert_last(self->code, I_GOTO, NULL, NULL, beg);
+            ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+            beg = ifj_generate_temp(T_VOID, NULL);
+            beg->jump = self->code->last;
+
+            go->op3 = beg;
+
+            return statement_inside1(self, table);
+        }
 
       /*  case T_FOR:
         return is_LPAREN(self) &&
@@ -794,10 +883,23 @@ int statement_inside1(ifjInter *self, symbolTable *table)
                    statement_inside1(self, table);*/
         //TODO generate jump + else jump
         case T_IF:
-            return condition(self, table) &&
-                   statement_inside1(self, table) &&
-                   if_else1(self, table) &&
+        {
+            if (!condition(self, table))
+            {
+                return 0;
+            }
+
+            ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
+            instruction *ifend = self->code->last;
+
+            if (!statement_inside1(self, table))
+            {
+                return 0;
+            }
+
+            return if_else1(self, table, ifend) &&
                    statement_inside1(self, table);
+        }
 
         case T_RETURN:
             return expresion(self, table) &&
@@ -1050,6 +1152,14 @@ int syna_run(ifjInter *self)
             self->returnCode = 3;
             return self->returnCode;
         }
+
+        if (run->dataType != T_VOID || (run->args && !ifj_stack_empty(run->args)))
+        {
+            fprintf(stderr, "Error: Invalid Run function, expected: static void Run()\n");
+            self->returnCode = 3;
+            return self->returnCode;
+        }
+
         self->bootstrap->op3 = run;
     }
 

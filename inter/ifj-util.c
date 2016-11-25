@@ -155,13 +155,13 @@ void ifj_stack_print ( token_stack *inStack )
 {
 	for (int i = inStack->top; i >= 0; i--)
 	{
-		fprintf(stderr, "%s %d - token type: %d %d\n",
-				(char *)inStack->elements[i]->value,
+		fprintf(stdout, "%d %s - token type: %d %d\n",
 				i,
+				(char *)inStack->elements[i]->value,
 				inStack->elements[i]->type,
 				inStack->elements[i]->dataType);
 	}
-	fprintf(stderr, "%s\n", "--------------------");
+	fprintf(stdout, "%s\n", "--------------------");
 }
 
 /**
@@ -283,6 +283,21 @@ void ifj_drop_list ( linear_list *list )
 	while (tempIntruction != NULL)
 	{
 		instruction *nextInstruction = tempIntruction->next;
+
+		if (tempIntruction->op3 && tempIntruction->op3->type == T_TMP)
+		{
+			ifj_token_free(tempIntruction->op3);
+		}
+
+		if (tempIntruction->op1 && tempIntruction->op1->type == T_TMP)
+		{
+			ifj_token_free(tempIntruction->op1);
+		}
+
+		if (tempIntruction->op2 && tempIntruction->op2->type == T_TMP)
+		{
+			ifj_token_free(tempIntruction->op2);
+		}
 
 		tempIntruction->next = NULL;
 		free(tempIntruction);
@@ -419,7 +434,7 @@ void ifj_print ( token_stack *inStack, int popNum )
 	}
 	for ( int i = 0; i < popNum; ++i)
 	{
-		ifj_stack_pop(inStack);
+		item = ifj_stack_pop(inStack);
 	}
 }
 

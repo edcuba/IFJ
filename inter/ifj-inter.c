@@ -16,6 +16,7 @@
  */
 void ifj_inter_free(ifjInter *self)
 {
+    ifj_drop_list(self->code);
     if(self->syna)
     {
         ifj_syna_free(self->syna);
@@ -25,7 +26,7 @@ void ifj_inter_free(ifjInter *self)
         self->table->drop(self->table);
     }
     ifj_lexa_free(self->lexa_module);
-    ifj_drop_list(self->code);
+    
     ifj_stack_drop(self->stack);
     if(self->pushBack)
     {
@@ -178,8 +179,11 @@ ifjInter* ifj_inter_new()
  */
 void ifj_token_free( token *item )
 {
+
     if(!item)
+    {
         return;
+    }
 
     if (item->value == item->data)
     {

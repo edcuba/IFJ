@@ -25,6 +25,7 @@
 #define I_RETURN 5009
 #define I_CONDITION 5010
 #define I_LABEL 5020
+#define I_END 5030
 
 int exec_run ( ifjInter *self );
 int checkCondition (	token *a,
