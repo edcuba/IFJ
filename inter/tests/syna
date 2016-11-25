@@ -1,39 +1,24 @@
 class Main
 {
-	static int Test()
-	{
-		String a;
-		a = "abc" + "bcd";
-		return a;
-	}
-
  	static void Run()
  	{
- 		String b = Cislo();
- 		ifj16.print(b+"3" + 2 + 1 + 9.1 + "\n");
- 		String test = Test();
-        int a = ifj16.readInt();
-        ifj16.print(a+"\n");
-        ifj16.print(1+2+3+4+"dsadas"+1.9+"\n");
- 		ifj16.print(test+"\n");
+ 		int a = 10;
+ 		int b = 10;
+ 		while (a > 5)
+ 		{
+ 			ifj16.print("a: " + a + "\n");
+ 			a = a - 1;
+ 			b = 10;
 
- 		String vystup = TestClass.novyString();
- 		ifj16.print(vystup+"\n");
+ 			while (b > 5)
+ 			{
+ 				b = b - 1;
+ 				ifj16.print("b: " + b);
+ 			}
+			
+			ifj16.print("\n");
+ 		}
+
+ 		ifj16.print("\n");
  	}
-
-	static String Cislo()
-	{
-		String s1 = "sdf";
-		//ifj16.print(s1);
-		return s1;
-	}
-}
-
-class TestClass
-{
-	static String novyString()
-	{
-		String as = "EDO ";
-		return as + "CUBA";
-	}
 }

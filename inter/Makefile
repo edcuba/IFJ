@@ -24,5 +24,5 @@ HEADERS=ifj-inter.h \
 		ifj-tables.h 
 CC=gcc
 all: ifj16
-ifj16: $(SOURCES) $(HEADERS) ; $(CC) $(CFLAGS) $(SOURCES) ifj-base.c -o ifj16
-test: $(TEST_SOURCES) $(HEADERS) ; $(CC) $(CFLAGS) $(SOURCES) ifj-test.c -o test_ifj16
+ifj16: $(SOURCES) $(HEADERS) ifj-base.c ; $(CC) $(CFLAGS) $(SOURCES) ifj-base.c -o ifj16
+test: $(TEST_SOURCES) $(HEADERS) ifj-test.c ; $(CC) $(CFLAGS) $(SOURCES) ifj-test.c -o test_ifj16

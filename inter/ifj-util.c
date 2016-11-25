@@ -358,7 +358,7 @@ void ifj_list_print ( linear_list *list )
 	while (temp != NULL)
 	{
 		fprintf(stderr, "%d ", temp->type);
-		printInstruction(temp->type);
+		printInstruction(temp);
 		temp = temp->next;
 	}
 }

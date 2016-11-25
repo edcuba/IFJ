@@ -32,6 +32,6 @@ int checkCondition (	token *a,
 						token *b,
 						token *rel );
 void freeTempTokens ( instruction *inputInstruc );
-void printInstruction ( int type );
+void printInstruction ( instruction *instruc );
 
 #endif

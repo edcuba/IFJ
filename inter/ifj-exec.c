@@ -30,13 +30,12 @@ int exec_run ( ifjInter *self )
 	{
 		if (self->debugMode)
 		{
-			fprintf(stderr, "%s %d ", "instruction: ", instruc->type);
-			printInstruction(instruc->type);
+			printInstruction(instruc);
 
 			//ifj_stack_print(stack);
 
-			ifj_list_print(self->code);
-			return 0;
+			//ifj_list_print(self->code);
+			//return 0;
 		}
 
 		switch (instruc->type)
@@ -700,9 +699,9 @@ void freeTempTokens (instruction *inputInstruc)
 	}
 }
 
-void printInstruction(int type)
+void printInstruction(instruction *instruc)
 {
-	switch(type)
+	switch(instruc->type)
 	{
 		case I_MUL:
 			fprintf(stderr, "%s\n", "MUL");
@@ -720,13 +719,13 @@ void printInstruction(int type)
 			fprintf(stderr, "%s\n", "PUSH");
 			break;
 		case I_SET:
-			fprintf(stderr, "%s\n", "SET");
+			fprintf(stderr, "%s %s\n", "SET", (char *) instruc->op3->value);
 			break;
 		case I_CALL:
-			fprintf(stderr, "%s\n", "CALL");
+			fprintf(stderr, "%s %s\n", "CALL", (char *) instruc->op1->value);
 			break;
 		case I_GOTO:
-			fprintf(stderr, "%s\n", "GOTO");
+			fprintf(stderr, "%s %s\n", "GOTO", (char *) instruc->op3->value);
 			break;
 		case I_GOTO_CONDITION:
 			fprintf(stderr, "%s\n", "GOTO_CONDITION");
@@ -735,13 +734,13 @@ void printInstruction(int type)
 			fprintf(stderr, "%s\n", "RETURN");
 			break;
 		case I_CONDITION:
-			fprintf(stderr, "%s\n", "CONDITION");
+			fprintf(stderr, "%s %c\n", "CONDITION", instruc->op3->type);
 			break;
 		case I_LABEL:
 			fprintf(stderr, "%s\n", "LABEL");
 			break;
 		case I_END:
-			fprintf(stderr, "%s\n", "LABEL");
+			fprintf(stderr, "%s\n", "END");
 			break;
 	}
 }

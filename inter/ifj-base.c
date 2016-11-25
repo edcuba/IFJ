@@ -16,7 +16,7 @@ int main (  int argc,
     int rc;
     ifjInter *self = ifj_inter_new(); //create new main struct
     //XXX
-    self->debugMode = 1;
+    self->debugMode = 0;
     check(self->load(argc, argv, self)); //load input file
     check(syna_run(self)); //run syntactic analysis
     check(exec_run(self)); //run executor
