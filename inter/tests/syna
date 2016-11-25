@@ -10,12 +10,15 @@ class Main
  	static void Run()
  	{
  		String b = Cislo();
- 		ifj16.print(b);
+ 		ifj16.print(b+"3" + 2 + 1 + 9.1 + "\n");
  		String test = Test();
- 		ifj16.print(test);
+        int a = ifj16.readInt();
+        ifj16.print(a+"\n");
+        ifj16.print(1+2+3+4+"dsadas"+1.9+"\n");
+ 		ifj16.print(test+"\n");
 
  		String vystup = TestClass.novyString();
- 		ifj16.print(vystup);
+ 		ifj16.print(vystup+"\n");
  	}
 
 	static String Cislo()

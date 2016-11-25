@@ -401,9 +401,9 @@ void ifj_print ( token_stack *inStack, int popNum )
 {
 	token *item;
 
-	for ( int i = 0; i < popNum; ++i)
+	for ( int i = popNum - 1 ; i >= 0; --i)
 	{
-		item = ifj_stack_pop( inStack );
+		item = inStack->elements[inStack->top - i];
 		switch ( item->dataType )
 		{
 	        case T_INTEGER:
@@ -417,7 +417,10 @@ void ifj_print ( token_stack *inStack, int popNum )
 	            break;
 		}
 	}
-	printf("\n");
+	for ( int i = 0; i < popNum; ++i)
+	{
+		ifj_stack_pop(inStack);
+	}
 }
 
 /**

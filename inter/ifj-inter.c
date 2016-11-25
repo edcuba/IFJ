@@ -68,8 +68,7 @@ void ifj_global_symbol_table_init(ifjInter *self)
 
     //add methods
     item = ifj_generate_reserved(ifj16, "print", T_IDENTIFIER, IFJ16_PRINT);
-    item->args = ifj_stack_new();
-    ifj_stack_push(item->args, t_str);
+    item->dataType = T_VOID;
 
     item = ifj_generate_reserved(ifj16, "readInt", T_IDENTIFIER, IFJ16_READINT);
     item->dataType = T_INTEGER;
@@ -181,7 +180,7 @@ void ifj_token_free( token *item )
 {
     if(!item)
         return;
-        
+
     if (item->value == item->data)
     {
         free(item->data);

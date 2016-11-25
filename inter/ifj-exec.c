@@ -239,12 +239,14 @@ int run_exec ( ifjInter *self )
 				// Get token from stack
 				if (instruc->op1 == NULL)
 				{
-					instruc->op1 = ifj_stack_top(stack);
+					instruc->op1 = ifj_stack_pop(stack);
+					/*
 					if (instruc->op1 && instruc->op1->dataType == T_VOID)
 					{
 						break;
 					}
 					ifj_stack_pop(stack);
+					*/
 				}
 
 				// Check if variable is inicialized
@@ -362,7 +364,10 @@ int run_exec ( ifjInter *self )
 				switch(instruc->op1->method)
 				{
 					case IFJ16_PRINT:
-						ifj_print(argsStack, argsStack->top + 1);
+						output = ifj_stack_pop(stack);
+						ifj_print(stack, *((int *) output->data));
+						ifj_token_free(output);
+						output = NULL;
 						break;
 
 					case IFJ16_READINT:
@@ -528,6 +533,7 @@ int run_exec ( ifjInter *self )
 
 			case I_LABEL:
 			{
+				ifj_stack_drop(stack);
 				return 0;
 				break;
 			}

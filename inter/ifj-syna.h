@@ -45,6 +45,8 @@ int next_function_parameters(ifjInter *self,
                              token *item,
                              token *expected,
                              int idx);
+int call_print(ifjInter *self, symbolTable *table, int count);
+int call_print_next(ifjInter *self, symbolTable *table, int count);
 
 int get_type_with_void(ifjInter *self, token **item);
 int get_type_without_void(ifjInter *self, token **item);

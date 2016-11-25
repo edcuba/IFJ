@@ -444,6 +444,63 @@ int next_function_param(ifjInter *self, token *item)
 }
 
 /**
+ * Fetch next token, expects "+" or ")".
+ * @param self global structure
+ * @param table symbol table for current context
+ * @param count count of parameters pushed
+ * @return 1 if successfull
+ **/
+int call_print_next(ifjInter *self, symbolTable *table, int count)
+{
+    token * active = lexa_next_token(self->lexa_module, table);
+    if(active->type == T_ADD)
+    {
+        return call_print(self, table, count);
+    }
+    else if(active->type == T_RPAREN)
+    {
+        active = ifj_generate_temp(T_INTEGER, &count);
+        return ifj_insert_last(self->code, I_PUSH, active, NULL, NULL) &&
+               is_semicolon(self);
+    }
+    print_unexpected(self, active);
+    self->returnCode = 2;
+    return 0;
+}
+
+/**
+ * Resolve ifj16.print function call - first parameter
+ * @param self global structure
+ * @param table symbol table for current context
+ * @param count count of parameters pushed
+ * @return 1 if successfull
+ **/
+int call_print(ifjInter *self, symbolTable *table, int count)
+{
+    token * active = lexa_next_token(self->lexa_module, table);
+    if(active->type == T_IDENTIFIER ||
+       active->type == T_STRING_C ||
+       active->type == T_INTEGER_C ||
+       active->type == T_DOUBLE_C)
+    {
+        if(active->type == T_IDENTIFIER)
+        {
+            int rc = resolve_identifier(self, table, &active, 0);
+            if(!rc)
+            {
+                return rc;
+            }
+        }
+        count++;
+        return ifj_insert_last(self->code, I_PUSH, active, NULL, NULL) &&
+               call_print_next(self, table, count);
+    }
+    print_unexpected(self, active);
+    self->returnCode = 4;
+    return 0;
+}
+
+/**
  * Fetch next token. Expects "{".
  * Skips until "}" found when preLoad active
  * @param self global structure
@@ -469,11 +526,9 @@ int function_inside(ifjInter *self, token *item)
     return 0;
 }
 
-
 /**
  * Inside function. Expects "}", "while", "break", "continue", "if", "return",
  * "int", "double", "String", "identifier"
- * FIXME: I dont think, that we can accept "break" or "continue" here
  * @param self global structure
  * @param item current function token
  * @return 1 if successfull
@@ -779,7 +834,12 @@ int fce(ifjInter *self, symbolTable *table, token *item)
     if (active->type == T_LPAREN)
     {
         //TODO check if item is func
-        if(item->dataType == T_VOID)
+        if(item->method == IFJ16_PRINT)
+        {
+            return call_print(self, table, 0) &&
+                   ifj_insert_last(self->code, I_CALL, item, NULL, NULL);
+        }
+        else if(item->dataType == T_VOID)
         {
             return function_parameters(self, table, item) &&
                    ifj_insert_last(self->code, I_CALL, item, NULL, NULL);
