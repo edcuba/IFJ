@@ -296,14 +296,24 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
     //variable
     else if (active->type == T_SEMICOLON)
     {
-        //TODO check if not void here
+        if(item->dataType == T_VOID)
+        {
+            self->returnCode = 3;
+            print_defined_void(self, item);
+            return 0;
+        }
         return class_inside1(self, table);
     }
     else if (active->type == T_ASSIGN)
     {
+        if(item->dataType == T_VOID)
+        {
+            self->returnCode = 3;
+            print_defined_void(self, item);
+            return 0;
+        }
         if(self->preLoad)
         {
-            //TODO check if not void here
             return expresion(self, table) &&
                    ifj_insert_last(self->code, I_SET, NULL, NULL, item) &&
                    class_inside1(self, table);
@@ -559,6 +569,13 @@ int function_inside1(ifjInter *self, token *item)
     switch (active->type)
     {
         case T_RBLOCK:
+            if(item->dataType != T_VOID && !item->method) //no return found
+            {
+                fprintf(stderr, "Error: no return statement in function \"%s\"\n",
+                        (char *) item->value);
+                self->returnCode = 3;
+                return 0;
+            }
             return 1;
 
         case T_WHILE:
@@ -635,6 +652,7 @@ int function_inside1(ifjInter *self, token *item)
         }
 
         case T_RETURN:
+            item->method = 1; //return found
             return expresion(self, item->childTable) &&
                    ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
                    statement_inside1(self, item->childTable);
@@ -766,7 +784,7 @@ int if_else1(ifjInter *self, symbolTable *table, instruction *ifend)
 
         return 1;
     }
-    
+
     token *temp = ifj_generate_temp(T_VOID, NULL);
     ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
     temp->jump = self->code->last;
@@ -881,7 +899,6 @@ int statement_inside1(ifjInter *self, symbolTable *table)
         case T_CONTINUE:
             return is_semicolon(self) &&
                    statement_inside1(self, table);*/
-        //TODO generate jump + else jump
         case T_IF:
         {
             if (!condition(self, table))
@@ -937,7 +954,13 @@ int fce(ifjInter *self, symbolTable *table, token *item)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type == T_LPAREN)
     {
-        //TODO check if item is func
+        if(!item->args && !item->childTable && item->method == 0)
+        {
+            fprintf(stderr, "Error: line %d identifier \"%s\" is not a function\n",
+                    self->lexa_module->line_number, (char *)item->value);
+            self->returnCode = 3;
+            return 0;
+        }
         if(item->method == IFJ16_PRINT)
         {
             return call_print(self, table, 0) &&
@@ -1057,7 +1080,9 @@ int next_function_parameters(ifjInter *self,
     if (active->type == T_RPAREN)
     {
         if(item->args && item->args->top == idx - 1 )
+        {
             return is_semicolon(self);
+        }
         print_mistyped(self, active, expected);
         self->returnCode = 4;
         return 0;

@@ -26,7 +26,7 @@ void ifj_inter_free(ifjInter *self)
         self->table->drop(self->table);
     }
     ifj_lexa_free(self->lexa_module);
-    
+
     ifj_stack_drop(self->stack);
     if(self->pushBack)
     {
@@ -300,6 +300,9 @@ void print_unexpected(ifjInter *self, token *item)
             fprintf(stderr, "unknown\"\n");
             self->returnCode = 1;
             break;
+        case T_VOID:
+            fprintf(stderr, "void\"\n");
+            break;
         default:
             if (item->type < 256)
                 fprintf(stderr,"%c\"\n", item->type);
@@ -349,4 +352,10 @@ void print_mistyped(ifjInter *self, token *item, token *expected)
             fprintf(stderr,"%d\n", expected->dataType);
             break;
     }
+}
+
+void print_defined_void(ifjInter *self, token *active)
+{
+    fprintf(stderr, "Error: line %d identifier \"%s\" defined as \"void\"!\n",
+            self->lexa_module->line_number, (char *) active->value);
 }
