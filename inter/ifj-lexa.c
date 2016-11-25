@@ -228,6 +228,9 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                 } else if (newChar == '\\') {
                     state = LS_ESCAPE;
                     break;
+                } else if (newChar == '\n') {
+                    free(t);
+                    return NULL;
                 } else if (newChar >= 32 && newChar <= 255) {
                     dyn_buffer_append(l->b_str, newChar);
                 } else {
@@ -241,6 +244,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     dyn_buffer_append(l->b_num, newChar);
                     break;
                 } else if (newChar == EOF) {
+                    free(t);
                     return NULL;
                 } else {
                     state = LS_STRING;
@@ -262,6 +266,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                             dyn_buffer_append(l->b_str, '\t');
                             break;
                         default:
+                            free(t);
                             return NULL;
                     }
                 }
@@ -360,7 +365,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                 } else if (newChar == 'x') {
                     dyn_buffer_append(l->b_str, newChar);
                     state = LS_NUMBER_HEX;
-                } else if (isdigit(newChar)) {
+                } else if (isdigit(newChar) || newChar == '.') {
                     ungetc(newChar, l->inputFile);
                     state = LS_NUMBER;
                 } else {
