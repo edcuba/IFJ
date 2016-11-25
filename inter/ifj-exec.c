@@ -533,6 +533,8 @@ int exec_run ( ifjInter *self )
 				if (label->type == T_TMP)
 					ifj_token_free(label);
 
+				instruc->op1 = NULL;
+
 				break;
 			}
 
@@ -540,13 +542,17 @@ int exec_run ( ifjInter *self )
 			{
 				// Get tokens from stack
 				if (instruc->op2 == NULL)
+				{
 					instruc->op2 = ifj_stack_pop(stack);
+				}
 
 				int output = 0;
 				if (instruc->op3 != NULL)
 				{
 					if (instruc->op1 == NULL)
+					{
 						instruc->op1 = ifj_stack_pop(stack);
+					}
 
 					output = checkCondition(instruc->op1, instruc->op2, instruc->op3);
 					if (output == 10)
@@ -569,7 +575,11 @@ int exec_run ( ifjInter *self )
 					&output
 					);
 
+				// Push condition result
 				ifj_stack_push(stack, tempToken);
+
+				// Free temp tokens
+				freeTempTokens(instruc);			
 				break;
 			}
 
@@ -605,14 +615,16 @@ int exec_run ( ifjInter *self )
 		}
 	}
 
+	//ifj_stack_print(stack);
+
 	ifj_stack_drop(stack);
 
 	if (self->debugMode)
 	{
-		fprintf(stderr, "%s\n", "---------------- Executor ended 2 ----------------");
+		fprintf(stderr, "%s\n", "---------------- Executor ended incorectly ----------------");
 	}
 
-	self->returnCode = 0;
+	self->returnCode = 10;
 	return 0;
 }
 
@@ -684,19 +696,29 @@ int checkCondition (	token *a,
 	return 10;
 }
 
-void freeTempTokens (instruction *inputInstruc)
+int freeTempTokens (instruction *inputInstruc)
 {
+	int counter = 0;
 	if (inputInstruc->op1 && inputInstruc->op1->type == T_TMP)
 	{
 		ifj_token_free(inputInstruc->op1);
-		inputInstruc->op1 = NULL;
+		//inputInstruc->op1 = NULL;
+		counter++;
 	}
 
 	if (inputInstruc->op2 && inputInstruc->op2->type == T_TMP)
 	{
 		ifj_token_free(inputInstruc->op2);
-		inputInstruc->op2 = NULL;
+		//inputInstruc->op2 = NULL;
+		counter++;
 	}
+
+	// Pridavam si tokeny do instrukcie
+	// pri prvom prechode, oni niesu TEMP??
+	inputInstruc->op1 = NULL;
+	inputInstruc->op2 = NULL;
+
+	return counter;
 }
 
 void printInstruction(instruction *instruc)

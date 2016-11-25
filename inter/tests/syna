@@ -1,24 +1,56 @@
 class Main
 {
+	static int a = 3;
+
  	static void Run()
  	{
- 		int a = 10;
- 		int b = 10;
- 		while (a > 5)
- 		{
- 			ifj16.print("a: " + a + "\n");
- 			a = a - 1;
- 			b = 10;
-
- 			while (b > 5)
- 			{
- 				b = b - 1;
- 				ifj16.print("b: " + b);
- 			}
-			
-			ifj16.print("\n");
- 		}
-
- 		ifj16.print("\n");
+ 		int c = NovyClass.rekurz();
+ 		ifj16.print("Vysledok: " + c + "\n");
  	}
 }
+
+class NovyClass
+{
+	static int rekurz()
+	{
+		if ((Main.a - 1) > (1 - 1))
+		{
+			Main.a = Main.a - 1;
+			return rekurz();
+		}
+
+		return 1;
+	}
+}
+
+/*
+1 5004 PUSH	1
+2 5005 SET 	a =
+
+3 5007 GOTO 	<--Run
+4 5020 LABEL	Run
+
+5 5006 CALL	NovyClass.rekurz	PUSH SET c
+5005 SET	c
+5004 PUSH
+5004 PUSH
+5004 PUSH
+5004 PUSH
+5006 CALL	ifj16.print
+5030 END
+
+5020 LABEL
+6 15 5004 PUSH
+7 16 5004 PUSH
+8 17 5010 CONDITION >
+9 5008 GOTO_CONDITION
+10 5004 PUSH
+11 5004 PUSH
+12 5002 SUB
+13 5005 SET a		SET c
+14 5006 CALL rekurz				PUSH RETURN
+5009 RETURN
+5020 LABEL
+5004 PUSH
+5009 RETURN
+*/
