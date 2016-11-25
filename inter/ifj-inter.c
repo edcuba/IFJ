@@ -289,6 +289,13 @@ void print_unexpected(ifjInter *self, token *item)
         case T_END:
             fprintf(stderr,"EOF\"\n");
             break;
+        case T_EOL:
+            fprintf(stderr, "EOL\"\n");
+            break;
+        case T_UNKNOWN:
+            fprintf(stderr, "unknown\"\n");
+            self->returnCode = 1;
+            break;
         default:
             if (item->type < 256)
                 fprintf(stderr,"%c\"\n", item->type);
