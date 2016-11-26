@@ -81,11 +81,35 @@ int exec_run ( ifjInter *self )
 					return 0;
 				}
 
+				/*
+				if (dupOp1->dataType == T_DOUBLE)
+				{
+					// double a = 3.14(double)
+					*((double *) dupOp3->data) = *((double *) dupOp1->data);
+				}
+				else
+				{
+					// double a = 1(int)
+					*((double *) dupOp3->data) = (double) *((int *) dupOp1->data);
+				}
+				*/
+
 				// Calculate (a * b)
 				token *tempToken = NULL;
-				if (dupOp1->dataType == T_DOUBLE || dupOp2->dataType == T_DOUBLE)
+				if (dupOp1->dataType == T_DOUBLE)
 				{
-					double result = *((double *) dupOp1->data) * *((double *) dupOp2->data);
+					double result;
+					if (dupOp2->dataType == T_DOUBLE)
+					{
+						// double * double
+						result = *((double *) dupOp1->data) * *((double *) dupOp2->data);
+					}
+					else
+					{
+						// double * int
+						result = *((double *) dupOp1->data) * (double) *((int *) dupOp2->data);
+					}
+
 					tempToken = ifj_generate_temp(
 						T_DOUBLE,
 						&result
@@ -93,7 +117,18 @@ int exec_run ( ifjInter *self )
 				}
 				else
 				{
-					int result = *((int *) dupOp1->data) * *((int *) dupOp2->data);
+					int result;
+					if (dupOp2->dataType == T_DOUBLE)
+					{
+						// int * double
+						result = *((int *) dupOp1->data) * (int) *((double *) dupOp2->data);
+					}
+					else
+					{
+						// int * int
+						result = *((int *) dupOp1->data) * *((int *) dupOp2->data);
+					}
+
 					tempToken = ifj_generate_temp(
 						T_INTEGER,
 						&result
@@ -150,9 +185,20 @@ int exec_run ( ifjInter *self )
 				}
 				else
 				{
-					if (dupOp1->dataType == T_DOUBLE || dupOp2->dataType == T_DOUBLE)
+					if (dupOp1->dataType == T_DOUBLE)
 					{
-						double result = *((double *) dupOp1->data) + *((double *) dupOp2->data);
+						double result;
+						if (dupOp2->dataType == T_DOUBLE)
+						{
+							// double + double
+							result = *((double *) dupOp1->data) + *((double *) dupOp2->data);
+						}
+						else
+						{
+							// double + int
+							result = *((double *) dupOp1->data) + (double) *((int *) dupOp2->data);
+						}
+
 						tempToken = ifj_generate_temp(
 							T_DOUBLE,
 							&result
@@ -160,7 +206,18 @@ int exec_run ( ifjInter *self )
 					}
 					else
 					{
-						int result = *((int *) dupOp1->data) + *((int *) dupOp2->data);
+						int result;
+						if (dupOp2->dataType == T_DOUBLE)
+						{
+							// int + double
+							result = *((int *) dupOp1->data) + (int) *((double *) dupOp2->data);
+						}
+						else
+						{
+							// int + int
+							result = *((int *) dupOp1->data) + *((int *) dupOp2->data);
+						}
+						
 						tempToken = ifj_generate_temp(
 							T_INTEGER,
 							&result
@@ -203,9 +260,20 @@ int exec_run ( ifjInter *self )
 
 				// Calculate (a - b)
 				token *tempToken = NULL;
-				if (dupOp1->dataType == T_DOUBLE || dupOp2->dataType == T_DOUBLE)
+				if (dupOp1->dataType == T_DOUBLE)
 				{
-					double result = *((double *) dupOp1->data) - *((double *) dupOp2->data);
+					double result;
+					if (dupOp2->dataType == T_DOUBLE)
+					{
+						// double - double
+						result = *((double *) dupOp1->data) - *((double *) dupOp2->data);
+					}
+					else
+					{
+						// double - int
+						result = *((double *) dupOp1->data) - (double) *((int *) dupOp2->data);
+					}
+
 					tempToken = ifj_generate_temp(
 						T_DOUBLE,
 						&result
@@ -213,7 +281,18 @@ int exec_run ( ifjInter *self )
 				}
 				else
 				{
-					int result = *((int *) dupOp1->data) - *((int *) dupOp2->data);
+					int result;
+					if (dupOp2->dataType == T_DOUBLE)
+					{
+						// int - double
+						result = *((int *) dupOp1->data) - (int) *((double *) dupOp2->data);
+					}
+					else
+					{
+						// int - int
+						result = *((int *) dupOp1->data) - *((int *) dupOp2->data);
+					}
+					
 					tempToken = ifj_generate_temp(
 						T_INTEGER,
 						&result
@@ -252,7 +331,8 @@ int exec_run ( ifjInter *self )
 				}
 
 				// Check division by zero
-				if ( *((double *) dupOp2->data) == (double) 0 )
+				if ((dupOp2->dataType == T_INTEGER && *((int *) dupOp2->data) == 0) ||
+					(dupOp2->dataType == T_DOUBLE  && *((double *) dupOp2->data) == (double) 0))
 				{
 					ifj_stack_drop(contextStack);
 					ifj_stack_drop(stack);
@@ -263,9 +343,20 @@ int exec_run ( ifjInter *self )
 
 				// Calculate (a / b)
 				token *tempToken = NULL;
-				if (dupOp1->dataType == T_DOUBLE || dupOp2->dataType == T_DOUBLE)
+				if (dupOp1->dataType == T_DOUBLE)
 				{
-					double result = *((double *) dupOp1->data) / *((double *) dupOp2->data);
+					double result;
+					if (dupOp2->dataType == T_DOUBLE)
+					{
+						// double / double
+						result = *((double *) dupOp1->data) / *((double *) dupOp2->data);
+					}
+					else
+					{
+						// double / int
+						result = *((double *) dupOp1->data) / (double) *((int *) dupOp2->data);
+					}
+
 					tempToken = ifj_generate_temp(
 						T_DOUBLE,
 						&result
@@ -273,7 +364,18 @@ int exec_run ( ifjInter *self )
 				}
 				else
 				{
-					int result = *((int *) dupOp1->data) / *((int *) dupOp2->data);
+					int result;
+					if (dupOp2->dataType == T_DOUBLE)
+					{
+						// int / double
+						result = *((int *) dupOp1->data) / (int) *((double *) dupOp2->data);
+					}
+					else
+					{
+						// int / int
+						result = *((int *) dupOp1->data) / *((int *) dupOp2->data);
+					}
+					
 					tempToken = ifj_generate_temp(
 						T_INTEGER,
 						&result
@@ -336,8 +438,17 @@ int exec_run ( ifjInter *self )
 						{
 							dupOp3->data = malloc(sizeof(double));
 						}
-						// double a = 3.14(double) , double a = 1(int)
-						*((double *) dupOp3->data) = *((double *) dupOp1->data);
+
+						if (dupOp1->dataType == T_DOUBLE)
+						{
+							// double a = 3.14(double)
+							*((double *) dupOp3->data) = *((double *) dupOp1->data);
+						}
+						else
+						{
+							// double a = 1(int)
+							*((double *) dupOp3->data) = (double) *((int *) dupOp1->data);
+						}
 					}
 
 					if (dupOp3->dataType == T_INTEGER)
@@ -346,8 +457,17 @@ int exec_run ( ifjInter *self )
 						{
 							dupOp3->data = malloc(sizeof(int));
 						}
-						// int a = 2(int) , int a = 3.14(double)
-						*((int *) dupOp3->data) = *((int *) dupOp1->data);
+
+						if (dupOp1->dataType == T_DOUBLE)
+						{
+							// int a = 3.14(double)
+							*((int *) dupOp3->data) = (int) *((double *) dupOp1->data);
+						}
+						else
+						{
+							// int a = 2(int)
+							*((int *) dupOp3->data) = *((int *) dupOp1->data);
+						}
 					}
 				}
 

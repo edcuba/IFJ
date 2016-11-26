@@ -1,4 +1,19 @@
+class Main
+{
+	static void run()
+	{
+		double a = 1.2589 + 0.7412 + 4 + 0.62588787;
+		int c = a * 3;
+		double d = a * 3;
+		ifj16.print(a + "\n");
+		ifj16.print(c + "\n");
+		ifj16.print(d + "\n");
+	}
+}
+
+
 /* Program 2: Vypocet faktorialu (rekurzivne) */
+/*
 class Main
 {
 	static void run()
@@ -36,7 +51,7 @@ class Main
 			return temp_result;
 		}
 	}
-}
+}*/
 
 /*
 class Main
