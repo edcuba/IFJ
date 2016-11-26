@@ -14,6 +14,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+static inline void print_not_initialized(ifjInter *self, token *item)
+{
+	fprintf(stderr,"Error: variable \"%s\" is not inicialized\n",
+			(char *) item->value);
+}
+
 int exec_run ( ifjInter *self )
 {
 	if (self->debugMode)
@@ -49,9 +55,15 @@ int exec_run ( ifjInter *self )
 					instruc->op1 = ifj_stack_pop(stack);
 
 				// Check if variables are inicialized
-				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
+				if (!instruc->op1->data)
 				{
-					fprintf(stderr, "%s\n", "Variable is not inicialized");
+					print_not_initialized(self, instruc->op1);
+					self->returnCode = 8;
+					return 0;
+				}
+				if (!instruc->op2->data)
+				{
+					print_not_initialized(self, instruc->op2);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -93,9 +105,15 @@ int exec_run ( ifjInter *self )
 					instruc->op1 = ifj_stack_pop(stack);
 
 				// Check if variables are inicialized
-				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
+				if (!instruc->op1->data)
 				{
-					fprintf(stderr, "%s\n", "Variable is not inicialized");
+					print_not_initialized(self, instruc->op1);
+					self->returnCode = 8;
+					return 0;
+				}
+				if (!instruc->op2->data)
+				{
+					print_not_initialized(self, instruc->op2);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -154,9 +172,15 @@ int exec_run ( ifjInter *self )
 					instruc->op1 = ifj_stack_pop(stack);
 
 				// Check if variables are inicialized
-				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
+				if (!instruc->op1->data)
 				{
-					fprintf(stderr, "%s\n", "Variable is not inicialized");
+					print_not_initialized(self, instruc->op1);
+					self->returnCode = 8;
+					return 0;
+				}
+				if (!instruc->op2->data)
+				{
+					print_not_initialized(self, instruc->op2);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -195,9 +219,15 @@ int exec_run ( ifjInter *self )
 					instruc->op1 = ifj_stack_pop(stack);
 
 				// Check if variables are inicialized
-				if (instruc->op1->data == NULL || instruc->op2->data == NULL)
+				if (!instruc->op1->data)
 				{
-					fprintf(stderr, "%s\n", "Variable is not inicialized");
+					print_not_initialized(self, instruc->op1);
+					self->returnCode = 8;
+					return 0;
+				}
+				if (!instruc->op2->data)
+				{
+					print_not_initialized(self, instruc->op2);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -252,7 +282,8 @@ int exec_run ( ifjInter *self )
 				// Check if variable is inicialized
 				if (instruc->op1 && instruc->op1->data == NULL)
 				{
-					fprintf(stderr, "%s\n", "Variable is not inicialized");
+					ifj_stack_drop(stack); //TODO
+					print_not_initialized(self, instruc->op1);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -315,7 +346,8 @@ int exec_run ( ifjInter *self )
 						// Check if variable is inicialized
 						if (myToken->data == NULL)
 						{
-							fprintf(stderr, "%s\n", "Variable is not inicialized");
+							ifj_stack_drop(argsStack);
+							print_not_initialized(self, myToken);
 							self->returnCode = 8;
 							return 0;
 						}
@@ -492,7 +524,7 @@ int exec_run ( ifjInter *self )
 				// Free temp token
 				if (output->type == T_TMP)
 					ifj_token_free(output);
-					
+
 				break;
 			}
 
@@ -501,9 +533,14 @@ int exec_run ( ifjInter *self )
 				if (instruc->op1 == NULL)
 				{
 					instruc->op1 = ifj_stack_top(stack);
+
 					if (instruc->op1->dataType != T_VOID)
 					{
 						ifj_stack_pop(stack);
+					}
+					else
+					{
+						instruc->op1 = NULL;
 					}
 				}
 
@@ -516,7 +553,7 @@ int exec_run ( ifjInter *self )
 					// Check if variable is inicialized
 					if (instruc->op1->data == NULL)
 					{
-						fprintf(stderr, "%s\n", "Variable is not inicialized");
+						print_not_initialized(self, instruc->op1);
 						self->returnCode = 8;
 						return 0;
 					}
@@ -577,7 +614,7 @@ int exec_run ( ifjInter *self )
 				ifj_stack_push(stack, tempToken);
 
 				// Free temp tokens
-				freeTempTokens(instruc);			
+				freeTempTokens(instruc);
 				break;
 			}
 
@@ -587,6 +624,17 @@ int exec_run ( ifjInter *self )
 			}
 
 			case I_END:
+			{
+				token *item = instruc->op1;
+				fprintf(stderr, "Error: no return value in non-void function \"%s\"\n",
+						(char *)item->value);
+				ifj_stack_drop(stack);
+				self->returnCode = 8;
+				return 0;
+
+			}
+
+			case I_RUN_END:
 			{
 				if (self->debugMode)
 				{
@@ -739,13 +787,22 @@ void printInstruction(instruction *instruc)
 			fprintf(stderr, "%s\n", "PUSH");
 			break;
 		case I_SET:
-			fprintf(stderr, "%s %s\n", "SET", (char *) instruc->op3->value);
+			if(instruc->op3)
+				fprintf(stderr, "%s %s\n", "SET", (char *) instruc->op3->value);
+			else
+				fprintf(stderr, "%s\n", "SET");
 			break;
 		case I_CALL:
-			fprintf(stderr, "%s %s\n", "CALL", (char *) instruc->op1->value);
+			if(instruc->op1)
+				fprintf(stderr, "%s %s\n", "CALL", (char *) instruc->op1->value);
+			else
+				fprintf(stderr, "%s\n", "CALL");
 			break;
 		case I_GOTO:
-			fprintf(stderr, "%s %s\n", "GOTO", (char *) instruc->op3->value);
+			if(instruc->op3)
+				fprintf(stderr, "%s %s\n", "GOTO", (char *) instruc->op3->value);
+			else
+				fprintf(stderr, "%s\n", "GOTO");
 			break;
 		case I_GOTO_CONDITION:
 			fprintf(stderr, "%s\n", "GOTO_CONDITION");
@@ -761,6 +818,9 @@ void printInstruction(instruction *instruc)
 			break;
 		case I_END:
 			fprintf(stderr, "%s\n", "END");
+			break;
+		case I_RUN_END:
+			fprintf(stderr, "%s\n", "RUN_END");
 			break;
 	}
 }

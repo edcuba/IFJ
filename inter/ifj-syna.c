@@ -532,11 +532,6 @@ int function_inside(ifjInter *self, token *item)
     {
         ifj_insert_last(self->code, I_LABEL, item, NULL, NULL);
         item->jump = self->code->last;
-        if ( !strcmp((char *) item->value, "run") )
-        {
-            return function_inside1(self, item) &&
-                   ifj_insert_last(self->code, I_END, NULL, NULL, NULL);
-        }
         return function_inside1(self, item);
     }
 
@@ -568,15 +563,15 @@ int function_inside1(ifjInter *self, token *item)
     switch (active->type)
     {
         case T_RBLOCK:
-            //TODO
-            /*if(item->dataType != T_VOID && !item->method) //no return found
+            if(item->dataType == T_VOID)
             {
-                fprintf(stderr, "Error: no return statement in function \"%s\"\n",
-                        (char *) item->value);
-                self->returnCode = 3;
-                return 0;
-            }*/
-            return 1;
+                if ( !strcmp((char *) item->value, "run") )
+                {
+                    return ifj_insert_last(self->code, I_RUN_END, NULL, NULL, NULL);
+                }
+                return ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL);
+            }
+            return ifj_insert_last(self->code, I_END, item, NULL, NULL);
 
         case T_WHILE:
         {
@@ -654,13 +649,21 @@ int function_inside1(ifjInter *self, token *item)
         case T_RETURN:
             if(item->dataType == T_VOID)
             {
-                return is_semicolon(self) &&
-                       ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
-                       statement_inside1(self, item);
+                if(!is_semicolon(self))
+                {
+                    return 0;
+                }
+                if ( !strcmp((char *) item->value, "run") )
+                {
+                    return ifj_insert_last(self->code, I_RUN_END, NULL, NULL, NULL) &&
+                           function_inside1(self, item);
+                }
+                return ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
+                       function_inside1(self, item);
             }
             return expresion(self, item->childTable, item) &&
                    ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
-                   statement_inside1(self, item);
+                   function_inside1(self, item);
 
         case T_INTEGER:
         case T_STRING:
@@ -926,8 +929,16 @@ int statement_inside1(ifjInter *self, token *item)
         case T_RETURN:
             if(item->dataType == T_VOID)
             {
-                return is_semicolon(self) &&
-                       ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
+                if(!is_semicolon(self))
+                {
+                    return 0;
+                }
+                if ( !strcmp((char *) item->value, "run") )
+                {
+                    return ifj_insert_last(self->code, I_RUN_END, NULL, NULL, NULL) &&
+                           statement_inside1(self, item);
+                }
+                return ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
                        statement_inside1(self, item);
             }
             return expresion(self, item->childTable, item) &&
