@@ -251,9 +251,6 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     state = LS_STRING;
 
                     switch (newChar) {
-                        case '\'':
-                            dyn_buffer_append(l->b_str, '\'');
-                            break;
                         case '\"':
                             dyn_buffer_append(l->b_str, '\"');
                             break;
