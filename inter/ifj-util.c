@@ -121,7 +121,7 @@ void ifj_stack_drop ( token_stack *inStack )
 	while (!ifj_stack_empty(inStack))
 	{
 		token *checkToken = ifj_stack_pop(inStack);
-		if (checkToken->type == T_TMP)
+		if (checkToken && checkToken->type == T_TMP)
 		{
 			ifj_token_free(checkToken);
 		}

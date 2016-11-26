@@ -14,8 +14,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-static inline void print_not_initialized(ifjInter *self, token *item, token_stack *inStack)
+static inline void print_not_initialized (
+	ifjInter *self,
+	token *item,
+	token_stack *inStack,
+	token_stack *contextStack
+	)
 {
+	ifj_stack_drop(contextStack);
 	ifj_stack_drop(inStack);
 	fprintf(stderr,"Error: variable \"%s\" is not inicialized\n",
 			(char *) item->value);
@@ -64,13 +70,13 @@ int exec_run ( ifjInter *self )
 				// Check if variables are inicialized
 				if (!dupOp1->data)
 				{
-					print_not_initialized(self, dupOp1, stack);
+					print_not_initialized(self, dupOp1, stack, contextStack);
 					self->returnCode = 8;
 					return 0;
 				}
 				if (!dupOp2->data)
 				{
-					print_not_initialized(self, dupOp2, stack);
+					print_not_initialized(self, dupOp2, stack, contextStack);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -114,13 +120,13 @@ int exec_run ( ifjInter *self )
 				// Check if variables are inicialized
 				if (!dupOp1->data)
 				{
-					print_not_initialized(self, dupOp1, stack);
+					print_not_initialized(self, dupOp1, stack, contextStack);
 					self->returnCode = 8;
 					return 0;
 				}
 				if (!dupOp2->data)
 				{
-					print_not_initialized(self, dupOp2, stack);
+					print_not_initialized(self, dupOp2, stack, contextStack);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -184,13 +190,13 @@ int exec_run ( ifjInter *self )
 				// Check if variables are inicialized
 				if (!dupOp1->data)
 				{
-					print_not_initialized(self, dupOp1, stack);
+					print_not_initialized(self, dupOp1, stack, contextStack);
 					self->returnCode = 8;
 					return 0;
 				}
 				if (!dupOp2->data)
 				{
-					print_not_initialized(self, dupOp2, stack);
+					print_not_initialized(self, dupOp2, stack, contextStack);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -234,13 +240,13 @@ int exec_run ( ifjInter *self )
 				// Check if variables are inicialized
 				if (!dupOp1->data)
 				{
-					print_not_initialized(self, dupOp1, stack);
+					print_not_initialized(self, dupOp1, stack, contextStack);
 					self->returnCode = 8;
 					return 0;
 				}
 				if (!dupOp2->data)
 				{
-					print_not_initialized(self, dupOp2, stack);
+					print_not_initialized(self, dupOp2, stack, contextStack);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -248,6 +254,7 @@ int exec_run ( ifjInter *self )
 				// Check division by zero
 				if ( *((double *) dupOp2->data) == (double) 0 )
 				{
+					ifj_stack_drop(contextStack);
 					ifj_stack_drop(stack);
 					fprintf(stderr, "%s\n", "Division by zero");
 					self->returnCode = 9;
@@ -300,7 +307,7 @@ int exec_run ( ifjInter *self )
 				// Check if variable is inicialized
 				if (dupOp1 && dupOp1->data == NULL)
 				{
-					print_not_initialized(self, dupOp1, stack);
+					print_not_initialized(self, dupOp1, stack, contextStack);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -372,7 +379,7 @@ int exec_run ( ifjInter *self )
 						// Check if variable is inicialized
 						if (myToken->data == NULL)
 						{
-							print_not_initialized(self, myToken, stack);
+							print_not_initialized(self, myToken, stack, contextStack);
 							self->returnCode = 8;
 							return 0;
 						}
@@ -413,6 +420,7 @@ int exec_run ( ifjInter *self )
 								break;
 
 							default:
+								ifj_stack_drop(contextStack);
 								ifj_stack_drop(stack);
 								fprintf(stderr, "%s %d\n", "Executor ERROR, invalid dataType: ", argToken->dataType);
 								self->returnCode = 10;
@@ -571,9 +579,6 @@ int exec_run ( ifjInter *self )
 				}
 
 				token *dupOp1 = resolve_context(self, instruc->op1, ifj_stack_top(contextStack));
-
-				fprintf(stderr, "%s\n", (char *) dupOp1->value);
-
 				token *label = ifj_stack_pop(stack);
 
 				if (dupOp1 != NULL)
@@ -581,14 +586,23 @@ int exec_run ( ifjInter *self )
 					// Check if variable is inicialized
 					if (dupOp1->data == NULL)
 					{
-						print_not_initialized(self, dupOp1, stack);
+						print_not_initialized(self, dupOp1, stack, contextStack);
 						self->returnCode = 8;
 						return 0;
 					}
 
-					fprintf(stderr, "%s\n", "DATA");
+					// Generate temp token with return value
+					token *temp = NULL;
+					if (dupOp1->dataType == T_STRING)
+					{
+						temp = ifj_generate_temp(T_STRING, strdup(dupOp1->data));
+					}
+					else
+					{
+						temp = ifj_generate_temp(dupOp1->dataType, dupOp1->data);
+					}
 
-					ifj_stack_push(stack, dupOp1);
+					ifj_stack_push(stack, temp);
 				}
 
 				instruction *tempInstruct = instruc;
@@ -600,9 +614,6 @@ int exec_run ( ifjInter *self )
 					ifj_token_free(label);
 
 				tempInstruct->op1 = NULL;
-
-				fprintf(stderr, "%s\n", "ZASOBNIK CONTEXT");
-				ifj_stack_print(contextStack);
 
 				token *context = ifj_stack_pop(contextStack);
 				if (context)
@@ -634,6 +645,7 @@ int exec_run ( ifjInter *self )
 					output = checkCondition(dupOp1, dupOp2, instruc->op3);
 					if (output == 10)
 					{
+						ifj_stack_drop(contextStack);
 						ifj_stack_drop(stack);
 						fprintf(stderr, "%s\n", "Executor ERROR: condition error");
 						self->returnCode = 10;
@@ -642,13 +654,6 @@ int exec_run ( ifjInter *self )
 
 					output = !output;
 				}
-				/*
-				else
-				{
-					output = *((int *) instruc->op2);
-					fprintf(stderr, "%d\n", output);	//Debug printf
-				}
-				*/
 
 				token *tempToken = ifj_generate_temp(
 					T_INTEGER,
@@ -673,6 +678,7 @@ int exec_run ( ifjInter *self )
 				token *item = instruc->op1;
 				fprintf(stderr, "Error: no return value in non-void function \"%s\"\n",
 						(char *)item->value);
+				ifj_stack_drop(contextStack);
 				ifj_stack_drop(stack);
 				self->returnCode = 8;
 				return 0;
@@ -686,6 +692,7 @@ int exec_run ( ifjInter *self )
 					fprintf(stderr, "%s\n", "---------------- Executor ended ----------------");
 				}
 
+				ifj_stack_drop(contextStack);
 				ifj_stack_drop(stack);
 				self->returnCode = 0;
 				return 0;
@@ -695,6 +702,7 @@ int exec_run ( ifjInter *self )
 			{
 				fprintf(stderr, "%s %d\n", "Executor ERROR: Undefined instruction, value: ", instruc->type);
 
+				ifj_stack_drop(contextStack);
 				ifj_stack_drop(stack);
 				self->returnCode = 10;
 				return 0;
@@ -709,6 +717,7 @@ int exec_run ( ifjInter *self )
 		}
 	}
 
+	ifj_stack_drop(contextStack);
 	ifj_stack_drop(stack);
 	if (self->debugMode)
 	{
