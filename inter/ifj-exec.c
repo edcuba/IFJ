@@ -14,8 +14,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-static inline void print_not_initialized(ifjInter *self, token *item)
+static inline void print_not_initialized(ifjInter *self, token *item, token_stack *inStack)
 {
+	ifj_stack_drop(inStack);
 	fprintf(stderr,"Error: variable \"%s\" is not inicialized\n",
 			(char *) item->value);
 }
@@ -57,13 +58,13 @@ int exec_run ( ifjInter *self )
 				// Check if variables are inicialized
 				if (!instruc->op1->data)
 				{
-					print_not_initialized(self, instruc->op1);
+					print_not_initialized(self, instruc->op1, stack);
 					self->returnCode = 8;
 					return 0;
 				}
 				if (!instruc->op2->data)
 				{
-					print_not_initialized(self, instruc->op2);
+					print_not_initialized(self, instruc->op2, stack);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -107,13 +108,13 @@ int exec_run ( ifjInter *self )
 				// Check if variables are inicialized
 				if (!instruc->op1->data)
 				{
-					print_not_initialized(self, instruc->op1);
+					print_not_initialized(self, instruc->op1, stack);
 					self->returnCode = 8;
 					return 0;
 				}
 				if (!instruc->op2->data)
 				{
-					print_not_initialized(self, instruc->op2);
+					print_not_initialized(self, instruc->op2, stack);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -174,13 +175,13 @@ int exec_run ( ifjInter *self )
 				// Check if variables are inicialized
 				if (!instruc->op1->data)
 				{
-					print_not_initialized(self, instruc->op1);
+					print_not_initialized(self, instruc->op1, stack);
 					self->returnCode = 8;
 					return 0;
 				}
 				if (!instruc->op2->data)
 				{
-					print_not_initialized(self, instruc->op2);
+					print_not_initialized(self, instruc->op2, stack);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -221,13 +222,13 @@ int exec_run ( ifjInter *self )
 				// Check if variables are inicialized
 				if (!instruc->op1->data)
 				{
-					print_not_initialized(self, instruc->op1);
+					print_not_initialized(self, instruc->op1, stack);
 					self->returnCode = 8;
 					return 0;
 				}
 				if (!instruc->op2->data)
 				{
-					print_not_initialized(self, instruc->op2);
+					print_not_initialized(self, instruc->op2, stack);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -235,6 +236,7 @@ int exec_run ( ifjInter *self )
 				// Check division by zero
 				if ( *((double *) instruc->op2->data) == (double) 0 )
 				{
+					ifj_stack_drop(stack);
 					fprintf(stderr, "%s\n", "Division by zero");
 					self->returnCode = 9;
 					return 0;
@@ -282,8 +284,7 @@ int exec_run ( ifjInter *self )
 				// Check if variable is inicialized
 				if (instruc->op1 && instruc->op1->data == NULL)
 				{
-					ifj_stack_drop(stack); //TODO
-					print_not_initialized(self, instruc->op1);
+					print_not_initialized(self, instruc->op1, stack);
 					self->returnCode = 8;
 					return 0;
 				}
@@ -346,8 +347,7 @@ int exec_run ( ifjInter *self )
 						// Check if variable is inicialized
 						if (myToken->data == NULL)
 						{
-							ifj_stack_drop(argsStack);
-							print_not_initialized(self, myToken);
+							print_not_initialized(self, myToken, stack);
 							self->returnCode = 8;
 							return 0;
 						}
@@ -388,6 +388,7 @@ int exec_run ( ifjInter *self )
 								break;
 
 							default:
+								ifj_stack_drop(stack);
 								fprintf(stderr, "%s %d\n", "Executor ERROR, invalid dataType: ", argToken->dataType);
 								self->returnCode = 10;
 								return 0;
@@ -409,7 +410,6 @@ int exec_run ( ifjInter *self )
 						if (!output)
 						{
 							self->returnCode = 7;
-							return 0;
 						}
 						break;
 
@@ -418,7 +418,6 @@ int exec_run ( ifjInter *self )
 						if (!output)
 						{
 							self->returnCode = 7;
-							return 0;
 						}
 						break;
 
@@ -427,7 +426,6 @@ int exec_run ( ifjInter *self )
 						if (!output)
 						{
 							self->returnCode = 10;
-							return 0;
 						}
 						break;
 
@@ -439,7 +437,6 @@ int exec_run ( ifjInter *self )
 						if (!output)
 						{
 							self->returnCode = 10;
-							return 0;
 						}
 						break;
 
@@ -450,7 +447,6 @@ int exec_run ( ifjInter *self )
 						if (!output)
 						{
 							self->returnCode = 10;
-							return 0;
 						}
 						break;
 
@@ -461,7 +457,6 @@ int exec_run ( ifjInter *self )
 						if (!output)
 						{
 							self->returnCode = 10;
-							return 0;
 						}
 						break;
 
@@ -474,7 +469,6 @@ int exec_run ( ifjInter *self )
 						if (!output)
 						{
 							self->returnCode = 10;
-							return 0;
 						}
 						break;
 
@@ -486,7 +480,6 @@ int exec_run ( ifjInter *self )
 						if (!output)
 						{
 							self->returnCode = 10;
-							return 0;
 						}
 						break;
 
@@ -497,10 +490,18 @@ int exec_run ( ifjInter *self )
 						jumped = true;
 						break;
 				}
+
 				if (output != NULL)
 					ifj_stack_push(stack, output);
 
 				ifj_stack_drop(argsStack);
+
+				if (self->returnCode == 10 || self->returnCode == 7)
+				{
+					ifj_stack_drop(stack);
+					return 0;
+				}
+
 				break;
 			}
 
@@ -553,7 +554,7 @@ int exec_run ( ifjInter *self )
 					// Check if variable is inicialized
 					if (instruc->op1->data == NULL)
 					{
-						print_not_initialized(self, instruc->op1);
+						print_not_initialized(self, instruc->op1, stack);
 						self->returnCode = 8;
 						return 0;
 					}
@@ -592,6 +593,7 @@ int exec_run ( ifjInter *self )
 					output = checkCondition(instruc->op1, instruc->op2, instruc->op3);
 					if (output == 10)
 					{
+						ifj_stack_drop(stack);
 						fprintf(stderr, "%s\n", "Executor ERROR: condition error");
 						self->returnCode = 10;
 						return 0;
