@@ -17,3 +17,12 @@ test:
       name: Check memory leaks
       code: valgrind --leak-check=full --track-origins=yes --error-exitcode=1 ./inter/ifj16test $INPUT_FILE_PATH
 
+test-python:
+  steps:
+    - script:
+      name: Clone test repo
+      code: git clone git@github.com:H00N24/ifj_tester.git
+    - script:
+      name: Run automated tests
+      code: ./ifj_tester/ifj_test.py inter/ifj16
+
