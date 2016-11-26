@@ -31,6 +31,7 @@ int condition(ifjInter *self, symbolTable *table)
     int b;
     int a; // first symbol on stack is automatically $ --> 7;
     int rc;
+    int count = 0;
 
     token * instructHelp;
     token * top_stack;
@@ -39,6 +40,13 @@ int condition(ifjInter *self, symbolTable *table)
     ifj_stack_clear(syna->stack);
     ifj_stack_clear(syna->help_stack);
     ifj_stack_clear(syna->type_stack);
+
+    if (active->type != T_LPAREN )
+    {
+        self->returnCode = 2;
+        print_unexpected(self, active);
+        return 0;
+    }
 
     if(self->debugMode)
     {
@@ -473,6 +481,7 @@ int condition(ifjInter *self, symbolTable *table)
                             break;
 
                         case T_GREATER:
+                            count++;
                             top_on_help_stack = ifj_stack_pop(syna->help_stack);
                             if (top_on_help_stack == syna->E)
                             {
@@ -513,6 +522,7 @@ int condition(ifjInter *self, symbolTable *table)
                             break;
 
                         case T_LESS:
+                            count++;
                             top_on_help_stack = ifj_stack_pop(syna->help_stack);
                             if (top_on_help_stack == syna->E)
                             {
@@ -552,6 +562,7 @@ int condition(ifjInter *self, symbolTable *table)
                             break;
 
                         case T_EQUAL:
+                            count++;
                             top_on_help_stack = ifj_stack_pop(syna->help_stack);
                             if (top_on_help_stack == syna->E)
                             {
@@ -594,6 +605,7 @@ int condition(ifjInter *self, symbolTable *table)
                             break;
 
                         case T_GREATER_EQUAL:
+                            count++;
                             top_on_help_stack = ifj_stack_pop(syna->help_stack);
                             if (top_on_help_stack == syna->E)
                             {
@@ -634,6 +646,7 @@ int condition(ifjInter *self, symbolTable *table)
                             break;
 
                         case T_LESS_EQUAL:
+                            count++;
                             top_on_help_stack = ifj_stack_pop(syna->help_stack);
                             if (top_on_help_stack == syna->E)
                             {
@@ -673,6 +686,7 @@ int condition(ifjInter *self, symbolTable *table)
                             break;
 
                         case T_NOT_EQUAL:
+                            count++;
                             top_on_help_stack = ifj_stack_pop(syna->help_stack);
                             if (top_on_help_stack == syna->E)
                             {
@@ -726,6 +740,11 @@ int condition(ifjInter *self, symbolTable *table)
     if(self->debugMode)
     {
         fprintf(stderr, "vraciam sa z condition\n");
+    }
+    if (count == 0)
+    {
+        print_unexpected(self, active);
+        SET_RETURN(2);
     }
     return 1;
 }
