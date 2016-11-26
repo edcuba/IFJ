@@ -27,12 +27,12 @@ dyn_buffer *dyn_buffer_init(int init_size) {
 
 dyn_buffer *dyn_buffer_append(dyn_buffer *b, char character) {
     if (b->top == b->size - 1) {
-        dyn_buffer *nb = realloc(b, (unsigned)b->size*2);
+        char *nb = realloc(b->buffer, (unsigned)b->size*2);
         if (nb == NULL) {
-            free(b);
+            free(b->buffer);
             return NULL;
         } else {
-            b = nb;
+            b->buffer = nb;
             b->size = b->size*2;
         }
     }
