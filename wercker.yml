@@ -24,5 +24,6 @@ test-python:
       code: git clone https://github.com/H00N24/ifj_tester.git
     - script:
       name: Run automated tests
-      code: ./ifj_tester/ifj_test.py inter/ifj16
+      cwd: ifj_tester
+      code: ./ifj_test.py ../inter/ifj16
 
