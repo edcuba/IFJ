@@ -13,7 +13,7 @@
 * @param self global struct - we need reference to global symbol table
 * @param table symbol table from current context
 * @param item reference pointer for token to be resolved
-* @param isDefiniton bool if current rule is type definition
+* @param isDefiniton 1 if current rule is type definition, 0 if not, -1 if clone
 * @return 0 if success, 3 if redefined/undefined
 */
 int resolve_identifier(ifjInter *self,
@@ -25,7 +25,7 @@ int resolve_identifier(ifjInter *self,
     char *breakPoint = strchr((char *)seek->value, '.');
     if(breakPoint) //full classifier
     {
-        if(isDefiniton)
+        if(isDefiniton == 1) //be aware of -1!
         {
            fprintf(stderr, "ERROR: line %d Identifier \"%s\" defined in foreign class!\n",
                    self->lexa_module->line_number,
@@ -85,13 +85,16 @@ int resolve_identifier(ifjInter *self,
 
         free(id_id);
         free(id_class);
-        ifj_token_free(seek);
+        if(!isDefiniton) //dont free when resolving clone
+        {
+            ifj_token_free(seek);
+        }
 
         *item = child;
         return 1;
 
     }
-    if(isDefiniton)
+    if(isDefiniton == 1) //be aware of -1!
     { //type cant be redefined in current context
         token *prev = table->get_item(table, seek->value, T_IDENTIFIER, NULL);
         if (prev) //redefined
@@ -122,7 +125,10 @@ int resolve_identifier(ifjInter *self,
             }
             if (prev) //found
             {
-                ifj_token_free(seek);
+                if(!isDefiniton) //dont free when resolving clone
+                {
+                    ifj_token_free(seek);
+                }
                 // return found token
                 *item = prev;
                 return 1;
@@ -239,5 +245,82 @@ void print_table(symbolTable *table, int level)
 			item = item->next;
 		}
 	}
+}
 
+/**
+ * Duplicate context of function - for recursion - identifiers only!
+ * @param item original function identifier
+ * @return temporary token with duplicated symbol table, return value and args
+ **/
+token *duplicate_context(token *item)
+{
+    token *dupl = ifj_generate_temp(T_VOID, NULL);
+    dupl->dataType = item->dataType;
+    dupl->value = strdup((char *) item->value);
+    dupl->jump = item->jump;
+    dupl->childTable = ial_symbol_table_new();
+    symbolTable *table = item->childTable;
+    symbolTable *newTable = dupl->childTable;
+    newTable->parent = table->parent;
+
+    //Duplicate symbol table
+    for (unsigned int i = 0; i < table->size; ++i)
+	{
+		if (table->row[i] == NULL)
+		{
+			continue;
+		}
+		token *source = table->row[i];
+
+		while (source != NULL)
+		{
+            if(source->type == T_IDENTIFIER)
+            {
+                token *clone;
+                if(source->dataType == T_STRING)
+                {
+                    clone = ifj_generate_temp(source->dataType, strdup((char *)source->data));
+                }
+                else
+                {
+                    clone = ifj_generate_temp(source->dataType, source->data);
+                }
+                clone->type = T_IDENTIFIER;
+                clone->value = strdup((char *) source->value);
+                newTable->add_item(newTable, clone, NULL);
+            }
+			source = source->next;
+		}
+	}
+
+    //duplicate function args
+    if(item->args && !ifj_stack_empty(item->args))
+    {
+        dupl->args = ifj_stack_new();
+        for(int i = 0; i <= item->args->top; ++i)
+        {
+            token *arg = item->args->elements[i];
+            arg = newTable->get_item(newTable, arg->value, T_IDENTIFIER, NULL);
+            ifj_stack_push(dupl->args, arg);
+        }
+    }
+    return dupl;
+}
+
+/**
+ * Replace identifier A from source context with identifier A from target context
+ * @param self global structure
+ * @param item identifier A
+ * @param target target context
+ * @return identifier A from target context
+ **/
+inline token *resolve_context(ifjInter *self, token *item, token *target)
+{
+    if(item->type != T_IDENTIFIER)
+    {
+        return item; //we dont resolve contexts for constants
+    }
+    //resolve but dont free item
+    resolve_identifier(self, target->childTable, &item, -1);
+    return item;
 }

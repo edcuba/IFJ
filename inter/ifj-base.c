@@ -21,6 +21,31 @@ int main (  int argc,
     check(syna_run(self)); //run syntactic analysis
     check(exec_run(self)); //run executor
 
+    /*
+    //Duplicate context debug...
+    token *test = ifj_token_new();
+    test->type = T_IDENTIFIER;
+    test->value = (void *)strdup("Game.play");
+    resolve_identifier(self, self->table, &test, 0);
+    token *dupl = duplicate_context(test);
+
+    test = self->table->get_item(test->childTable, "b", T_IDENTIFIER, NULL);
+    *((int *)test->data) = 3;
+
+    printf("%d\n", *((int *)test->data) );
+    test = resolve_context(self, test, dupl);
+    printf("%d\n", *((int *)test->data) );
+
+    dupl->type = T_IDENTIFIER;
+    test = self->table->get_item(self->table, "Main", T_IDENTIFIER, NULL);
+    test->childTable->add_item(test->childTable, dupl, NULL);
+
+    test = self->table->get_item(dupl->childTable, "b", T_IDENTIFIER, NULL);
+    *((int *)test->data) = 2;
+
+    print_table(self->table, 0);
+*/
+
 
     ifj_inter_free(self);
     return 0;

@@ -15,6 +15,8 @@ int resolve_identifier(ifjInter *self,
                        int isDefiniton);
 int check_typing(token *first, token *second);
 
-void print_table(symbolTable *table, int level);;
+void print_table(symbolTable *table, int level);
+token *duplicate_context(token *item);
+token *resolve_context(ifjInter *self, token *item, token *target);
 
 #endif
