@@ -155,11 +155,14 @@ void ifj_stack_print ( token_stack *inStack )
 {
 	for (int i = inStack->top; i >= 0; i--)
 	{
-		fprintf(stdout, "%d %s - token type: %d %d\n",
-				i,
-				(char *)inStack->elements[i]->value,
-				inStack->elements[i]->type,
-				inStack->elements[i]->dataType);
+		if (inStack->elements[i])
+			fprintf(stdout, "%d %s - token type: %d %d\n",
+					i,
+					(char *)inStack->elements[i]->value,
+					inStack->elements[i]->type,
+					inStack->elements[i]->dataType);
+		else
+			fprintf(stderr, "%s\n", "NULL");
 	}
 	fprintf(stdout, "%s\n", "--------------------");
 }

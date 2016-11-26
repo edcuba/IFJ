@@ -316,7 +316,7 @@ token *duplicate_context(token *item)
  **/
 inline token *resolve_context(ifjInter *self, token *item, token *target)
 {
-    if(item->type != T_IDENTIFIER)
+    if(!item || item->type != T_IDENTIFIER || !target)
     {
         return item; //we dont resolve contexts for constants
     }

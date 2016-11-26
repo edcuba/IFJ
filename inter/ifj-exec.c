@@ -31,6 +31,9 @@ int exec_run ( ifjInter *self )
 	instruction *instruc = self->code->first;
 	token_stack *stack = ifj_stack_new();
 
+	token_stack *contextStack = ifj_stack_new();
+	ifj_stack_push(contextStack, NULL);
+
 	bool jumped = false;
 
 	while (instruc != NULL)
@@ -55,25 +58,28 @@ int exec_run ( ifjInter *self )
 				if (instruc->op1 == NULL)
 					instruc->op1 = ifj_stack_pop(stack);
 
+				token *dupOp1 = resolve_context(self, instruc->op1, ifj_stack_top(contextStack));
+				token *dupOp2 = resolve_context(self, instruc->op2, ifj_stack_top(contextStack));
+
 				// Check if variables are inicialized
-				if (!instruc->op1->data)
+				if (!dupOp1->data)
 				{
-					print_not_initialized(self, instruc->op1, stack);
+					print_not_initialized(self, dupOp1, stack);
 					self->returnCode = 8;
 					return 0;
 				}
-				if (!instruc->op2->data)
+				if (!dupOp2->data)
 				{
-					print_not_initialized(self, instruc->op2, stack);
+					print_not_initialized(self, dupOp2, stack);
 					self->returnCode = 8;
 					return 0;
 				}
 
 				// Calculate (a * b)
 				token *tempToken = NULL;
-				if (instruc->op1->dataType == T_DOUBLE || instruc->op2->dataType == T_DOUBLE)
+				if (dupOp1->dataType == T_DOUBLE || dupOp2->dataType == T_DOUBLE)
 				{
-					double result = *((double *) instruc->op1->data) * *((double *) instruc->op2->data);
+					double result = *((double *) dupOp1->data) * *((double *) dupOp2->data);
 					tempToken = ifj_generate_temp(
 						T_DOUBLE,
 						&result
@@ -81,7 +87,7 @@ int exec_run ( ifjInter *self )
 				}
 				else
 				{
-					int result = *((int *) instruc->op1->data) * *((int *) instruc->op2->data);
+					int result = *((int *) dupOp1->data) * *((int *) dupOp2->data);
 					tempToken = ifj_generate_temp(
 						T_INTEGER,
 						&result
@@ -102,27 +108,30 @@ int exec_run ( ifjInter *self )
 				if (instruc->op1 == NULL)
 					instruc->op1 = ifj_stack_pop(stack);
 
+				token *dupOp1 = resolve_context(self, instruc->op1, ifj_stack_top(contextStack));
+				token *dupOp2 = resolve_context(self, instruc->op2, ifj_stack_top(contextStack));
+
 				// Check if variables are inicialized
-				if (!instruc->op1->data)
+				if (!dupOp1->data)
 				{
-					print_not_initialized(self, instruc->op1, stack);
+					print_not_initialized(self, dupOp1, stack);
 					self->returnCode = 8;
 					return 0;
 				}
-				if (!instruc->op2->data)
+				if (!dupOp2->data)
 				{
-					print_not_initialized(self, instruc->op2, stack);
+					print_not_initialized(self, dupOp2, stack);
 					self->returnCode = 8;
 					return 0;
 				}
 
 				// Calculate (a + b)
 				token *tempToken = NULL;
-				if (instruc->op1->dataType == T_STRING)
+				if (dupOp1->dataType == T_STRING)
 				{
 					char *completString = ifj_join_strings(
-						instruc->op1->data,
-						instruc->op2->data
+						dupOp1->data,
+						dupOp2->data
 						);
 
 					tempToken = ifj_generate_temp(
@@ -135,9 +144,9 @@ int exec_run ( ifjInter *self )
 				}
 				else
 				{
-					if (instruc->op1->dataType == T_DOUBLE || instruc->op2->dataType == T_DOUBLE)
+					if (dupOp1->dataType == T_DOUBLE || dupOp2->dataType == T_DOUBLE)
 					{
-						double result = *((double *) instruc->op1->data) + *((double *) instruc->op2->data);
+						double result = *((double *) dupOp1->data) + *((double *) dupOp2->data);
 						tempToken = ifj_generate_temp(
 							T_DOUBLE,
 							&result
@@ -145,7 +154,7 @@ int exec_run ( ifjInter *self )
 					}
 					else
 					{
-						int result = *((int *) instruc->op1->data) + *((int *) instruc->op2->data);
+						int result = *((int *) dupOp1->data) + *((int *) dupOp2->data);
 						tempToken = ifj_generate_temp(
 							T_INTEGER,
 							&result
@@ -169,25 +178,28 @@ int exec_run ( ifjInter *self )
 				if (instruc->op1 == NULL)
 					instruc->op1 = ifj_stack_pop(stack);
 
+				token *dupOp1 = resolve_context(self, instruc->op1, ifj_stack_top(contextStack));
+				token *dupOp2 = resolve_context(self, instruc->op2, ifj_stack_top(contextStack));
+
 				// Check if variables are inicialized
-				if (!instruc->op1->data)
+				if (!dupOp1->data)
 				{
-					print_not_initialized(self, instruc->op1, stack);
+					print_not_initialized(self, dupOp1, stack);
 					self->returnCode = 8;
 					return 0;
 				}
-				if (!instruc->op2->data)
+				if (!dupOp2->data)
 				{
-					print_not_initialized(self, instruc->op2, stack);
+					print_not_initialized(self, dupOp2, stack);
 					self->returnCode = 8;
 					return 0;
 				}
 
 				// Calculate (a - b)
 				token *tempToken = NULL;
-				if (instruc->op1->dataType == T_DOUBLE || instruc->op2->dataType == T_DOUBLE)
+				if (dupOp1->dataType == T_DOUBLE || dupOp2->dataType == T_DOUBLE)
 				{
-					double result = *((double *) instruc->op1->data) - *((double *) instruc->op2->data);
+					double result = *((double *) dupOp1->data) - *((double *) dupOp2->data);
 					tempToken = ifj_generate_temp(
 						T_DOUBLE,
 						&result
@@ -195,7 +207,7 @@ int exec_run ( ifjInter *self )
 				}
 				else
 				{
-					int result = *((int *) instruc->op1->data) - *((int *) instruc->op2->data);
+					int result = *((int *) dupOp1->data) - *((int *) dupOp2->data);
 					tempToken = ifj_generate_temp(
 						T_INTEGER,
 						&result
@@ -216,22 +228,25 @@ int exec_run ( ifjInter *self )
 				if (instruc->op1 == NULL)
 					instruc->op1 = ifj_stack_pop(stack);
 
+				token *dupOp1 = resolve_context(self, instruc->op1, ifj_stack_top(contextStack));
+				token *dupOp2 = resolve_context(self, instruc->op2, ifj_stack_top(contextStack));
+
 				// Check if variables are inicialized
-				if (!instruc->op1->data)
+				if (!dupOp1->data)
 				{
-					print_not_initialized(self, instruc->op1, stack);
+					print_not_initialized(self, dupOp1, stack);
 					self->returnCode = 8;
 					return 0;
 				}
-				if (!instruc->op2->data)
+				if (!dupOp2->data)
 				{
-					print_not_initialized(self, instruc->op2, stack);
+					print_not_initialized(self, dupOp2, stack);
 					self->returnCode = 8;
 					return 0;
 				}
 
 				// Check division by zero
-				if ( *((double *) instruc->op2->data) == (double) 0 )
+				if ( *((double *) dupOp2->data) == (double) 0 )
 				{
 					ifj_stack_drop(stack);
 					fprintf(stderr, "%s\n", "Division by zero");
@@ -241,9 +256,9 @@ int exec_run ( ifjInter *self )
 
 				// Calculate (a / b)
 				token *tempToken = NULL;
-				if (instruc->op1->dataType == T_DOUBLE || instruc->op2->dataType == T_DOUBLE)
+				if (dupOp1->dataType == T_DOUBLE || dupOp2->dataType == T_DOUBLE)
 				{
-					double result = *((double *) instruc->op1->data) / *((double *) instruc->op2->data);
+					double result = *((double *) dupOp1->data) / *((double *) dupOp2->data);
 					tempToken = ifj_generate_temp(
 						T_DOUBLE,
 						&result
@@ -251,7 +266,7 @@ int exec_run ( ifjInter *self )
 				}
 				else
 				{
-					int result = *((int *) instruc->op1->data) / *((int *) instruc->op2->data);
+					int result = *((int *) dupOp1->data) / *((int *) dupOp2->data);
 					tempToken = ifj_generate_temp(
 						T_INTEGER,
 						&result
@@ -266,7 +281,8 @@ int exec_run ( ifjInter *self )
 
 			case I_PUSH:
 			{
-				ifj_stack_push(stack, instruc->op1);
+				token *dupOp1 = resolve_context(self, instruc->op1, ifj_stack_top(contextStack));
+				ifj_stack_push(stack, dupOp1);
 				break;
 			}
 
@@ -278,50 +294,53 @@ int exec_run ( ifjInter *self )
 					instruc->op1 = ifj_stack_pop(stack);
 				}
 
+				token *dupOp1 = resolve_context(self, instruc->op1, ifj_stack_top(contextStack));
+				token *dupOp3 = resolve_context(self, instruc->op3, ifj_stack_top(contextStack));
+
 				// Check if variable is inicialized
-				if (instruc->op1 && instruc->op1->data == NULL)
+				if (dupOp1 && dupOp1->data == NULL)
 				{
-					print_not_initialized(self, instruc->op1, stack);
+					print_not_initialized(self, dupOp1, stack);
 					self->returnCode = 8;
 					return 0;
 				}
 
 				// Function called with return value,
 				// but return value is not needed to set
-				if (instruc->op3 == NULL)
+				if (dupOp3 == NULL)
 				{
 					ifj_stack_pop(stack);
 					break;
 				}
 
 				// Set value
-				if (instruc->op1->dataType == T_STRING)
+				if (dupOp1->dataType == T_STRING)
 				{
-					if ((char *) instruc->op3->data)
-						free((char *) instruc->op3->data);
+					if ((char *) dupOp3->data)
+						free((char *) dupOp3->data);
 
-					instruc->op3->data = (void *) strdup(instruc->op1->data);
+					dupOp3->data = (void *) strdup(dupOp1->data);
 				}
 				else
 				{
-					if (instruc->op3->dataType == T_DOUBLE)
+					if (dupOp3->dataType == T_DOUBLE)
 					{
-						if(!instruc->op3->data)
+						if(!dupOp3->data)
 						{
-							instruc->op3->data = malloc(sizeof(double));
+							dupOp3->data = malloc(sizeof(double));
 						}
 						// double a = 3.14(double) , double a = 1(int)
-						*((double *) instruc->op3->data) = *((double *) instruc->op1->data);
+						*((double *) dupOp3->data) = *((double *) dupOp1->data);
 					}
 
-					if (instruc->op3->dataType == T_INTEGER)
+					if (dupOp3->dataType == T_INTEGER)
 					{
-						if(!instruc->op3->data)
+						if(!dupOp3->data)
 						{
-							instruc->op3->data = malloc(sizeof(int));
+							dupOp3->data = malloc(sizeof(int));
 						}
 						// int a = 2(int) , int a = 3.14(double)
-						*((int *) instruc->op3->data) = *((int *) instruc->op1->data);
+						*((int *) dupOp3->data) = *((int *) dupOp1->data);
 					}
 				}
 
@@ -332,12 +351,21 @@ int exec_run ( ifjInter *self )
 
 			case I_CALL:
 			{
+				// Context....
+				token *dupOp1 = instruc->op1;
+
+				if (!dupOp1->method)
+				{
+					dupOp1 = duplicate_context(instruc->op1);
+					ifj_stack_push(contextStack, dupOp1);
+				}
+
 				// Stack of arguments for IFJ16 functions
 				token_stack *argsStack = ifj_stack_new();
 
-				if (instruc->op1->args != NULL)
+				if (dupOp1->args != NULL)
 				{
-					for (int i = instruc->op1->args->top; i >= 0; i--)
+					for (int i = dupOp1->args->top; i >= 0; i--)
 					{
 						token *myToken = ifj_stack_pop(stack);
 
@@ -350,7 +378,7 @@ int exec_run ( ifjInter *self )
 						}
 
 						ifj_stack_push(argsStack, myToken);
-						token *argToken = instruc->op1->args->elements[i];
+						token *argToken = dupOp1->args->elements[i];
 
 						// Alloc memory for uninicialized variables
 						if (argToken->data == NULL)
@@ -394,7 +422,7 @@ int exec_run ( ifjInter *self )
 				}
 
 				token *output = NULL;
-				switch(instruc->op1->method)
+				switch(dupOp1->method)
 				{
 					case IFJ16_PRINT:
 						output = ifj_stack_pop(stack);
@@ -483,7 +511,7 @@ int exec_run ( ifjInter *self )
 					default:
 						output = ifj_generate_temp(T_VOID, NULL);
 						output->jump = instruc->next;
-						instruc = instruc->op1->jump->next;
+						instruc = dupOp1->jump->next;
 						jumped = true;
 						break;
 				}
@@ -542,19 +570,25 @@ int exec_run ( ifjInter *self )
 					}
 				}
 
+				token *dupOp1 = resolve_context(self, instruc->op1, ifj_stack_top(contextStack));
+
+				fprintf(stderr, "%s\n", (char *) dupOp1->value);
+
 				token *label = ifj_stack_pop(stack);
 
-				if (instruc->op1 != NULL)
+				if (dupOp1 != NULL)
 				{
 					// Check if variable is inicialized
-					if (instruc->op1->data == NULL)
+					if (dupOp1->data == NULL)
 					{
-						print_not_initialized(self, instruc->op1, stack);
+						print_not_initialized(self, dupOp1, stack);
 						self->returnCode = 8;
 						return 0;
 					}
 
-					ifj_stack_push(stack, instruc->op1);
+					fprintf(stderr, "%s\n", "DATA");
+
+					ifj_stack_push(stack, dupOp1);
 				}
 
 				instruction *tempInstruct = instruc;
@@ -566,6 +600,14 @@ int exec_run ( ifjInter *self )
 					ifj_token_free(label);
 
 				tempInstruct->op1 = NULL;
+
+				fprintf(stderr, "%s\n", "ZASOBNIK CONTEXT");
+				ifj_stack_print(contextStack);
+
+				token *context = ifj_stack_pop(contextStack);
+				if (context)
+					ifj_token_free(context);
+
 				break;
 			}
 
@@ -577,6 +619,8 @@ int exec_run ( ifjInter *self )
 					instruc->op2 = ifj_stack_pop(stack);
 				}
 
+				token *dupOp2 = resolve_context(self, instruc->op2, ifj_stack_top(contextStack));
+
 				int output = 0;
 				if (instruc->op3 != NULL)
 				{
@@ -585,7 +629,9 @@ int exec_run ( ifjInter *self )
 						instruc->op1 = ifj_stack_pop(stack);
 					}
 
-					output = checkCondition(instruc->op1, instruc->op2, instruc->op3);
+					token *dupOp1 = resolve_context(self, instruc->op1, ifj_stack_top(contextStack));
+
+					output = checkCondition(dupOp1, dupOp2, instruc->op3);
 					if (output == 10)
 					{
 						ifj_stack_drop(stack);
@@ -596,11 +642,13 @@ int exec_run ( ifjInter *self )
 
 					output = !output;
 				}
+				/*
 				else
 				{
 					output = *((int *) instruc->op2);
 					fprintf(stderr, "%d\n", output);	//Debug printf
 				}
+				*/
 
 				token *tempToken = ifj_generate_temp(
 					T_INTEGER,

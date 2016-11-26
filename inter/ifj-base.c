@@ -16,7 +16,7 @@ int main (  int argc,
     int rc;
     ifjInter *self = ifj_inter_new(); //create new main struct
     //XXX
-    self->debugMode = 0;
+    self->debugMode = 1;
     check(self->load(argc, argv, self)); //load input file
     check(syna_run(self)); //run syntactic analysis
     check(exec_run(self)); //run executor
@@ -27,13 +27,14 @@ int main (  int argc,
     test->type = T_IDENTIFIER;
     test->value = (void *)strdup("Game.play");
     resolve_identifier(self, self->table, &test, 0);
-    token *dupl = duplicate_context(test);
+
+    token *dupl = duplicate_context(test);  // Duplikacie
 
     test = self->table->get_item(test->childTable, "b", T_IDENTIFIER, NULL);
     *((int *)test->data) = 3;
 
     printf("%d\n", *((int *)test->data) );
-    test = resolve_context(self, test, dupl);
+    test = resolve_context(self, test, dupl);   // Volat pre premenne
     printf("%d\n", *((int *)test->data) );
 
     dupl->type = T_IDENTIFIER;

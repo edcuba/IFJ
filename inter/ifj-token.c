@@ -242,10 +242,22 @@ token *ifj_generate_temp(int dataType, void *data)
     switch (dataType)
     {
         case T_INTEGER:
+            if (!data)
+            {
+                item->data = NULL;
+                break;
+            }
+
             item->data = (void*) malloc (sizeof(int));
             *((int *) item->data) = *((int*) data);
             break;
         case T_DOUBLE:
+            if (!data)
+            {
+                item->data = NULL;
+                break;
+            }
+
             item->data = (void*) malloc (sizeof(double));
             *((double *) item->data) = *((double *) data);
             break;
