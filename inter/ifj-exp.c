@@ -866,6 +866,14 @@ int expresion(ifjInter *self, symbolTable *table, token *expected)
                     print_mistyped(self, active, expected);
                     return 0;
                 }
+                ifj_stack_pop(syna->stack);
+                ifj_stack_pop(syna->stack);
+                if (ifj_stack_top(syna->stack)->type  !=  T_SEMICOLON)
+                {
+                    print_unexpected(self, active);
+                    SET_RETURN(2);
+                    return 0;
+                }
                 return function_parameters(self, table, active) &&
                        ifj_insert_last(self->code, I_CALL, active, NULL, NULL);
 
