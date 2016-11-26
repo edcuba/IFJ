@@ -32,7 +32,7 @@ int exec_run ( ifjInter *self )
 		{
 			printInstruction(instruc);
 
-			//ifj_stack_print(stack);
+			ifj_stack_print(stack);
 
 			//ifj_list_print(self->code);
 			//return 0;
@@ -69,6 +69,9 @@ int exec_run ( ifjInter *self )
 				else
 				{
 					int result = *((int *) instruc->op1->data) * *((int *) instruc->op2->data);
+
+					// fprintf(stderr, "%d\n", result);
+
 					tempToken = ifj_generate_temp(
 						T_INTEGER,
 						&result
@@ -489,14 +492,7 @@ int exec_run ( ifjInter *self )
 				// Free temp token
 				if (output->type == T_TMP)
 					ifj_token_free(output);
-
-				/*
-				if (tempOp3 && tempOp3->type == T_TMP)
-				{
-					ifj_token_free(tempOp3);
-				}
-				*/
-
+					
 				break;
 			}
 
@@ -510,6 +506,8 @@ int exec_run ( ifjInter *self )
 						ifj_stack_pop(stack);
 					}
 				}
+
+				// fprintf(stderr, "%d\n", *((int *) instruc->op1->data));
 
 				token *label = ifj_stack_pop(stack);
 
@@ -526,6 +524,7 @@ int exec_run ( ifjInter *self )
 					ifj_stack_push(stack, instruc->op1);
 				}
 
+				instruction *tempInstruct = instruc;
 				instruc = label->jump;
 				jumped = true;
 
@@ -533,8 +532,7 @@ int exec_run ( ifjInter *self )
 				if (label->type == T_TMP)
 					ifj_token_free(label);
 
-				instruc->op1 = NULL;
-
+				tempInstruct->op1 = NULL;
 				break;
 			}
 
