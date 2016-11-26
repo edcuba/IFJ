@@ -296,7 +296,7 @@ static int ifj_find_help ( const char *s1, const char *search )
 */
 token *ifj_find ( const char *s1, const char *search)
 {
-	int result = ifj_find_help(s1, search);
+	int result = ifj_find_help(search, s1);
 	token *temp = ifj_generate_temp(T_INTEGER, &result);
 	return temp;
 }
