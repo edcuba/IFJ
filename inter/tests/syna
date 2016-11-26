@@ -2,7 +2,7 @@ class Main
 {
 	static int a = 3;
 
- 	static void Run()
+ 	static void run()
  	{
  		int c = NovyClass.rekurz();
  		ifj16.print("Vysledok: " + c + "\n");

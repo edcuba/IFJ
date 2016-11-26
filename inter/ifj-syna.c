@@ -533,7 +533,7 @@ int function_inside(ifjInter *self, token *item)
     {
         ifj_insert_last(self->code, I_LABEL, item, NULL, NULL);
         item->jump = self->code->last;
-        if ( !strcmp((char *) item->value, "Run") )
+        if ( !strcmp((char *) item->value, "run") )
         {
             return function_inside1(self, item) &&
                    ifj_insert_last(self->code, I_END, NULL, NULL, NULL);
@@ -569,13 +569,14 @@ int function_inside1(ifjInter *self, token *item)
     switch (active->type)
     {
         case T_RBLOCK:
-            if(item->dataType != T_VOID && !item->method) //no return found
+            //TODO
+            /*if(item->dataType != T_VOID && !item->method) //no return found
             {
                 fprintf(stderr, "Error: no return statement in function \"%s\"\n",
                         (char *) item->value);
                 self->returnCode = 3;
                 return 0;
-            }
+            }*/
             return 1;
 
         case T_WHILE:
@@ -652,7 +653,6 @@ int function_inside1(ifjInter *self, token *item)
         }
 
         case T_RETURN:
-            item->method = 1; //return found
             return expresion(self, item->childTable) &&
                    ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
                    statement_inside1(self, item->childTable);
@@ -1165,7 +1165,7 @@ int syna_run(ifjInter *self)
     {
         token *run = ifj_generate_temp(T_VOID, NULL);
         run->type = T_IDENTIFIER;
-        run->value = (void *) strdup("Main.Run");
+        run->value = (void *) strdup("Main.run");
         return_value = resolve_identifier(self, self->table, &run, 0);
         if(!return_value)
         {
@@ -1173,14 +1173,14 @@ int syna_run(ifjInter *self)
         }
         if(!run->jump)
         {
-            fprintf(stderr, "Error: Run function undefined!\n");
+            fprintf(stderr, "Error: run function undefined!\n");
             self->returnCode = 3;
             return self->returnCode;
         }
 
         if (run->dataType != T_VOID || (run->args && !ifj_stack_empty(run->args)))
         {
-            fprintf(stderr, "Error: Invalid Run function, expected: static void Run()\n");
+            fprintf(stderr, "Error: Invalid run function, expected: static void run()\n");
             self->returnCode = 3;
             return self->returnCode;
         }
