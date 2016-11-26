@@ -82,9 +82,6 @@ int exec_run ( ifjInter *self )
 				else
 				{
 					int result = *((int *) instruc->op1->data) * *((int *) instruc->op2->data);
-
-					// fprintf(stderr, "%d\n", result);
-
 					tempToken = ifj_generate_temp(
 						T_INTEGER,
 						&result
@@ -545,8 +542,6 @@ int exec_run ( ifjInter *self )
 					}
 				}
 
-				// fprintf(stderr, "%d\n", *((int *) instruc->op1->data));
-
 				token *label = ifj_stack_pop(stack);
 
 				if (instruc->op1 != NULL)
@@ -604,7 +599,7 @@ int exec_run ( ifjInter *self )
 				else
 				{
 					output = *((int *) instruc->op2);
-					printf("%d\n", output);
+					fprintf(stderr, "%d\n", output);	//Debug printf
 				}
 
 				token *tempToken = ifj_generate_temp(
@@ -651,7 +646,10 @@ int exec_run ( ifjInter *self )
 			default:
 			{
 				fprintf(stderr, "%s %d\n", "Executor ERROR: Undefined instruction, value: ", instruc->type);
-				break;
+
+				ifj_stack_drop(stack);
+				self->returnCode = 10;
+				return 0;
 			}
 		}
 
@@ -663,10 +661,7 @@ int exec_run ( ifjInter *self )
 		}
 	}
 
-	//ifj_stack_print(stack);
-
 	ifj_stack_drop(stack);
-
 	if (self->debugMode)
 	{
 		fprintf(stderr, "%s\n", "---------------- Executor ended incorectly ----------------");
@@ -813,7 +808,10 @@ void printInstruction(instruction *instruc)
 			fprintf(stderr, "%s\n", "RETURN");
 			break;
 		case I_CONDITION:
-			fprintf(stderr, "%s %c\n", "CONDITION", instruc->op3->type);
+			if (instruc->op3)
+				fprintf(stderr, "%s %d\n", "CONDITION", instruc->op3->type);
+			else
+				fprintf(stderr, "%s\n", "CONDITION");
 			break;
 		case I_LABEL:
 			fprintf(stderr, "%s\n", "LABEL");
