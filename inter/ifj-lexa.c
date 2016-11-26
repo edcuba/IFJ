@@ -495,6 +495,10 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     ungetc(newChar, l->inputFile);
                     state = LS_EXPO;
                     break;
+                } else if (isdigit(newChar)) {
+                    dyn_buffer_append(l->b_str, newChar);
+                    state = LS_EXPO;
+                    break;
                 } else {
                     t = ifj_generate_token(table, T_UNKNOWN);
                     return t;
