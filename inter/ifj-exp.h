@@ -15,7 +15,7 @@
 #include "ifj-exec.h"
 #include <stdbool.h>
 
-int expresion(ifjInter *self, symbolTable *table);
+int expresion(ifjInter *self, symbolTable *table, token *expected);
 int condition(ifjInter *self, symbolTable *table);
 
 int condition_check_active(ifjInter *self, token *active, int *b);

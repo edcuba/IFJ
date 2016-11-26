@@ -734,7 +734,7 @@ int condition(ifjInter *self, symbolTable *table)
 //------------------------------------------------------------------------------------------------------------
 
 
-int expresion(ifjInter *self, symbolTable *table)
+int expresion(ifjInter *self, symbolTable *table, token *expected)
 {
     if(self->debugMode)
     {
@@ -859,8 +859,15 @@ int expresion(ifjInter *self, symbolTable *table)
              * + nezabudnut pridat "("
             */
             case  T_COMMA:
-                return function_parameters(self, table, ifj_stack_top(syna->stack)) &&
-                       ifj_insert_last(self->code, I_CALL, ifj_stack_top(syna->stack), NULL, NULL);
+                active = ifj_stack_top(syna->stack);
+                if(!check_typing(active, expected))
+                {
+                    self->returnCode = 4;
+                    print_mistyped(self, active, expected);
+                    return 0;
+                }
+                return function_parameters(self, table, active) &&
+                       ifj_insert_last(self->code, I_CALL, active, NULL, NULL);
 
             case  T_END:
                 print_unexpected(self, active);
@@ -1190,6 +1197,15 @@ int expresion(ifjInter *self, symbolTable *table)
     {
         fprintf(stderr, "vraciam sa z expresion\n");
     }
+
+    active = ifj_stack_top(syna->type_stack);
+    if(!check_typing(active, expected))
+    {
+        self->returnCode = 4;
+        print_mistyped(self, active, expected);
+        return 0;
+    }
+
     return 1;
 }
 

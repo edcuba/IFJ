@@ -147,7 +147,6 @@ int resolve_identifier(ifjInter *self,
  **/
 int check_typing(token *first, token *second)
 {
-
     if(first->dataType == second->dataType)
     {
         return 1;

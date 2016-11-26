@@ -163,7 +163,6 @@ int is_ID(ifjInter *self, symbolTable *table, token **item, int stat)
             //not a declaration
             default:
                 return resolve_identifier(self, table, item, 0);
-
         }
     }
 
@@ -314,7 +313,7 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
         }
         if(self->preLoad)
         {
-            return expresion(self, table) &&
+            return expresion(self, table, item) &&
                    ifj_insert_last(self->code, I_SET, NULL, NULL, item) &&
                    class_inside1(self, table);
         }
@@ -593,7 +592,7 @@ int function_inside1(ifjInter *self, token *item)
             ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
             instruction *go = self->code->last;
 
-            if (!statement_inside1(self, item->childTable))
+            if (!statement_inside1(self, item))
             {
                 return 0;
             }
@@ -643,19 +642,25 @@ int function_inside1(ifjInter *self, token *item)
             ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
             instruction *ifend = self->code->last;
 
-            if (!statement_inside1(self, item->childTable))
+            if (!statement_inside1(self, item))
             {
                 return 0;
             }
 
-            return if_else1(self, item->childTable, ifend) &&
+            return if_else1(self, item, ifend) &&
                    function_inside1(self, item);
         }
 
         case T_RETURN:
-            return expresion(self, item->childTable) &&
+            if(item->dataType == T_VOID)
+            {
+                return is_semicolon(self) &&
+                       ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
+                       statement_inside1(self, item);
+            }
+            return expresion(self, item->childTable, item) &&
                    ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
-                   statement_inside1(self, item->childTable);
+                   statement_inside1(self, item);
 
         case T_INTEGER:
         case T_STRING:
@@ -756,12 +761,12 @@ int is_ASSIGN(ifjInter *self)
 /**
  * Fetch next token. Expect "else", if unexpected, perform token push bezparametricka
  * @param self global structure
- * @param table table for current function
+ * @param item identifier for current context
  * @return 1 if else, 1 if pushBack
  **/
-int if_else1(ifjInter *self, symbolTable *table, instruction *ifend)
+int if_else1(ifjInter *self, token *item, instruction *ifend)
 {
-    token * active = lexa_next_token(self->lexa_module, table);
+    token * active = lexa_next_token(self->lexa_module, item->childTable);
     if (active->type == T_ELSE)
     {
         ifj_insert_last(self->code, I_GOTO, NULL, NULL, NULL);
@@ -772,7 +777,7 @@ int if_else1(ifjInter *self, symbolTable *table, instruction *ifend)
         temp->jump = self->code->last;
         ifend->op3 = temp;
 
-        if (!is_LBLOCK(self) || !statement_inside1(self, table))
+        if (!is_LBLOCK(self) || !statement_inside1(self, item))
         {
             return 0;
         }
@@ -801,7 +806,7 @@ int if_else1(ifjInter *self, symbolTable *table, instruction *ifend)
  **/
 int is_LBLOCK(ifjInter *self)
 {
-    token * active = lexa_next_token(self->lexa_module,self->table);
+    token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type != T_LBLOCK)
     {
         self->returnCode = 2;
@@ -817,10 +822,10 @@ int is_LBLOCK(ifjInter *self)
  * - no variable declaration here!
  * - Expects "}", "while", "for", "if", "break", "continue", "return", "id"
  * @param self global structure
- * @param table symbol table for current function
+ * @param item identifier for current context
  * @return 1 if successful
  **/
-int statement_inside1(ifjInter *self, symbolTable *table)
+int statement_inside1(ifjInter *self, token *item)
 {
     token * active = NULL;
     if(self->pushBack)
@@ -830,7 +835,7 @@ int statement_inside1(ifjInter *self, symbolTable *table)
     }
     else
     {
-        active = lexa_next_token(self->lexa_module, table);
+        active = lexa_next_token(self->lexa_module, item->childTable);
     }
     switch (active->type)
     {
@@ -844,7 +849,7 @@ int statement_inside1(ifjInter *self, symbolTable *table)
             token *beg = ifj_generate_temp(T_VOID, NULL);
             beg->jump = self->code->last;
 
-            if (!condition(self, table))
+            if (!condition(self, item->childTable))
             {
                 return 0;
             }
@@ -852,7 +857,7 @@ int statement_inside1(ifjInter *self, symbolTable *table)
             ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
             instruction *go = self->code->last;
 
-            if (!statement_inside1(self, table))
+            if (!statement_inside1(self, item))
             {
                 return 0;
             }
@@ -864,7 +869,7 @@ int statement_inside1(ifjInter *self, symbolTable *table)
 
             go->op3 = beg;
 
-            return statement_inside1(self, table);
+            return statement_inside1(self, item);
         }
 
       /*  case T_FOR:
@@ -901,7 +906,7 @@ int statement_inside1(ifjInter *self, symbolTable *table)
                    statement_inside1(self, table);*/
         case T_IF:
         {
-            if (!condition(self, table))
+            if (!condition(self, item->childTable))
             {
                 return 0;
             }
@@ -909,29 +914,35 @@ int statement_inside1(ifjInter *self, symbolTable *table)
             ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
             instruction *ifend = self->code->last;
 
-            if (!statement_inside1(self, table))
+            if (!statement_inside1(self, item))
             {
                 return 0;
             }
 
-            return if_else1(self, table, ifend) &&
-                   statement_inside1(self, table);
+            return if_else1(self, item, ifend) &&
+                   statement_inside1(self, item);
         }
 
         case T_RETURN:
-            return expresion(self, table) &&
+            if(item->dataType == T_VOID)
+            {
+                return is_semicolon(self) &&
+                       ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
+                       statement_inside1(self, item);
+            }
+            return expresion(self, item->childTable, item) &&
                    ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
-                   statement_inside1(self, table);
+                   statement_inside1(self, item);
 
         case T_IDENTIFIER:
         {
             int rc;
-            rc = resolve_identifier(self, table, &active, 0);
+            rc = resolve_identifier(self, item->childTable, &active, 0);
 
             if(rc)
             {
-                return fce(self, table, active) &&
-                       statement_inside1(self, table);
+                return fce(self, item->childTable, active) &&
+                       statement_inside1(self, item);
             }
 
             return rc;
@@ -981,7 +992,7 @@ int fce(ifjInter *self, symbolTable *table, token *item)
     }
     else if (active->type == T_ASSIGN)
     {
-        return expresion(self, table) &&
+        return expresion(self, table, item) &&
                ifj_insert_last(self->code, I_SET, NULL, NULL, item);
     }
     self->returnCode = 2;
@@ -1123,7 +1134,7 @@ int sth_next(ifjInter *self, symbolTable *table, token *item)
     token * active = lexa_next_token(self->lexa_module, table);
     if (active->type == T_ASSIGN)
     {
-        return expresion(self, table) &&
+        return expresion(self, table, item) &&
                ifj_insert_last(self->code, I_SET, NULL, NULL, item);
     }
     else if (active->type == T_SEMICOLON)

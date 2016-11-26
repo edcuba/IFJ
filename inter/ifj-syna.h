@@ -32,9 +32,9 @@ int next_function_param(ifjInter *self, token *item);
 int function_inside(ifjInter *self, token *item);
 int function_inside1(ifjInter *self, token *item);
 
-int if_else1(ifjInter *self, symbolTable *table, instruction *ifend);
+int if_else1(ifjInter *self, token *item, instruction *ifend);
 
-int statement_inside1(ifjInter *self, symbolTable *table);
+int statement_inside1(ifjInter *self, token *item);
 
 int sth_next(ifjInter *self, symbolTable *table, token *item);
 int fce(ifjInter *self, symbolTable *table, token *item);
