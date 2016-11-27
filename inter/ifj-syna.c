@@ -47,6 +47,8 @@ výrazech, příp. špatný počet či typ parametrů u volání funkce.
 lokace paměti, chyba při otvírání souboru s řídicím programem, špatné parametry
 příkazové řádky atd.).*/
 
+#define SET_RETURN(code) if(!self->returnCode){self->returnCode = code;}
+
 /**
  * Next class or EOF
  * @param self global structure
@@ -70,7 +72,7 @@ int next_class(ifjInter *self)
         return class_inside(self, active->childTable) &&
                next_class(self);
     }
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -89,7 +91,7 @@ int class_inside(ifjInter *self, symbolTable *table)
         return class_inside1(self, table);
     }
 
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -113,7 +115,7 @@ int class_inside1(ifjInter *self, symbolTable *table)
         }
         else
         {
-            self->returnCode = 2;
+            SET_RETURN(2);
             print_unexpected(self, active);
             return 0;
         }
@@ -166,7 +168,7 @@ int is_ID(ifjInter *self, symbolTable *table, token **item, int stat)
         }
     }
 
-    self->returnCode = 4;
+    SET_RETURN(4);
     print_unexpected(self, active);
     return 0;
 }
@@ -193,7 +195,7 @@ int next_param(ifjInter *self, symbolTable *table, token *expected)
             return ifj_insert_last(self->code, I_PUSH, active, NULL, NULL);
         }
         print_mistyped(self, active, expected);
-        self->returnCode = 4;
+        SET_RETURN(4);
         return 4;
     }
     else if(active->type == T_INTEGER_C ||
@@ -205,11 +207,11 @@ int next_param(ifjInter *self, symbolTable *table, token *expected)
             return ifj_insert_last(self->code, I_PUSH, active, NULL, NULL);
         }
         print_mistyped(self, active, expected);
-        self->returnCode = 4;
+        SET_RETURN(4);
         return 0;
     }
 
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -262,7 +264,7 @@ int skip_to_rblock(ifjInter *self)
     }
     if(active->type == T_END)
     {
-        self->returnCode = 2;
+        SET_RETURN(2);
         print_unexpected(self, active);
         return 0;
     }
@@ -297,7 +299,7 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
     {
         if(item->dataType == T_VOID)
         {
-            self->returnCode = 3;
+            SET_RETURN(3);
             print_defined_void(self, item);
             return 0;
         }
@@ -307,7 +309,7 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
     {
         if(item->dataType == T_VOID)
         {
-            self->returnCode = 3;
+            SET_RETURN(3);
             print_defined_void(self, item);
             return 0;
         }
@@ -325,7 +327,7 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
     }
     //some garbage
 
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -349,7 +351,7 @@ int get_type_with_void(ifjInter *self, token **item)
             return 1;
     }
 
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -372,7 +374,7 @@ int get_type_without_void(ifjInter *self, token **item)
             return 1;
     }
 
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -404,7 +406,7 @@ int function_declar(ifjInter *self, token *item)
             }
             else
             {
-                self->returnCode = 2;
+                SET_RETURN(2);
                 print_unexpected(self, active);
                 return 0;
             }
@@ -413,7 +415,7 @@ int function_declar(ifjInter *self, token *item)
             return 1;
     }
 
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -442,14 +444,14 @@ int next_function_param(ifjInter *self, token *item)
         }
         else
         {
-            self->returnCode = 2;
+            SET_RETURN(2);
             print_unexpected(self, active);
             return 0;
         }
     }
     else if(active->type != T_RPAREN)
     {
-        self->returnCode = 2;
+        SET_RETURN(2);
         print_unexpected(self, active);
         return 0;
     }
@@ -477,7 +479,7 @@ int call_print_next(ifjInter *self, symbolTable *table, int count)
         return ifj_insert_last(self->code, I_PUSH, active, NULL, NULL) &&
                is_semicolon(self);
     }
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -509,7 +511,7 @@ int call_print(ifjInter *self, symbolTable *table, int count)
         return ifj_insert_last(self->code, I_PUSH, active, NULL, NULL) &&
                call_print_next(self, table, count);
     }
-    self->returnCode = 4;
+    SET_RETURN(4);
     print_unexpected(self, active);
     return 0;
 }
@@ -535,7 +537,7 @@ int function_inside(ifjInter *self, token *item)
         return function_inside1(self, item);
     }
 
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -686,7 +688,7 @@ int function_inside1(ifjInter *self, token *item)
             return rc;
         }
     }
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -701,7 +703,7 @@ int is_semicolon(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type != T_SEMICOLON)
     {
-        self->returnCode = 2;
+        SET_RETURN(2);
         print_unexpected(self, active);
         return 0;
     }
@@ -714,7 +716,7 @@ int is_while(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type != T_WHILE)
     {
-        self->returnCode = 2;
+        SET_RETURN(2);
         print_unexpected(self, active);
         return 0;
     }
@@ -727,7 +729,7 @@ int is_LPAREN(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type != T_LPAREN)
     {
-        self->returnCode = 2;
+        SET_RETURN(2);
         print_unexpected(self, active);
         return 0;
     }
@@ -740,7 +742,7 @@ int is_RPAREN(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type != T_RPAREN)
     {
-        self->returnCode = 2;
+        SET_RETURN(2);
         print_unexpected(self, active);
         return 0;
     }
@@ -753,7 +755,7 @@ int is_ASSIGN(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type != T_ASSIGN)
     {
-        self->returnCode = 2;
+        SET_RETURN(2);
         print_unexpected(self, active);
         return 0;
     }
@@ -812,7 +814,7 @@ int is_LBLOCK(ifjInter *self)
     token * active = lexa_next_token(self->lexa_module, self->table);
     if (active->type != T_LBLOCK)
     {
-        self->returnCode = 2;
+        SET_RETURN(2);
         print_unexpected(self, active);
         return 0;
     }
@@ -959,7 +961,7 @@ int statement_inside1(ifjInter *self, token *item)
             return rc;
         }
     }
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -980,7 +982,7 @@ int fce(ifjInter *self, symbolTable *table, token *item)
         {
             fprintf(stderr, "Error: line %d identifier \"%s\" is not a function\n",
                     self->lexa_module->line_number, (char *)item->value);
-            self->returnCode = 3;
+            SET_RETURN(3);
             return 0;
         }
         if(item->method == IFJ16_PRINT)
@@ -1006,7 +1008,7 @@ int fce(ifjInter *self, symbolTable *table, token *item)
         return expresion(self, table, item) &&
                ifj_insert_last(self->code, I_SET, NULL, NULL, item);
     }
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -1048,7 +1050,7 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
                    next_function_parameters(self, table, item, expected, 1);
         }
         print_mistyped(self, active, expected);
-        self->returnCode = 4;
+        SET_RETURN(4);
         return 0;
     }
     else if(active->type == T_INTEGER_C ||
@@ -1069,7 +1071,7 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
                    next_function_parameters(self, table, item, expected, 1);
         }
         print_mistyped(self, active, expected);
-        self->returnCode = 4;
+        SET_RETURN(4);
         return 0;
     }
     else if (active->type == T_RPAREN)
@@ -1077,10 +1079,10 @@ int function_parameters(ifjInter *self, symbolTable *table, token *item)
         if(!item->args || (item->args && item->args->top < 0))
             return is_semicolon(self);
         print_mistyped(self, active, expected);
-        self->returnCode = 4;
+        SET_RETURN(4);
         return 0;
     }
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -1106,7 +1108,7 @@ int next_function_parameters(ifjInter *self,
             return is_semicolon(self);
         }
         print_mistyped(self, active, expected);
-        self->returnCode = 4;
+        SET_RETURN(4);
         return 0;
 
     }
@@ -1128,7 +1130,7 @@ int next_function_parameters(ifjInter *self,
         }
         return rc;
     }
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -1152,7 +1154,7 @@ int sth_next(ifjInter *self, symbolTable *table, token *item)
     {
         return 1;
     }
-    self->returnCode = 2;
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -1196,14 +1198,14 @@ int syna_run(ifjInter *self)
         if(!run->jump)
         {
             fprintf(stderr, "Error: run function undefined!\n");
-            self->returnCode = 3;
+            SET_RETURN(3);
             return self->returnCode;
         }
 
         if (run->dataType != T_VOID || (run->args && !ifj_stack_empty(run->args)))
         {
             fprintf(stderr, "Error: Invalid run function, expected: static void run()\n");
-            self->returnCode = 3;
+            SET_RETURN(3);
             return self->returnCode;
         }
 
