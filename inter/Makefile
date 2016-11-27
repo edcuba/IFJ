@@ -1,4 +1,4 @@
-CFLAGS= -std=c11 -O0 -Wall -Wmissing-declarations -Wreturn-type -Wunused-variable
+CFLAGS= -std=c11 -O2 -Wall -Wmissing-declarations -Wreturn-type -Wunused-variable
 SOURCES=ifj_inter.c \
 		ifj_load.c \
 		ifj_lexa.c \

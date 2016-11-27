@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define TABLE_ROWS 997
+#define TABLE_ROWS 97
 
 /**
  * Add new item
