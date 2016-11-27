@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <errno.h>
+#include <ctype.h>
 
 /**
  * Initialize and allocate new token_stack
@@ -380,6 +381,9 @@ token *ifj_read_int ()
 		if (ch == '\n') {
 			break;
 		}
+		if (!isdigit(ch)) {
+			return NULL;
+		}
 		dyn_buffer_append(buffer, ch);
 	}
 
@@ -389,6 +393,7 @@ token *ifj_read_int ()
     }
 
 	char **endptr = NULL;
+	errno = 0;
 	long in = strtol(dyn_buffer_get_content(buffer), endptr, 10);
 	dyn_buffer_free(buffer);
 
@@ -396,7 +401,7 @@ token *ifj_read_int ()
 		return NULL;
 	}
 
-	if (errno == ERANGE || in > INT_MAX) {
+	if (errno != 0 || in > INT_MAX) {
 		return NULL;
 	}
 
@@ -415,7 +420,12 @@ token *ifj_read_double ()
         if (ch == '\n') {
             break;
         }
-        dyn_buffer_append(buffer, ch);
+		if (isdigit(ch) || ch == '.' || ch == 'e' || ch == 'E') {
+			dyn_buffer_append(buffer, ch);
+		} else {
+			return NULL;
+		}
+
     }
 
     if (buffer->top == -1) {
@@ -424,14 +434,15 @@ token *ifj_read_double ()
     }
 
     char **endptr = NULL;
-    long in = strtod(dyn_buffer_get_content(buffer), endptr);
+	errno = 0;
+    double in = strtod(dyn_buffer_get_content(buffer), endptr);
     dyn_buffer_free(buffer);
 
     if (endptr != '\0') {
         return NULL;
     }
 
-    if (errno == ERANGE) {
+    if (errno != 0) {
         return NULL;
     }
 
