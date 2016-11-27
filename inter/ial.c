@@ -6,8 +6,8 @@
  */
 
 #include "ial.h"
-#include "ifj-lexa.h"
-#include "ifj-token.h"
+#include "ifj_lexa.h"
+#include "ifj_token.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

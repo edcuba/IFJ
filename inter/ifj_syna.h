@@ -7,8 +7,8 @@
 #ifndef IFJ_SYNA_H
 #define IFJ_SYNA_H
 
-#include "ifj-inter.h"
-#include "ifj-exp.h"
+#include "ifj_inter.h"
+#include "ifj_exp.h"
 
 int is_ID(ifjInter *self, symbolTable *table, token **item, int stat);
 int is_while(ifjInter *self);

@@ -10,7 +10,7 @@
 #define IFJ_UTIL_H
 
 #include "ial.h"
-#include "ifj-inter.h"
+#include "ifj_inter.h"
 #include <stdbool.h>
 
 

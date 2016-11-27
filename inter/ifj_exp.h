@@ -7,12 +7,12 @@
 #ifndef IFJ_EXP_H
 #define IFJ_EXP_H
 
-#include "ifj-inter.h"
-#include "ifj-util.h"
-#include "ifj-syna.h"
-#include "ifj-lexa.h"
-#include "ifj-token.h"
-#include "ifj-exec.h"
+#include "ifj_inter.h"
+#include "ifj_util.h"
+#include "ifj_syna.h"
+#include "ifj_lexa.h"
+#include "ifj_token.h"
+#include "ifj_exec.h"
 #include <stdbool.h>
 
 int expresion(ifjInter *self, symbolTable *table, token *expected);

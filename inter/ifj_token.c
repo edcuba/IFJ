@@ -3,9 +3,9 @@
  * Copyright (C) 2016 SsYoloSwag41 Inc.
  * Author: Eduard Cuba <xcubae00@stud.fit.vutbr.cz>
  */
-#include "ifj-token.h"
+#include "ifj_token.h"
 #include <string.h>
-#include "ifj-lexa.h"
+#include "ifj_lexa.h"
 #include <stdio.h>
 #include <stdlib.h>
 

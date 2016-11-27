@@ -22,7 +22,7 @@ TODO EDO skontroluj ci som dobre pochopil */
 /* TODO EDO , toto riesis ty  pri typovani ci ja ? Relační operátory nepodporují porovnání řetězců
 (viz vestavěná funkce ifj16.compare ) */
 
-#include "ifj-exp.h"
+#include "ifj_exp.h"
 
 int condition(ifjInter *self, symbolTable *table)
 {

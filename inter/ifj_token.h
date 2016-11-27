@@ -7,7 +7,7 @@
 #ifndef IFJ_UTILS_H
 #define IFJ_UTILS_H
 
-#include "ifj-inter.h"
+#include "ifj_inter.h"
 
 char * ifj_generate_hashname ( token *item);
 

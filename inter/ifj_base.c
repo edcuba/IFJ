@@ -4,7 +4,7 @@
  * Authors: Eduard Cuba <xcubae00@stud.fit.vutbr.cz>
  */
 
-#include "ifj-inter.h"
+#include "ifj_inter.h"
 #include <stdio.h>
 
 //exit when return code not 0

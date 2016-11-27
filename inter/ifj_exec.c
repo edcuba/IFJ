@@ -4,11 +4,11 @@
  * Authors: Robert Kolcun <xkolcu00@stud.fit.vutbr.cz>
  */
 
-#include "ifj-exec.h"
-#include "ifj-inter.h"
-#include "ifj-util.h"
-#include "ifj-lexa.h"
-#include "ifj-token.h"
+#include "ifj_exec.h"
+#include "ifj_inter.h"
+#include "ifj_util.h"
+#include "ifj_lexa.h"
+#include "ifj_token.h"
 #include "ial.h"
 #include <string.h>
 #include <stdlib.h>

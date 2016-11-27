@@ -7,7 +7,7 @@
 #ifndef IFJ_EXEC_H
 #define IFJ_EXEC_H
 
-#include "ifj-inter.h"
+#include "ifj_inter.h"
 
 #define I_MUL 5000
 #define I_ADD 5001

@@ -8,10 +8,10 @@
 #define IFJ_LEXA_H
 
 #include "buffer.h"
-#include "ifj-token.h"
-#include "ifj-inter.h"
+#include "ifj_token.h"
+#include "ifj_inter.h"
 #include <stdio.h>
-#include "ifj-exp.h"
+#include "ifj_exp.h"
 
 #define T_SEMICOLON ';'
 #define T_COLON ':'

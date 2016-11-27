@@ -6,8 +6,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "ifj-inter.h"
-#include "ifj-tables.h"
+#include "ifj_inter.h"
+#include "ifj_tables.h"
 #include <string.h>
 
 /**

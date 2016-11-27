@@ -7,7 +7,7 @@
 #ifndef IFJ_SEMA_H
 #define IFJ_SEMA_H
 
-#include "ifj-inter.h"
+#include "ifj_inter.h"
 
 int resolve_identifier(ifjInter *self,
                        symbolTable *table,

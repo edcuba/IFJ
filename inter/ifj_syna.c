@@ -4,8 +4,8 @@
 * Authors: Jan Demcak <xdemca01@stud.fit.vutbr.cz>
 */
 
-#include "ifj-syna.h"
-#include "ifj-inter.h"
+#include "ifj_syna.h"
+#include "ifj_inter.h"
 #include <string.h>
 
 //rules

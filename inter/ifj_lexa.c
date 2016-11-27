@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
-#include "ifj-lexa.h"
+#include "ifj_lexa.h"
 #include "limits.h"
 
 ifj_lexa *ifj_lexa_init() {

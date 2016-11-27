@@ -4,8 +4,8 @@
 * Authors: Eduard Cuba
 */
 
-#include "ifj-sema.h"
-#include "ifj-inter.h"
+#include "ifj_sema.h"
+#include "ifj_inter.h"
 #include "string.h"
 #include "stdlib.h"
 

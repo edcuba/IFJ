@@ -4,7 +4,7 @@
  * Authors:
  */
 
-#include "ifj-inter.h"
+#include "ifj_inter.h"
 
 /**
  * Function loads file from 1st command line parameter and saves pointer to

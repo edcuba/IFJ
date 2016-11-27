@@ -29,13 +29,13 @@ typedef struct _ifjSyna ifjSyna;
 #define E_TYPE 2222
 
 #include <stdio.h>
-#include "ifj-syna.h"
-#include "ifj-exp.h"
-#include "ifj-lexa.h"
-#include "ifj-token.h"
+#include "ifj_syna.h"
+#include "ifj_exp.h"
+#include "ifj_lexa.h"
+#include "ifj_token.h"
 #include "ial.h"
-#include "ifj-util.h"
-#include "ifj-sema.h"
+#include "ifj_util.h"
+#include "ifj_sema.h"
 
 /**
  * Struct for storing tokens in symbol table

@@ -7,7 +7,7 @@
 #ifndef IAL_H
 #define IAL_H
 
-#include "ifj-inter.h"
+#include "ifj_inter.h"
 
 /**
  * struct for symbol table
