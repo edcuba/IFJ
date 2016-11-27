@@ -274,6 +274,10 @@ char *strdup (const char *s1)
 
 void print_unexpected(ifjInter *self, token *item)
 {
+    if(!item)
+    {
+        return;
+    }
     fprintf(stderr, "Error: line %d unexpected identifier \"",
             self->lexa_module->line_number);
     switch(item->type)
