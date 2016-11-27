@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
+#include <errno.h>
 
 /**
  * Initialize and allocate new token_stack
@@ -372,8 +374,32 @@ void ifj_list_print ( linear_list *list )
 */
 token *ifj_read_int ()
 {
-	int in;
-	scanf("%d", &in);
+	dyn_buffer *buffer = dyn_buffer_init(64);
+	int ch;
+	while ((ch = getchar()) != EOF) {
+		if (ch == '\n') {
+			break;
+		}
+		dyn_buffer_append(buffer, ch);
+	}
+
+    if (buffer->top == -1) {
+        dyn_buffer_free(buffer);
+        return NULL;
+    }
+
+	char **endptr = NULL;
+	long in = strtol(dyn_buffer_get_content(buffer), endptr, 10);
+	dyn_buffer_free(buffer);
+
+	if (endptr != '\0') {
+		return NULL;
+	}
+
+	if (errno == ERANGE || in > INT_MAX) {
+		return NULL;
+	}
+
 	return ifj_generate_temp(T_INTEGER, &in);
 }
 
@@ -383,9 +409,33 @@ token *ifj_read_int ()
 */
 token *ifj_read_double ()
 {
-	double in;
-	scanf("%lf", &in);
-	return ifj_generate_temp(T_DOUBLE, &in);
+    dyn_buffer *buffer = dyn_buffer_init(64);
+    int ch;
+    while ((ch = getchar()) != EOF) {
+        if (ch == '\n') {
+            break;
+        }
+        dyn_buffer_append(buffer, ch);
+    }
+
+    if (buffer->top == -1) {
+        dyn_buffer_free(buffer);
+        return NULL;
+    }
+
+    char **endptr = NULL;
+    long in = strtod(dyn_buffer_get_content(buffer), endptr);
+    dyn_buffer_free(buffer);
+
+    if (endptr != '\0') {
+        return NULL;
+    }
+
+    if (errno == ERANGE) {
+        return NULL;
+    }
+
+    return ifj_generate_temp(T_DOUBLE, &in);
 }
 
 /**
