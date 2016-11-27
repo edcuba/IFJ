@@ -22,12 +22,14 @@ int ifj_load(int argc, char **argv, ifjInter* inter) {
 
     if (argc != 2) {
         fprintf(stderr, "Error: No input file!\n");
+        inter->returnCode = 99;
         return 99; //no file set
     }
 
     inter->lexa_module->inputFile = fopen(argv[1], "r");
     if (inter->lexa_module->inputFile == NULL) {
         fprintf(stderr, "Error: Cannot open input file. \n");
+        inter->returnCode = 99;
         return 99;
     }
 

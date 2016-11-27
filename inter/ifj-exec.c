@@ -72,27 +72,14 @@ int exec_run ( ifjInter *self )
 				{
 					print_not_initialized(self, dupOp1, stack, contextStack);
 					self->returnCode = 8;
-					return 0;
+					return 8;
 				}
 				if (!dupOp2->data)
 				{
 					print_not_initialized(self, dupOp2, stack, contextStack);
 					self->returnCode = 8;
-					return 0;
+					return 8;
 				}
-
-				/*
-				if (dupOp1->dataType == T_DOUBLE)
-				{
-					// double a = 3.14(double)
-					*((double *) dupOp3->data) = *((double *) dupOp1->data);
-				}
-				else
-				{
-					// double a = 1(int)
-					*((double *) dupOp3->data) = (double) *((int *) dupOp1->data);
-				}
-				*/
 
 				// Calculate (a * b)
 				token *tempToken = NULL;
@@ -101,12 +88,12 @@ int exec_run ( ifjInter *self )
 					double result;
 					if (dupOp2->dataType == T_DOUBLE)
 					{
-						// double * double
+						// double = double * double
 						result = *((double *) dupOp1->data) * *((double *) dupOp2->data);
 					}
 					else
 					{
-						// double * int
+						// double = double * int
 						result = *((double *) dupOp1->data) * (double) *((int *) dupOp2->data);
 					}
 
@@ -117,22 +104,24 @@ int exec_run ( ifjInter *self )
 				}
 				else
 				{
-					int result;
 					if (dupOp2->dataType == T_DOUBLE)
 					{
-						// int * double
-						result = *((int *) dupOp1->data) * (int) *((double *) dupOp2->data);
+						// double = int * double
+						double result = (double) *((int *) dupOp1->data) * *((double *) dupOp2->data);
+						tempToken = ifj_generate_temp(
+							T_DOUBLE,
+							&result
+							);
 					}
 					else
 					{
-						// int * int
-						result = *((int *) dupOp1->data) * *((int *) dupOp2->data);
+						// int = int * int
+						int result = *((int *) dupOp1->data) * *((int *) dupOp2->data);
+						tempToken = ifj_generate_temp(
+							T_INTEGER,
+							&result
+							);
 					}
-
-					tempToken = ifj_generate_temp(
-						T_INTEGER,
-						&result
-						);
 				}
 
 				// Push temp token, and free temp tokens
@@ -157,13 +146,13 @@ int exec_run ( ifjInter *self )
 				{
 					print_not_initialized(self, dupOp1, stack, contextStack);
 					self->returnCode = 8;
-					return 0;
+					return 8;
 				}
 				if (!dupOp2->data)
 				{
 					print_not_initialized(self, dupOp2, stack, contextStack);
 					self->returnCode = 8;
-					return 0;
+					return 8;
 				}
 
 				// Calculate (a + b)
@@ -190,12 +179,12 @@ int exec_run ( ifjInter *self )
 						double result;
 						if (dupOp2->dataType == T_DOUBLE)
 						{
-							// double + double
+							// double = double + double
 							result = *((double *) dupOp1->data) + *((double *) dupOp2->data);
 						}
 						else
 						{
-							// double + int
+							// double = double + int
 							result = *((double *) dupOp1->data) + (double) *((int *) dupOp2->data);
 						}
 
@@ -206,22 +195,24 @@ int exec_run ( ifjInter *self )
 					}
 					else
 					{
-						int result;
 						if (dupOp2->dataType == T_DOUBLE)
 						{
-							// int + double
-							result = *((int *) dupOp1->data) + (int) *((double *) dupOp2->data);
+							// double =int + double
+							double result = (double) *((int *) dupOp1->data) + *((double *) dupOp2->data);
+							tempToken = ifj_generate_temp(
+								T_DOUBLE,
+								&result
+								);
 						}
 						else
 						{
-							// int + int
-							result = *((int *) dupOp1->data) + *((int *) dupOp2->data);
+							// int = int + int
+							int result = *((int *) dupOp1->data) + *((int *) dupOp2->data);
+							tempToken = ifj_generate_temp(
+								T_INTEGER,
+								&result
+								);
 						}
-
-						tempToken = ifj_generate_temp(
-							T_INTEGER,
-							&result
-							);
 					}
 
 					// Push temp token
@@ -249,13 +240,13 @@ int exec_run ( ifjInter *self )
 				{
 					print_not_initialized(self, dupOp1, stack, contextStack);
 					self->returnCode = 8;
-					return 0;
+					return 8;
 				}
 				if (!dupOp2->data)
 				{
 					print_not_initialized(self, dupOp2, stack, contextStack);
 					self->returnCode = 8;
-					return 0;
+					return 8;
 				}
 
 				// Calculate (a - b)
@@ -281,22 +272,24 @@ int exec_run ( ifjInter *self )
 				}
 				else
 				{
-					int result;
 					if (dupOp2->dataType == T_DOUBLE)
 					{
-						// int - double
-						result = *((int *) dupOp1->data) - (int) *((double *) dupOp2->data);
+						// double = int - double
+						double result = (double) *((int *) dupOp1->data) - *((double *) dupOp2->data);
+						tempToken = ifj_generate_temp(
+							T_DOUBLE,
+							&result
+							);
 					}
 					else
 					{
-						// int - int
-						result = *((int *) dupOp1->data) - *((int *) dupOp2->data);
+						// int = int - int
+						int result = *((int *) dupOp1->data) - *((int *) dupOp2->data);
+						tempToken = ifj_generate_temp(
+							T_INTEGER,
+							&result
+							);
 					}
-
-					tempToken = ifj_generate_temp(
-						T_INTEGER,
-						&result
-						);
 				}
 
 				// Push temp token, and free temp tokens
@@ -321,13 +314,13 @@ int exec_run ( ifjInter *self )
 				{
 					print_not_initialized(self, dupOp1, stack, contextStack);
 					self->returnCode = 8;
-					return 0;
+					return 8;
 				}
 				if (!dupOp2->data)
 				{
 					print_not_initialized(self, dupOp2, stack, contextStack);
 					self->returnCode = 8;
-					return 0;
+					return 8;
 				}
 
 				// Check division by zero
@@ -338,7 +331,7 @@ int exec_run ( ifjInter *self )
 					ifj_stack_drop(stack);
 					fprintf(stderr, "%s\n", "Division by zero");
 					self->returnCode = 9;
-					return 0;
+					return 9;
 				}
 
 				// Calculate (a / b)
@@ -348,12 +341,12 @@ int exec_run ( ifjInter *self )
 					double result;
 					if (dupOp2->dataType == T_DOUBLE)
 					{
-						// double / double
+						// double = double / double
 						result = *((double *) dupOp1->data) / *((double *) dupOp2->data);
 					}
 					else
 					{
-						// double / int
+						// double = double / int
 						result = *((double *) dupOp1->data) / (double) *((int *) dupOp2->data);
 					}
 
@@ -364,22 +357,24 @@ int exec_run ( ifjInter *self )
 				}
 				else
 				{
-					int result;
 					if (dupOp2->dataType == T_DOUBLE)
 					{
-						// int / double
-						result = *((int *) dupOp1->data) / (int) *((double *) dupOp2->data);
+						// double = int / double
+						double result = (double) *((int *) dupOp1->data) / *((double *) dupOp2->data);
+						tempToken = ifj_generate_temp(
+							T_DOUBLE,
+							&result
+							);
 					}
 					else
 					{
-						// int / int
-						result = *((int *) dupOp1->data) / *((int *) dupOp2->data);
+						// int = int / int
+						int result = *((int *) dupOp1->data) / *((int *) dupOp2->data);
+						tempToken = ifj_generate_temp(
+							T_INTEGER,
+							&result
+							);
 					}
-
-					tempToken = ifj_generate_temp(
-						T_INTEGER,
-						&result
-						);
 				}
 
 				// Push temp token, and free temp tokens
@@ -411,7 +406,7 @@ int exec_run ( ifjInter *self )
 				{
 					print_not_initialized(self, dupOp1, stack, contextStack);
 					self->returnCode = 8;
-					return 0;
+					return 8;
 				}
 
 				// Function called with return value,
@@ -501,7 +496,7 @@ int exec_run ( ifjInter *self )
 						{
 							print_not_initialized(self, myToken, stack, contextStack);
 							self->returnCode = 8;
-							return 0;
+							return 8;
 						}
 
 						ifj_stack_push(argsStack, myToken);
@@ -544,7 +539,7 @@ int exec_run ( ifjInter *self )
 								ifj_stack_drop(stack);
 								fprintf(stderr, "%s %d\n", "Executor ERROR, invalid dataType: ", argToken->dataType);
 								self->returnCode = 10;
-								return 0;
+								return 10;
 						}
 					}
 				}
@@ -651,8 +646,9 @@ int exec_run ( ifjInter *self )
 
 				if (self->returnCode == 10 || self->returnCode == 7)
 				{
+					ifj_stack_drop(contextStack);
 					ifj_stack_drop(stack);
-					return 0;
+					return self->returnCode;
 				}
 
 				break;
@@ -708,7 +704,7 @@ int exec_run ( ifjInter *self )
 					{
 						print_not_initialized(self, dupOp1, stack, contextStack);
 						self->returnCode = 8;
-						return 0;
+						return 8;
 					}
 
 					// Generate temp token with return value
@@ -769,7 +765,7 @@ int exec_run ( ifjInter *self )
 						ifj_stack_drop(stack);
 						fprintf(stderr, "%s\n", "Executor ERROR: condition error");
 						self->returnCode = 10;
-						return 0;
+						return 10;
 					}
 
 					output = !output;
@@ -801,7 +797,7 @@ int exec_run ( ifjInter *self )
 				ifj_stack_drop(contextStack);
 				ifj_stack_drop(stack);
 				self->returnCode = 8;
-				return 0;
+				return 8;
 
 			}
 
@@ -825,7 +821,7 @@ int exec_run ( ifjInter *self )
 				ifj_stack_drop(contextStack);
 				ifj_stack_drop(stack);
 				self->returnCode = 10;
-				return 0;
+				return 10;
 			}
 		}
 
@@ -845,7 +841,7 @@ int exec_run ( ifjInter *self )
 	}
 
 	self->returnCode = 10;
-	return 0;
+	return 10;
 }
 
 int checkCondition (	token *a,
@@ -916,29 +912,22 @@ int checkCondition (	token *a,
 	return 10;
 }
 
-int freeTempTokens (instruction *inputInstruc)
+void freeTempTokens (instruction *inputInstruc)
 {
-	int counter = 0;
 	if (inputInstruc->op1 && inputInstruc->op1->type == T_TMP)
 	{
 		ifj_token_free(inputInstruc->op1);
-		//inputInstruc->op1 = NULL;
-		counter++;
 	}
 
 	if (inputInstruc->op2 && inputInstruc->op2->type == T_TMP)
 	{
 		ifj_token_free(inputInstruc->op2);
-		//inputInstruc->op2 = NULL;
-		counter++;
 	}
 
 	// Pridavam si tokeny do instrukcie
 	// pri prvom prechode, oni niesu TEMP??
 	inputInstruc->op1 = NULL;
 	inputInstruc->op2 = NULL;
-
-	return counter;
 }
 
 void printInstruction(instruction *instruc)

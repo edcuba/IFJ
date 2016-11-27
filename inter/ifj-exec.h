@@ -32,7 +32,7 @@ int exec_run ( ifjInter *self );
 int checkCondition (	token *a,
 						token *b,
 						token *rel );
-int freeTempTokens ( instruction *inputInstruc );
+void freeTempTokens ( instruction *inputInstruc );
 void printInstruction ( instruction *instruc );
 
 #endif
