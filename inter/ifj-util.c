@@ -456,14 +456,14 @@ token *ifj_length ( const char *inputString )
 /**
  * Return substring of the inputString
  * - simulate substring function from Java
- * @param string inputString
- * @param index beginning of substring
  * @param length substring length
+ * @param index beginning of substring
+ * @param string inputString
  * @return
 */
-token * ifj_substr (	const char *inputString,
+token * ifj_substr (int n,
 					int i,
-					int n )
+				 	const char *inputString)
 {
 	char *outputString = malloc(sizeof(*outputString) * (strlen(inputString) + 1));
 
@@ -523,7 +523,7 @@ static int ifj_compare_help (	const char *s1,
 token *ifj_compare (const char *s1,
 					const char *s2 )
 {
-	int output = ifj_compare_help(s1, s2);
+	int output = ifj_compare_help(s2, s1);
 	token *temp = ifj_generate_temp(T_INTEGER, &output);
 	return temp;
 }

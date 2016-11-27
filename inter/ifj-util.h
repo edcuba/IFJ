@@ -68,9 +68,9 @@ void ifj_print ( token_stack *inStack, int popNum );
 
 token *ifj_length ( const char *inputString );
 
-token * ifj_substr (const char *inputString,
+token * ifj_substr (int n,
 					int i,
-					int n );
+				 	const char *inputString);
 
 token *ifj_compare (const char *s1,
 					const char *s2 );

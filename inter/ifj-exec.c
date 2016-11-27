@@ -217,7 +217,7 @@ int exec_run ( ifjInter *self )
 							// int + int
 							result = *((int *) dupOp1->data) + *((int *) dupOp2->data);
 						}
-						
+
 						tempToken = ifj_generate_temp(
 							T_INTEGER,
 							&result
@@ -292,7 +292,7 @@ int exec_run ( ifjInter *self )
 						// int - int
 						result = *((int *) dupOp1->data) - *((int *) dupOp2->data);
 					}
-					
+
 					tempToken = ifj_generate_temp(
 						T_INTEGER,
 						&result
@@ -375,7 +375,7 @@ int exec_run ( ifjInter *self )
 						// int / int
 						result = *((int *) dupOp1->data) / *((int *) dupOp2->data);
 					}
-					
+
 					tempToken = ifj_generate_temp(
 						T_INTEGER,
 						&result
@@ -615,9 +615,9 @@ int exec_run ( ifjInter *self )
 
 					case IFJ16_SUBSTR:
 						output = ifj_substr(
-							(char *) ifj_stack_pop(argsStack)->data,
 							*((int *) ifj_stack_pop(argsStack)->data),
-							*((int *) ifj_stack_pop(argsStack)->data)
+							*((int *) ifj_stack_pop(argsStack)->data),
+							(char *) ifj_stack_pop(argsStack)->data
 							);
 						if (!output)
 						{
