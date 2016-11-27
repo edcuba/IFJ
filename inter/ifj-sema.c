@@ -270,6 +270,7 @@ token *duplicate_context(token *item)
     dupl->dataType = item->dataType;
     dupl->value = strdup((char *) item->value);
     dupl->jump = item->jump;
+    dupl->method = item->method;
     dupl->childTable = ial_symbol_table_new();
     symbolTable *table = item->childTable;
     symbolTable *newTable = dupl->childTable;
@@ -328,9 +329,9 @@ token *duplicate_context(token *item)
  **/
 inline token *resolve_context(ifjInter *self, token *item, token *target)
 {
-    if(!item || item->type != T_IDENTIFIER || !target)
+    if(!item || item->type != T_IDENTIFIER || item->method || !target)
     {
-        return item; //we dont resolve contexts for constants
+        return item; //we dont resolve contexts for constants or statics
     }
     //resolve but dont free item
     resolve_identifier(self, target->childTable, &item, -1);

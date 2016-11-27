@@ -281,6 +281,7 @@ int skip_to_rblock(ifjInter *self)
  **/
 int class_inside2(ifjInter *self, symbolTable *table, token *item)
 {
+    item->method = 1; //static
     token * active = lexa_next_token(self->lexa_module, self->table);
     //function
     if (active->type == T_LPAREN)
@@ -978,7 +979,7 @@ int fce(ifjInter *self, symbolTable *table, token *item)
     token * active = lexa_next_token(self->lexa_module,self->table);
     if (active->type == T_LPAREN)
     {
-        if(!item->args && !item->childTable && item->method == 0)
+        if(!item->args && !item->childTable && item->method <= 1)
         {
             fprintf(stderr, "Error: line %d identifier \"%s\" is not a function\n",
                     self->lexa_module->line_number, (char *)item->value);

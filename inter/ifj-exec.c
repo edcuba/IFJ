@@ -476,7 +476,8 @@ int exec_run ( ifjInter *self )
 				// Context....
 				token *dupOp1 = instruc->op1;
 
-				if (!dupOp1->method)
+				//0 for variable 1 for statics > 100 for ifj16 methods 
+				if (dupOp1->method == 1)
 				{
 					dupOp1 = duplicate_context(instruc->op1);
 					ifj_stack_push(contextStack, dupOp1);
