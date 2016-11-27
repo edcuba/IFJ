@@ -43,7 +43,7 @@ int condition(ifjInter *self, symbolTable *table)
 
     if (active->type != T_LPAREN )
     {
-        self->returnCode = 2;
+        SET_RETURN(2);
         print_unexpected(self, active);
         return 0;
     }
@@ -879,9 +879,15 @@ int expresion(ifjInter *self, symbolTable *table, token *expected)
             */
             case  T_COMMA:
                 active = ifj_stack_top(syna->stack);
+                if(active->dataType == T_VOID)
+                {
+                    SET_RETURN(8);
+                    print_mistyped(self, active, expected);
+                    return 0;
+                }
                 if(!check_typing(active, expected))
                 {
-                    self->returnCode = 4;
+                    SET_RETURN(4);
                     print_mistyped(self, active, expected);
                     return 0;
                 }
@@ -1228,7 +1234,7 @@ int expresion(ifjInter *self, symbolTable *table, token *expected)
     active = ifj_stack_top(syna->type_stack);
     if(!check_typing(active, expected))
     {
-        self->returnCode = 4;
+        SET_RETURN(4);
         print_mistyped(self, active, expected);
         return 0;
     }
