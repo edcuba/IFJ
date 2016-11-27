@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 //exit when return code not 0
-#define check(arg) rc = arg; if(rc) do { ifj_inter_free(self); return rc;} while(0)
+#define check(arg) rc = arg; if(rc) do { ifj_inter_free(self); return self->returnCode;} while(0)
 
 int main (  int argc,
             char **argv)
@@ -21,6 +21,8 @@ int main (  int argc,
     check(syna_run(self)); //run syntactic analysis
     check(exec_run(self)); //run executor
 
+    rc = self->returnCode;
+
     ifj_inter_free(self);
-    return 0;
+    return rc;
 }
