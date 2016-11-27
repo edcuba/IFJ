@@ -14,8 +14,8 @@ set(modules_sources
         ifj-syna.h
         ifj-exp.h
         ifj-exp.c
-        utils/buffer.h
-        utils/buffer.c
+        buffer.h
+        buffer.c
         ifj-token.c
         ifj-token.h
         ifj-util.c
@@ -27,7 +27,5 @@ set(modules_sources
 add_library(modules ${modules_sources})
 
 add_executable(ifj16 ifj-base.c)
-add_executable(ifj16test ifj-test.c tests/lexa.c)
 
 target_link_libraries(ifj16 modules)
-target_link_libraries(ifj16test modules)

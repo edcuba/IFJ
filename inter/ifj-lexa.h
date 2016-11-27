@@ -7,7 +7,7 @@
 #ifndef IFJ_LEXA_H
 #define IFJ_LEXA_H
 
-#include "utils/buffer.h"
+#include "buffer.h"
 #include "ifj-token.h"
 #include "ifj-inter.h"
 #include <stdio.h>
