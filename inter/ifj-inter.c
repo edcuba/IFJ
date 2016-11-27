@@ -179,7 +179,6 @@ ifjInter* ifj_inter_new()
  */
 void ifj_token_free( token *item )
 {
-
     if(!item)
     {
         return;

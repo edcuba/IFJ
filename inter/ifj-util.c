@@ -382,6 +382,7 @@ token *ifj_read_int ()
 			break;
 		}
 		if (!isdigit(ch)) {
+			dyn_buffer_free(buffer);
 			return NULL;
 		}
 		dyn_buffer_append(buffer, ch);

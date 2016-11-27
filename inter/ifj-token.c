@@ -239,6 +239,7 @@ token *ifj_generate_temp(int dataType, void *data)
     token *item = ifj_token_new();
     item->type = T_TMP;
     item->dataType = dataType;
+
     switch (dataType)
     {
         case T_INTEGER:

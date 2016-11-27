@@ -21,10 +21,7 @@ static inline void print_not_initialized (
 	token_stack *contextStack
 	)
 {
-	ifj_stack_drop(contextStack);
-	ifj_stack_drop(inStack);
-
-	if (item->value)
+	if (item && item->value)
 	{
 		fprintf(stderr,"Error: variable \"%s\" is not inicialized\n",
 			(char *) item->value);
@@ -33,6 +30,9 @@ static inline void print_not_initialized (
 	{
 		fprintf(stderr,"Error: variable is not inicialized\n");
 	}
+
+	ifj_stack_drop(inStack);
+	ifj_stack_drop(contextStack);
 }
 
 int exec_run ( ifjInter *self )
@@ -56,7 +56,7 @@ int exec_run ( ifjInter *self )
 		{
 			printInstruction(instruc);
 
-			ifj_stack_print(stack);
+			//ifj_stack_print(stack);
 
 			//ifj_list_print(self->code);
 			//return 0;
@@ -503,6 +503,7 @@ int exec_run ( ifjInter *self )
 						// Check if variable is inicialized
 						if (myToken->data == NULL)
 						{
+							ifj_stack_drop(argsStack);
 							print_not_initialized(self, myToken, stack, contextStack);
 							self->returnCode = 8;
 							return 8;
@@ -562,6 +563,7 @@ int exec_run ( ifjInter *self )
 								break;
 
 							default:
+								ifj_stack_drop(argsStack);
 								ifj_stack_drop(contextStack);
 								ifj_stack_drop(stack);
 								fprintf(stderr, "%s %d\n", "Executor ERROR, invalid dataType: ", argToken->dataType);
@@ -729,6 +731,12 @@ int exec_run ( ifjInter *self )
 					// Check if variable is inicialized
 					if (dupOp1->data == NULL)
 					{
+						if (label->type == T_TMP)
+						{
+							ifj_token_free(label);
+						}
+						
+						instruc->op1 = NULL;
 						print_not_initialized(self, dupOp1, stack, contextStack);
 						self->returnCode = 8;
 						return 8;
@@ -746,6 +754,11 @@ int exec_run ( ifjInter *self )
 					}
 
 					ifj_stack_push(stack, temp);
+
+					if (dupOp1->type == T_TMP)
+					{
+						ifj_token_free(dupOp1);
+					}
 				}
 
 				instruction *tempInstruct = instruc;
