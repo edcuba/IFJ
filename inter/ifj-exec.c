@@ -553,7 +553,12 @@ int exec_run ( ifjInter *self )
 								if (myToken->dataType == T_DOUBLE)
 								{
 									// int a = 3.14(double)
-									*((int *) argToken->data) = (int) *((double *) myToken->data);
+									ifj_stack_drop(argsStack);
+									ifj_stack_drop(contextStack);
+									ifj_stack_drop(stack);
+									fprintf(stderr, "%s\n", "Invalid implicit declaration in function call");
+									self->returnCode = 4;
+									return 4;
 								}
 								else
 								{
