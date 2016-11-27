@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 //exit when return code not 0
-#define check(arg) rc = arg; if(rc) do { ifj_inter_free(self); return self->returnCode;} while(0)
+#define check(arg) if(arg){rc = self->returnCode; ifj_inter_free(self); return rc;}
 
 int main (  int argc,
             char **argv)

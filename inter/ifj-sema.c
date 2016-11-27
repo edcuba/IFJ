@@ -97,7 +97,19 @@ int resolve_identifier(ifjInter *self,
     if(isDefiniton == 1) //be aware of -1!
     { //type cant be redefined in current context
         token *prev = table->get_item(table, seek->value, T_IDENTIFIER, NULL);
-        if (prev) //redefined
+        token *super = NULL;
+        if(table->parent && table->parent != self->table) //if it is function
+        {
+            //check parent context
+            super = table->get_item(table->parent, seek->value, T_IDENTIFIER, NULL);
+
+            //function or static variable?
+            if(super && !super->childTable)
+            {
+                super = NULL; //just variable
+            }
+        }
+        if (prev || super) //redefined
         {
             fprintf(stderr, "ERROR: line %d Identifier \"%s\" redefined!\n",
                     self->lexa_module->line_number,
