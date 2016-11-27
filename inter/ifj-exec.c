@@ -23,8 +23,16 @@ static inline void print_not_initialized (
 {
 	ifj_stack_drop(contextStack);
 	ifj_stack_drop(inStack);
-	fprintf(stderr,"Error: variable \"%s\" is not inicialized\n",
+
+	if (item->value)
+	{
+		fprintf(stderr,"Error: variable \"%s\" is not inicialized\n",
 			(char *) item->value);
+	}
+	else
+	{
+		fprintf(stderr,"Error: variable is not inicialized\n");
+	}
 }
 
 int exec_run ( ifjInter *self )
@@ -528,11 +536,29 @@ int exec_run ( ifjInter *self )
 								break;
 
 							case T_DOUBLE:
-								*((double *) argToken->data) = *((double *) myToken->data);
+								if (myToken->dataType == T_DOUBLE)
+								{
+									// double a = 3.14(double)
+									*((double *) argToken->data) = *((double *) myToken->data);
+								}
+								else
+								{
+									// double a = 1(int)
+									*((double *) argToken->data) = (double) *((int *) myToken->data);
+								}
 								break;
 
 							case T_INTEGER:
-								*((int *) argToken->data) = *((int *) myToken->data);
+								if (myToken->dataType == T_DOUBLE)
+								{
+									// int a = 3.14(double)
+									*((int *) argToken->data) = (int) *((double *) myToken->data);
+								}
+								else
+								{
+									// int a = 2(int)
+									*((int *) argToken->data) = *((int *) myToken->data);
+								}
 								break;
 
 							default:
