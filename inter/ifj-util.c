@@ -526,6 +526,16 @@ token * ifj_substr (int n,
 					int i,
 				 	const char *inputString)
 {
+	if (n < 0 || i < 0 || i >= strlen(inputString))
+	{
+		return NULL;
+	}
+
+	if ((n + i) > strlen(inputString))
+	{
+		return NULL;
+	}
+
 	char *outputString = malloc(sizeof(*outputString) * (strlen(inputString) + 1));
 
 	if (outputString == NULL)
