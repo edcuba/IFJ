@@ -744,7 +744,7 @@ int condition(ifjInter *self, symbolTable *table)
     if (count == 0)
     {
         print_unexpected(self, active);
-        SET_RETURN(2);
+        SET_RETURN(4);
     }
     return 1;
 }
