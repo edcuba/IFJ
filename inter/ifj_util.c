@@ -29,7 +29,8 @@ token_stack *ifj_stack_new ()
 		return NULL;
 	}
 
-	newStack->elements = malloc(32 * sizeof(token *));
+	//newStack->elements = malloc(32 * sizeof(token *));
+	newStack->elements = calloc(32, sizeof(token *));
 	if (newStack->elements == NULL)
 	{
 		free(newStack);

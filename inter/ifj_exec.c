@@ -892,69 +892,163 @@ int exec_run ( ifjInter *self )
 int checkCondition (	token *a,
 						token *b,
 						token *rel )
-{
-	if (a->dataType == T_DOUBLE || b->dataType == T_DOUBLE)
+{	
+	switch(rel->type)
 	{
-		switch(rel->type)
-		{
-			case T_LESS:
-				return *((double *) a->data) < *((double *) b->data);
-				break;
-			case T_GREATER:
-				return *((double *) a->data) > *((double *) b->data);
-				break;
+		case T_LESS:
+			if (a->dataType == T_DOUBLE)
+			{
+				if (b->dataType == T_DOUBLE)
+				{
+					return *((double *) a->data) < *((double *) b->data);
+				}
+				else
+				{
+					return *((double *) a->data) < (double) *((int *) b->data);
+				}
+			}
+			else
+			{
+				if (b->dataType == T_DOUBLE)
+				{
+					return (double) *((int *) a->data) < *((double *) b->data);
+				}
+				else
+				{
+					return *((int *) a->data) < *((int *) b->data);
+				}
+			}
+			break;
+	
+		case T_GREATER:
+			if (a->dataType == T_DOUBLE)
+			{
+				if (b->dataType == T_DOUBLE)
+				{
+					return *((double *) a->data) > *((double *) b->data);
+				}
+				else
+				{
+					return *((double *) a->data) > (double) *((int *) b->data);
+				}
+			}
+			else
+			{
+				if (b->dataType == T_DOUBLE)
+				{
+					return (double) *((int *) a->data) > *((double *) b->data);
+				}
+				else
+				{
+					return *((int *) a->data) > *((int *) b->data);
+				}
+			}
+			break;
 
-			case T_LESS_EQUAL:
-				return *((double *) a->data) <= *((double *) b->data);
-				break;
-			case T_GREATER_EQUAL:
-				return *((double *) a->data) >= *((double *) b->data);
-				break;
+		case T_LESS_EQUAL:
+			if (a->dataType == T_DOUBLE)
+			{
+				if (b->dataType == T_DOUBLE)
+				{
+					return *((double *) a->data) <= *((double *) b->data);
+				}
+				else
+				{
+					return *((double *) a->data) <= (double) *((int *) b->data);
+				}
+			}
+			else
+			{
+				if (b->dataType == T_DOUBLE)
+				{
+					return (double) *((int *) a->data) <= *((double *) b->data);
+				}
+				else
+				{
+					return *((int *) a->data) <= *((int *) b->data);
+				}
+			}
+			break;
+	
+		case T_GREATER_EQUAL:
+			if (a->dataType == T_DOUBLE)
+			{
+				if (b->dataType == T_DOUBLE)
+				{
+					return *((double *) a->data) >= *((double *) b->data);
+				}
+				else
+				{
+					return *((double *) a->data) >= (double) *((int *) b->data);
+				}
+			}
+			else
+			{
+				if (b->dataType == T_DOUBLE)
+				{
+					return (double) *((int *) a->data) >= *((double *) b->data);
+				}
+				else
+				{
+					return *((int *) a->data) >= *((int *) b->data);
+				}
+			}
+			break;
+	
+		case T_EQUAL:
+			if (a->dataType == T_DOUBLE)
+			{
+				if (b->dataType == T_DOUBLE)
+				{
+					return *((double *) a->data) == *((double *) b->data);
+				}
+				else
+				{
+					return *((double *) a->data) == (double) *((int *) b->data);
+				}
+			}
+			else
+			{
+				if (b->dataType == T_DOUBLE)
+				{
+					return (double) *((int *) a->data) == *((double *) b->data);
+				}
+				else
+				{
+					return *((int *) a->data) == *((int *) b->data);
+				}
+			}
+			break;
 
-			case T_EQUAL:
-				return *((double *) a->data) == *((double *) b->data);
-				break;
-			case T_NOT_EQUAL:
-				return *((double *) a->data) != *((double *) b->data);
-				break;
+		case T_NOT_EQUAL:
+			if (a->dataType == T_DOUBLE)
+			{
+				if (b->dataType == T_DOUBLE)
+				{
+					return *((double *) a->data) != *((double *) b->data);
+				}
+				else
+				{
+					return *((double *) a->data) != (double) *((int *) b->data);
+				}
+			}
+			else
+			{
+				if (b->dataType == T_DOUBLE)
+				{
+					return (double) *((int *) a->data) != *((double *) b->data);
+				}
+				else
+				{
+					return *((int *) a->data) != *((int *) b->data);
+				}
+			}
+			break;
 
-			default:
-				return 10;
-				break;
-		}
+		default:
+			return 10;
+			break;
 	}
-	else
-	{
-		switch(rel->type)
-		{
-			case T_LESS:
-				return *((int *) a->data) < *((int *) b->data);
-				break;
-			case T_GREATER:
-				return *((int *) a->data) > *((int *) b->data);
-				break;
-
-			case T_LESS_EQUAL:
-				return *((int *) a->data) <= *((int *) b->data);
-				break;
-			case T_GREATER_EQUAL:
-				return *((int *) a->data) >= *((int *) b->data);
-				break;
-
-			case T_EQUAL:
-				return *((int *) a->data) == *((int *) b->data);
-				break;
-			case T_NOT_EQUAL:
-				return *((int *) a->data) != *((int *) b->data);
-				break;
-
-			default:
-				return 10;
-				break;
-		}
-	}
-
-	return 10;
 }
 
 void freeTempTokens (instruction *inputInstruc)
