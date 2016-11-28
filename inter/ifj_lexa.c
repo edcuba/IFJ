@@ -19,7 +19,7 @@ ifj_lexa *ifj_lexa_init() {
     l->inputFile = NULL;
 
     // 29 for minimalising colision in hash table
-    l->reserved_words = ial_symbol_table_new();
+    l->reserved_words = ial_symbol_table_new(41);
     l->b_str = dyn_buffer_init(64);
     l->b_num = dyn_buffer_init(16);
     l->line_number = 1;
@@ -64,7 +64,7 @@ void ifj_lexa_rewind_input(ifj_lexa *lexa) {
 }
 
 int ifj_lexa_is_reserved(ifj_lexa *l, char *word) {
-    token *item = l->reserved_words->get_item(l->reserved_words, word, 0, NULL);
+    token *item = ial_symbol_table_get_item(l->reserved_words, word, 0, NULL);
     if (item == NULL) {
         return -1;
     } else {

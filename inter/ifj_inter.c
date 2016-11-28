@@ -23,7 +23,7 @@ void ifj_inter_free(ifjInter *self)
     }
     if(self->table)
     {
-        self->table->drop(self->table);
+        ial_symbol_table_drop(self->table);
     }
     ifj_lexa_free(self->lexa_module);
 
@@ -53,13 +53,13 @@ void ifj_global_symbol_table_init(ifjInter *self)
     //create token for ifj16 class
     token *class = ifj_generate_token_id("ifj16");
     token *item;
-    token *t_str = reserved->get_item(reserved, "String", 0, NULL);
-    token *t_int = reserved->get_item(reserved, "int", 0, NULL);
+    token *t_str = ial_symbol_table_get_item(reserved, "String", 0, NULL);
+    token *t_int = ial_symbol_table_get_item(reserved, "int", 0, NULL);
 
     //save class into global table
-    self->table->add_item(self->table, class, NULL);
+    ial_symbol_table_add_item(self->table, class, NULL);
 
-    class->childTable = ial_symbol_table_new();
+    class->childTable = ial_symbol_table_new(17);
 
     //bind
     class->childTable->parent = self->table;
@@ -161,7 +161,7 @@ ifjInter* ifj_inter_new()
     self->debugMode = 0;
     self->lexa_module = ifj_lexa_init();
     self->load = &ifj_load;
-    self->table = ial_symbol_table_new();
+    self->table = ial_symbol_table_new(41);
     self->code = ifj_list_new();
     ifj_global_symbol_table_init(self);
     self->stack = ifj_stack_new();

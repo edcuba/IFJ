@@ -47,10 +47,10 @@ int resolve_identifier(ifjInter *self,
         //find requested symbol table
 
         //search for class in global context
-        token *class = self->table->get_item(self->table,
-                                             id_class,
-                                             T_IDENTIFIER,
-                                             NULL);
+        token *class = ial_symbol_table_get_item(self->table,
+                                                 id_class,
+                                                 T_IDENTIFIER,
+                                                 NULL);
         if(!class || !class->childTable)
         {
             fprintf(stderr, "ERROR: line %d Class \"%s\" undefined!\n",
@@ -64,10 +64,10 @@ int resolve_identifier(ifjInter *self,
             return 0;
         }
 
-        token *child = self->table->get_item(class->childTable,
-                                             id_id,
-                                             T_IDENTIFIER,
-                                             NULL);
+        token *child = ial_symbol_table_get_item(class->childTable,
+                                                 id_id,
+                                                 T_IDENTIFIER,
+                                                 NULL);
 
         if(!child)
         {
@@ -96,12 +96,12 @@ int resolve_identifier(ifjInter *self,
     }
     if(isDefiniton == 1) //be aware of -1!
     { //type cant be redefined in current context
-        token *prev = table->get_item(table, seek->value, T_IDENTIFIER, NULL);
+        token *prev = ial_symbol_table_get_item(table, seek->value, T_IDENTIFIER, NULL);
         token *super = NULL;
         if(table->parent && table->parent != self->table) //if it is function
         {
             //check parent context
-            super = table->get_item(table->parent, seek->value, T_IDENTIFIER, NULL);
+            super = ial_symbol_table_get_item(table->parent, seek->value, T_IDENTIFIER, NULL);
 
             //function or static variable?
             if(super && !super->childTable)
@@ -121,7 +121,7 @@ int resolve_identifier(ifjInter *self,
         }
         else
         { // proper definition
-            table->add_item(table, seek, NULL);
+            ial_symbol_table_add_item(table, seek, NULL);
             return 1;
         }
     }
@@ -130,7 +130,7 @@ int resolve_identifier(ifjInter *self,
         symbolTable *context = table;
         while(context)
         {
-            token *prev = context->get_item(context, seek->value, T_IDENTIFIER, NULL);
+            token *prev = ial_symbol_table_get_item(context, seek->value, T_IDENTIFIER, NULL);
             if (prev == seek) //allready resolved
             {
                 return 1;
@@ -271,10 +271,12 @@ token *duplicate_context(token *item)
     dupl->value = strdup((char *) item->value);
     dupl->jump = item->jump;
     dupl->method = item->method;
-    dupl->childTable = ial_symbol_table_new();
     symbolTable *table = item->childTable;
-    symbolTable *newTable = dupl->childTable;
+    int size = (table->identifiers - 1) * 2;
+    symbolTable *newTable = ial_symbol_table_new((size <= 0)? 1 : size);
+    newTable->identifiers = table->identifiers;
     newTable->parent = table->parent;
+    dupl->childTable = newTable;
 
     //Duplicate symbol table
     for (unsigned int i = 0; i < table->size; ++i)
@@ -300,7 +302,7 @@ token *duplicate_context(token *item)
                 }
                 clone->type = T_IDENTIFIER;
                 clone->value = strdup((char *) source->value);
-                newTable->add_item(newTable, clone, NULL);
+                ial_symbol_table_add_item(newTable, clone, NULL);
             }
 			source = source->next;
 		}
@@ -313,7 +315,7 @@ token *duplicate_context(token *item)
         for(int i = 0; i <= item->args->top; ++i)
         {
             token *arg = item->args->elements[i];
-            arg = newTable->get_item(newTable, arg->value, T_IDENTIFIER, NULL);
+            arg = ial_symbol_table_get_item(newTable, arg->value, T_IDENTIFIER, NULL);
             ifj_stack_push(dupl->args, arg);
         }
     }

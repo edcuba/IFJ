@@ -12,29 +12,29 @@
 #include <stdio.h>
 #include <string.h>
 
-#define TABLE_ROWS 97
-
 /**
  * Add new item
  * - store pointer to token in hash table
  * @param self symbol table
  * @param item token
- * @return stored token pointer or NULL when unsuccessful
  */
-token *ial_symbol_table_add_item	( 	symbolTable *self,
-	 									token *item,
-										char *hashname)
+void ial_symbol_table_add_item	( 	symbolTable *self,
+	 								token *item,
+									char *hashname)
 {
 	unsigned int hash;
 	if(hashname)
-		hash = ial_symbol_table_hash_func(hashname);
+		hash = ial_symbol_table_hash_func(hashname, self->size);
 	else
-		hash = ial_symbol_table_hash_func(item->value);
+		hash = ial_symbol_table_hash_func(item->value, self->size);
+
+	if(item->type == T_IDENTIFIER)
+	{
+		self->identifiers += 1;
+	}
 
 	item->next = self->row[hash];
 	self->row[hash] = item;
-
-	return item;
 }
 
 /**
@@ -51,7 +51,7 @@ token *ial_symbol_table_get_item	( 	symbolTable *self,
 										int type,
 										char *(*generate_hashname)(void*))
 {
-	unsigned int hash = ial_symbol_table_hash_func(hashname);
+	unsigned int hash = ial_symbol_table_hash_func(hashname, self->size);
 
 	token *item = self->row[hash];
 
@@ -91,9 +91,10 @@ token *ial_symbol_table_get_item	( 	symbolTable *self,
 /**
  * sdbm hashing algorithm
  * @param item token
+ * @param size hash table size
  * @return hash table row
  */
-unsigned int ial_symbol_table_hash_func ( const char *hashname )
+inline unsigned int ial_symbol_table_hash_func (const char *hashname, unsigned int size)
 {
 	if (!hashname)
 	{
@@ -110,37 +111,7 @@ unsigned int ial_symbol_table_hash_func ( const char *hashname )
 		hash = current + (hash << 6) + (hash << 16) - hash;
 	}
 
-	return hash % TABLE_ROWS;
-}
-
-/**
- * Count items in symbol table
- * @param self symbolTable
- * @return number of items
-*/
-int ial_symbol_table_count_items( symbolTable *self)
-{
-
-	int counter = 0;
-
-	for (unsigned int i = 0; i < self->size; ++i)
-	{
-
-		if (self->row[i] == NULL)
-		{
-			continue;
-		}
-
-		token *item = self->row[i];
-
-		while (item != NULL)
-		{
-			counter++;
-			item = item->next;
-		}
-	}
-
-	return counter;
+	return hash % size;
 }
 
 /**
@@ -174,6 +145,7 @@ int ial_symbol_table_drop ( symbolTable *self)
 		self->row[i] = NULL;
 	}
 
+	self->identifiers = 0;
 	free(self->row);
 	free(self);
 	self = NULL;
@@ -186,7 +158,7 @@ int ial_symbol_table_drop ( symbolTable *self)
  *  - contains initialized default methods and hash structure
  * @return new symbol table
  */
-symbolTable *ial_symbol_table_new()
+symbolTable *ial_symbol_table_new(int size)
 {
 	symbolTable *table = calloc(1, sizeof(symbolTable));
 
@@ -196,7 +168,7 @@ symbolTable *ial_symbol_table_new()
 		exit(99);
 	}
 
-	table->size = TABLE_ROWS;
+	table->size = size;
 	table->row = (token**) malloc ( table->size * sizeof( token*) );
 
 	if(!table->row)
@@ -204,11 +176,6 @@ symbolTable *ial_symbol_table_new()
 		fprintf(stderr,"ERROR: allocating symbol table!\n");
 		exit(99);
 	}
-
-	table->add_item	= &ial_symbol_table_add_item;
-	table->get_item = &ial_symbol_table_get_item;
-	table->count_items = &ial_symbol_table_count_items;
-	table->drop = &ial_symbol_table_drop;
 	table->parent = NULL;
 
 	for( int i = 0; i < table->size; i++)

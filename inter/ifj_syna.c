@@ -65,7 +65,7 @@ int next_class(ifjInter *self)
     {
         if(self->preLoad)
         {
-            active->childTable = ial_symbol_table_new();
+            active->childTable = ial_symbol_table_new(97);
             active->childTable->parent = self->table;
         }
         if(active->childTable)
@@ -288,7 +288,7 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
     {
         if(self->preLoad)
         {
-            item->childTable = ial_symbol_table_new();
+            item->childTable = ial_symbol_table_new(97);
             item->childTable->parent = table;
         }
         return function_declar(self, item) &&

@@ -64,7 +64,7 @@ token * ifj_generate_token(symbolTable *table, int type)
     hashname[0] = type % 256;
     hashname[1] = type / 256;
     hashname[2] = 0;
-    token *item = table->get_item(table, hashname, type, NULL);
+    token *item = ial_symbol_table_get_item(table, hashname, type, NULL);
     if (item)
     {
         free(hashname);
@@ -75,7 +75,7 @@ token * ifj_generate_token(symbolTable *table, int type)
         item = ifj_token_new();
         item->value = NULL;
         item->type = type;
-        item = table->add_item(table, item, hashname);
+        ial_symbol_table_add_item(table, item, hashname);
         free(hashname);
         return item;
     }
@@ -94,7 +94,7 @@ token * ifj_generate_token_int ( symbolTable *table, int value )
     char *hashname = ifj_generate_hashname_int(&value);
 
     //get item - push table, hashname, type and hashing function for int
-    token *item = table->get_item(table, hashname, T_INTEGER_C, (char *(*)(void*)) &ifj_generate_hashname_int);
+    token *item = ial_symbol_table_get_item(table, hashname, T_INTEGER_C, (char *(*)(void*)) &ifj_generate_hashname_int);
     if (item)
     {
         free(hashname);
@@ -108,7 +108,7 @@ token * ifj_generate_token_int ( symbolTable *table, int value )
         *((int*) item->value) = value;
         item->type = T_INTEGER_C;
 
-        item = table->add_item(table, item, hashname);
+        ial_symbol_table_add_item(table, item, hashname);
         item->dataType = T_INTEGER;
         item->data = (void *)item->value;
 
@@ -130,7 +130,7 @@ token * ifj_generate_token_double ( symbolTable *table, double value )
     char *hashname = ifj_generate_hashname_double(&value);
 
     //get item - push table, hashname, type and hashing function for double
-    token *item = table->get_item(table, hashname, T_DOUBLE_C, (char *(*)(void*)) &ifj_generate_hashname_double);
+    token *item = ial_symbol_table_get_item(table, hashname, T_DOUBLE_C, (char *(*)(void*)) &ifj_generate_hashname_double);
     if (item)
     {
         free(hashname);
@@ -144,7 +144,7 @@ token * ifj_generate_token_double ( symbolTable *table, double value )
         *((double *) item->value) = value;
         item->type = T_DOUBLE_C;
 
-        item = table->add_item(table, item, hashname);
+        ial_symbol_table_add_item(table, item, hashname);
         item->dataType = T_DOUBLE;
         item->data = (void *)item->value;
 
@@ -166,7 +166,7 @@ token * ifj_generate_token_str ( symbolTable *table, char *value )
     char * hashname = ifj_generate_hashname_str(value);
 
     //get item - push table, hashname, type and hashing function for string
-    token *item = table->get_item(table, hashname, T_STRING_C, (char *(*)(void*)) &ifj_generate_hashname_str);
+    token *item = ial_symbol_table_get_item(table, hashname, T_STRING_C, (char *(*)(void*)) &ifj_generate_hashname_str);
     if (item)
     {
         free(hashname);
@@ -178,7 +178,7 @@ token * ifj_generate_token_str ( symbolTable *table, char *value )
         item->value = (void *)strdup(value);
 
         item->type = T_STRING_C;
-        item = table->add_item(table, item, hashname);
+        ial_symbol_table_add_item(table, item, hashname);
 
         item->dataType = T_STRING;
         item->data = (void *)item->value;
@@ -214,7 +214,7 @@ token *ifj_generate_token_id (char *value)
 */
 token *ifj_generate_reserved (symbolTable *table, char *value, int type, int method)
 {
-    token *item = table->get_item(table, value, type, NULL);
+    token *item = ial_symbol_table_get_item(table, value, type, NULL);
     if (!item)
     {
         item = ifj_token_new();
@@ -222,7 +222,7 @@ token *ifj_generate_reserved (symbolTable *table, char *value, int type, int met
 
         item->type = type;
         item->method = method;
-        item = table->add_item(table, item, NULL);
+        ial_symbol_table_add_item(table, item, NULL);
     }
     return item;
 }
