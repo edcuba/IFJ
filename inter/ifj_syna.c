@@ -654,6 +654,7 @@ int function_inside1(ifjInter *self, token *item)
             {
                 if(!is_semicolon(self))
                 {
+                    self->returnCode = 4;
                     return 0;
                 }
                 if ( !strcmp((char *) item->value, "run") )
@@ -934,6 +935,7 @@ int statement_inside1(ifjInter *self, token *item)
             {
                 if(!is_semicolon(self))
                 {
+                    self->returnCode = 4;
                     return 0;
                 }
                 if ( !strcmp((char *) item->value, "run") )

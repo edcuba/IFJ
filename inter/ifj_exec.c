@@ -55,11 +55,7 @@ int exec_run ( ifjInter *self )
 		if (self->debugMode)
 		{
 			printInstruction(instruc);
-
 			//ifj_stack_print(stack);
-
-			//ifj_list_print(self->code);
-			//return 0;
 		}
 
 		switch (instruc->type)
@@ -674,7 +670,9 @@ int exec_run ( ifjInter *self )
 				}
 
 				if (output != NULL)
+				{
 					ifj_stack_push(stack, output);
+				}
 
 				ifj_stack_drop(argsStack);
 
@@ -838,7 +836,8 @@ int exec_run ( ifjInter *self )
 			{
 				token *item = instruc->op1;
 				fprintf(stderr, "Error: no return value in non-void function \"%s\"\n",
-						(char *)item->value);
+						(char *) item->value);
+
 				ifj_stack_drop(contextStack);
 				ifj_stack_drop(stack);
 				self->returnCode = 8;
@@ -848,6 +847,7 @@ int exec_run ( ifjInter *self )
 
 			case I_RUN_END:
 			{
+				// Correct end of program
 				if (self->debugMode)
 				{
 					fprintf(stderr, "%s\n", "---------------- Executor ended ----------------");
@@ -871,7 +871,9 @@ int exec_run ( ifjInter *self )
 		}
 
 		if (!jumped)
+		{
 			instruc = instruc->next;
+		}
 		else
 		{
 			jumped = false;
@@ -882,7 +884,7 @@ int exec_run ( ifjInter *self )
 	ifj_stack_drop(stack);
 	if (self->debugMode)
 	{
-		fprintf(stderr, "%s\n", "---------------- Executor ended incorectly ----------------");
+		fprintf(stderr, "%s\n", "---------------- Executor ended Incorectly ----------------");
 	}
 
 	self->returnCode = 10;
@@ -1063,8 +1065,6 @@ void freeTempTokens (instruction *inputInstruc)
 		ifj_token_free(inputInstruc->op2);
 	}
 
-	// Pridavam si tokeny do instrukcie
-	// pri prvom prechode, oni niesu TEMP??
 	inputInstruc->op1 = NULL;
 	inputInstruc->op2 = NULL;
 }
