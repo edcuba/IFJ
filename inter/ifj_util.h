@@ -64,11 +64,11 @@ token *ifj_read_int ();
 token *ifj_read_double ();
 token *ifj_read_string ();
 
-void ifj_print ( token_stack *inStack, int popNum );
+int ifj_print ( token_stack *inStack, int popNum );
 
 token *ifj_length ( const char *inputString );
 
-token * ifj_substr (int n,
+token *ifj_substr (	int n,
 					int i,
 				 	const char *inputString);
 

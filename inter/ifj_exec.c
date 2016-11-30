@@ -575,11 +575,19 @@ int exec_run ( ifjInter *self )
 				}
 
 				token *output = NULL;
+				int printResult = 1;
 				switch(dupOp1->method)
 				{
 					case IFJ16_PRINT:
 						output = ifj_stack_pop(stack);
-						ifj_print(stack, *((int *) output->data));
+						printResult = ifj_print(stack, *((int *) output->data));
+						if (!printResult)
+						{
+							ifj_stack_drop(argsStack);
+							print_not_initialized(self, NULL, contextStack, stack);
+							self->returnCode = 8;
+							return self->returnCode;
+						}
 						output = NULL;
 						break;
 
@@ -802,13 +810,14 @@ int exec_run ( ifjInter *self )
 					token *dupOp1 = resolve_context(self, instruc->op1, ifj_stack_top(contextStack));
 
 					output = checkCondition(dupOp1, dupOp2, instruc->op3);
-					if (output == 10)
+					if (output == 10 || output == 8)
 					{
 						ifj_stack_drop(contextStack);
 						ifj_stack_drop(stack);
 						fprintf(stderr, "%s\n", "Executor ERROR: condition error");
-						self->returnCode = 10;
-						return 10;
+						fprintf(stderr, "%s\n", "Error: variable is not inicialized");
+						self->returnCode = output;
+						return output;
 					}
 
 					output = !output;
@@ -894,7 +903,13 @@ int exec_run ( ifjInter *self )
 int checkCondition (	token *a,
 						token *b,
 						token *rel )
-{	
+{
+	if (a->data == NULL || b->data == NULL)
+	{
+		return 8;
+	}
+
+
 	switch(rel->type)
 	{
 		case T_LESS:

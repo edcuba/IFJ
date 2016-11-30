@@ -478,9 +478,17 @@ token *ifj_read_string ()
  * @param number of items to pop from stack
  * @return void
 */
-void ifj_print ( token_stack *inStack, int popNum )
+int ifj_print ( token_stack *inStack, int popNum )
 {
 	token *item;
+
+	for ( int i = popNum - 1 ; i >= 0; --i)
+	{
+		if (inStack->elements[inStack->top - i]->data == NULL)
+		{
+			return 0;
+		}
+	}
 
 	for ( int i = popNum - 1 ; i >= 0; --i)
 	{
@@ -498,10 +506,13 @@ void ifj_print ( token_stack *inStack, int popNum )
 	            break;
 		}
 	}
+
 	for ( int i = 0; i < popNum; ++i)
 	{
 		item = ifj_stack_pop(inStack);
 	}
+
+	return 1;
 }
 
 /**
