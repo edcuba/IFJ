@@ -168,6 +168,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                             t = ifj_generate_token(table, newChar);
                             return t;
                         default:
+                            l->inter->returnCode = 1;
                             t = ifj_generate_token(table, T_UNKNOWN);
                             return t;
 
@@ -205,6 +206,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                 } else if (newChar == '\n') {
                     l->line_number++;
                 } else if (newChar == EOF) {
+                    l->inter->returnCode = 1;
                     t = ifj_generate_token(table, T_UNKNOWN);
                     return t;
                 }
@@ -216,6 +218,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                 } else if (newChar == '*') {
                     break;
                 } else if (newChar == EOF) {
+                    l->inter->returnCode = 1;
                     t = ifj_generate_token(table, T_UNKNOWN);
                     return t;
                 } else {
@@ -231,11 +234,13 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     state = LS_ESCAPE;
                     break;
                 } else if (newChar == '\n') {
+                    l->inter->returnCode = 1;
                     t = ifj_generate_token(table, T_UNKNOWN);
                     return t;
                 } else if (newChar >= 32 && newChar <= 255) {
                     dyn_buffer_append(l->b_str, newChar);
                 } else {
+                    l->inter->returnCode = 1;
                     t = ifj_generate_token(table, T_UNKNOWN);
                     return t;
                 }
@@ -246,6 +251,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     dyn_buffer_append(l->b_num, newChar);
                     break;
                 } else if (newChar == EOF) {
+                    l->inter->returnCode = 1;
                     t = ifj_generate_token(table, T_UNKNOWN);
                     return t;
                 } else {
@@ -265,6 +271,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                             dyn_buffer_append(l->b_str, '\t');
                             break;
                         default:
+                            l->inter->returnCode = 1;
                             t = ifj_generate_token(table, T_UNKNOWN);
                             return t;
                     }
@@ -277,6 +284,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     int escChar = (int) strtol(dyn_buffer_get_content(l->b_num), &endptr, 8);
                     if (*endptr != '\0' || errno != 0 ||
                             escChar < 1 || escChar > 255) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
@@ -290,6 +298,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     if (isdigit(newChar)) {
                         dyn_buffer_append(l->b_num, newChar);
                     } else {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
@@ -319,6 +328,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     return t;
                 } else {
                     ungetc(newChar, l->inputFile);
+                    l->inter->returnCode = 1;
                     t = ifj_generate_token(table, T_UNKNOWN);
                     return t;
                 }
@@ -328,6 +338,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     return t;
                 } else {
                     ungetc(newChar, l->inputFile);
+                    l->inter->returnCode = 1;
                     t = ifj_generate_token(table, T_UNKNOWN);
                     return t;
                 }
@@ -390,6 +401,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     dyn_buffer_append(l->b_str, newChar);
                     newChar = getc(l->inputFile);
                     if (!isdigit(newChar)) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
@@ -408,12 +420,14 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     long val = strtol(dyn_buffer_get_content(l->b_str), NULL,
                                       10);
                     if (errno == ERANGE) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
                     dyn_buffer_clear(l->b_str);
 
                     if (val > INT_MAX) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
@@ -430,6 +444,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     dyn_buffer_append(l->b_str, newChar);
                     newChar = getc(l->inputFile);
                     if (!isdigit(newChar)) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
@@ -447,12 +462,14 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     long val = strtol(dyn_buffer_get_content(l->b_str), NULL,
                                       16);
                     if (errno == ERANGE) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
                     dyn_buffer_clear(l->b_str);
 
                     if (val > INT_MAX) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
@@ -472,12 +489,14 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     long val = strtol(dyn_buffer_get_content(l->b_str), NULL,
                                       2);
                     if (errno == ERANGE) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
                     dyn_buffer_clear(l->b_str);
 
                     if (val > INT_MAX) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
@@ -498,6 +517,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     double val = strtod(dyn_buffer_get_content(l->b_str), NULL);
                     dyn_buffer_clear(l->b_str);
                     if (errno == ERANGE) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
@@ -509,6 +529,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     dyn_buffer_append(l->b_str, newChar);
                     newChar = getc(l->inputFile);
                     if (!isdigit(newChar)) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
@@ -520,6 +541,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     state = LS_EXPO;
                     break;
                 } else {
+                    l->inter->returnCode = 1;
                     t = ifj_generate_token(table, T_UNKNOWN);
                     return t;
                 }
@@ -533,6 +555,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     double val = strtod(dyn_buffer_get_content(l->b_str), NULL);
                     dyn_buffer_clear(l->b_str);
                     if (errno == ERANGE) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
@@ -548,6 +571,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     dyn_buffer_append(l->b_str, newChar);
                     newChar = getc(l->inputFile);
                     if (!isalnum(newChar)) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
@@ -603,6 +627,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     double val = strtod(dyn_buffer_get_content(l->b_str), NULL);
                     dyn_buffer_clear(l->b_str);
                     if (errno == ERANGE) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
@@ -615,6 +640,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     dyn_buffer_append(l->b_str, newChar);
                     newChar = getc(l->inputFile);
                     if (!ishexadigit(newChar)) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
@@ -622,6 +648,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     state = LS_EXPO_HEX;
                     break;
                 } else {
+                    l->inter->returnCode = 1;
                     t = ifj_generate_token(table, T_UNKNOWN);
                     return t;
                 }
@@ -635,6 +662,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     double val = strtod(dyn_buffer_get_content(l->b_str), NULL);
                     dyn_buffer_clear(l->b_str);
                     if (errno == ERANGE) {
+                        l->inter->returnCode = 1;
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
