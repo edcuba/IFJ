@@ -275,7 +275,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     char *endptr = NULL;
                     errno = 0;
                     int escChar = (int) strtol(dyn_buffer_get_content(l->b_num), &endptr, 8);
-                    if (endptr != '\0' || errno != 0 ||
+                    if (*endptr != '\0' || errno != 0 ||
                             escChar < 1 || escChar > 255) {
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
