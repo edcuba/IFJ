@@ -159,7 +159,7 @@ ifjInter* ifj_inter_new()
         exit(99);
     }
     self->debugMode = 0;
-    self->lexa_module = ifj_lexa_init();
+    self->lexa_module = ifj_lexa_init(self);
     self->load = &ifj_load;
     self->table = ial_symbol_table_new(41);
     self->code = ifj_list_new();

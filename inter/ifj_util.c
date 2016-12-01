@@ -394,9 +394,9 @@ token *ifj_read_int ()
         return NULL;
     }
 
-	char **endptr = NULL;
+	char *endptr = NULL;
 	errno = 0;
-	long in = strtol(dyn_buffer_get_content(buffer), endptr, 10);
+	long in = strtol(dyn_buffer_get_content(buffer), &endptr, 10);
 	dyn_buffer_free(buffer);
 
 	if (endptr != '\0') {
@@ -435,9 +435,9 @@ token *ifj_read_double ()
         return NULL;
     }
 
-    char **endptr = NULL;
+    char *endptr = NULL;
 	errno = 0;
-    double in = strtod(dyn_buffer_get_content(buffer), endptr);
+    double in = strtod(dyn_buffer_get_content(buffer), &endptr);
     dyn_buffer_free(buffer);
 
     if (endptr != '\0') {

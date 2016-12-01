@@ -105,6 +105,7 @@ enum lexa_state {
 
 struct _ifj_lexa {
     FILE *inputFile;
+    ifjInter *inter;
     unsigned line_number;
     symbolTable *reserved_words;
     dyn_buffer *b_str;
@@ -116,7 +117,7 @@ struct _ifj_lexa {
  *
  * @return Pointer to structure, NULL if error occurred
  */
-ifj_lexa *ifj_lexa_init();
+ifj_lexa *ifj_lexa_init(ifjInter *inter);
 
 /**
  * Free lexical analysis unit structure

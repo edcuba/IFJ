@@ -10,13 +10,14 @@
 #include "ifj_lexa.h"
 #include "limits.h"
 
-ifj_lexa *ifj_lexa_init() {
+ifj_lexa *ifj_lexa_init(ifjInter *inter) {
     ifj_lexa *l = calloc(1,sizeof(ifj_lexa));
     if (l == NULL) {
         return NULL;
     }
 
     l->inputFile = NULL;
+    l->inter = inter;
 
     // 29 for minimalising colision in hash table
     l->reserved_words = ial_symbol_table_new(41);
@@ -271,9 +272,11 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                 break;
             case LS_ESCAPE_OCTAL:
                 if (l->b_num->top == 2) {
-                    int escChar = (int) strtol(dyn_buffer_get_content(l->b_num),
-                                               NULL, 8);
-                    if (escChar > 377) {
+                    char *endptr = NULL;
+                    errno = 0;
+                    int escChar = (int) strtol(dyn_buffer_get_content(l->b_num), &endptr, 8);
+                    if (endptr != '\0' || errno != 0 ||
+                            escChar < 1 || escChar > 255) {
                         t = ifj_generate_token(table, T_UNKNOWN);
                         return t;
                     }
