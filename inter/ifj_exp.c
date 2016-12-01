@@ -6,9 +6,6 @@
 
 #define SET_RETURN(code) if(!self->returnCode){self->returnCode = code;}
 
-/* TODO EDO , toto riesis ty  pri typovani ci ja ? Relační operátory nepodporují porovnání řetězců
-(viz vestavěná funkce ifj16.compare ) */
-
 #include "ifj_exp.h"
 
 int condition(ifjInter *self, symbolTable *table)
@@ -93,6 +90,7 @@ int condition(ifjInter *self, symbolTable *table)
                     SET_RETURN(2);
                     return 0;
                 }
+                break;
 
             case T_EQUAL:
                 ifj_stack_push(syna->stack, active);
