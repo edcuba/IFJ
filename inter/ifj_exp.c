@@ -4,19 +4,6 @@
 * Authors: Jan Demcak <xdemca01@stud.fit.vutbr.cz>
 */
 
-/*TODO JANY Jiné než uvedené kombinace typů (včetně případných povolených implicitních kon-
-verzí) ve výrazech pro popsané operátory jsou považovány za chybu 4. */
-
-/*TODO JANY upavit tabulku priority operatorov != a == maju najnizsiu */
-
-
-/*TODO JANY  vytvorit dalsi zasobnik ktory ked  dostanem konstantu alebo premennu pushnem ,
-v momente ked sa bude vykonvat niejaka redukčná akcia ktora bude vyzadovat 2 operandy
-skontroluje ak bude treba urobit typovie zavola Edovu funkciu na pretypovanie a
-vysledny typ pushne na zasobnik s5 , nevyhodnocujem  vysledok  resp. nenazim sa manualne pocitat vysledok
-to budu robit robove instrukcie ktorych volanie ja en d pisem do kodu ?
-TODO EDO skontroluj ci som dobre pochopil */
-
 #define SET_RETURN(code) if(!self->returnCode){self->returnCode = code;}
 
 /* TODO EDO , toto riesis ty  pri typovani ci ja ? Relační operátory nepodporují porovnání řetězců
@@ -32,6 +19,7 @@ int condition(ifjInter *self, symbolTable *table)
     int a; // first symbol on stack is automatically $ --> 7;
     int rc;
     int count = 0;
+    int end_condition = 1;
 
     token * instructHelp;
     token * top_stack;
@@ -41,12 +29,6 @@ int condition(ifjInter *self, symbolTable *table)
     ifj_stack_clear(syna->help_stack);
     ifj_stack_clear(syna->type_stack);
 
-    if (active->type != T_LPAREN )
-    {
-        SET_RETURN(2);
-        print_unexpected(self, active);
-        return 0;
-    }
 
     if(self->debugMode)
     {
@@ -98,9 +80,20 @@ int condition(ifjInter *self, symbolTable *table)
         {
             return 0; // nahradenie povodnej -1
         }
-
         switch ((*syna->predictCondition)[a][b])
         {
+            case T_TERNARY:
+                if (ifj_stack_top(syna->stack)->type == E_TYPE)
+                {
+                    end_condition = 0;
+                }
+                else
+                {
+                    print_unexpected(self, active);
+                    SET_RETURN(2);
+                    return 0;
+                }
+
             case T_EQUAL:
                 ifj_stack_push(syna->stack, active);
                 top_stack = active;
@@ -735,7 +728,7 @@ int condition(ifjInter *self, symbolTable *table)
             }
             break;
         }
-    } while((active->type != T_LBLOCK) || (top_stack->type != T_LBLOCK));
+    } while(end_condition);
 
     if(self->debugMode)
     {

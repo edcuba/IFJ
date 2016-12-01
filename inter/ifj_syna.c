@@ -582,7 +582,8 @@ int function_inside1(ifjInter *self, token *item)
             token *beg = ifj_generate_temp(T_VOID, NULL);
             beg->jump = self->code->last;
 
-            if (!condition(self, item->childTable))
+            if ((is_LPAREN(self)) &&
+                (!condition(self, item->childTable)))
             {
                 return 0;
             }
@@ -632,7 +633,8 @@ int function_inside1(ifjInter *self, token *item)
 
         case T_IF:
         {
-            if (!condition(self, item->childTable))
+            if ((is_LPAREN(self)) &&
+                (!condition(self, item->childTable)))
             {
                 return 0;
             }
@@ -856,7 +858,8 @@ int statement_inside1(ifjInter *self, token *item)
             token *beg = ifj_generate_temp(T_VOID, NULL);
             beg->jump = self->code->last;
 
-            if (!condition(self, item->childTable))
+            if ((is_LPAREN(self)) &&
+                (!condition(self, item->childTable)))
             {
                 return 0;
             }
@@ -913,7 +916,8 @@ int statement_inside1(ifjInter *self, token *item)
                    statement_inside1(self, table);*/
         case T_IF:
         {
-            if (!condition(self, item->childTable))
+            if ((is_LPAREN(self)) &&
+                (!condition(self, item->childTable)))
             {
                 return 0;
             }
