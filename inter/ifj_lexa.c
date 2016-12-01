@@ -273,8 +273,12 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                 if (l->b_num->top == 2) {
                     int escChar = (int) strtol(dyn_buffer_get_content(l->b_num),
                                                NULL, 8);
-                    dyn_buffer_clear(l->b_num);
+                    if (escChar > 377) {
+                        t = ifj_generate_token(table, T_UNKNOWN);
+                        return t;
+                    }
 
+                    dyn_buffer_clear(l->b_num);
                     dyn_buffer_append(l->b_str, escChar);
 
                     ungetc(newChar, l->inputFile);
@@ -381,7 +385,14 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     break;
                 } else if (newChar == '.') {
                     dyn_buffer_append(l->b_str, newChar);
+                    newChar = getc(l->inputFile);
+                    if (!isdigit(newChar)) {
+                        t = ifj_generate_token(table, T_UNKNOWN);
+                        return t;
+                    }
+                    ungetc(newChar, l->inputFile);
                     state = LS_DOUBLE_NUMBER;
+
                     break;
                 } else if (newChar == 'e' || newChar == 'E') {
                     dyn_buffer_append(l->b_str, newChar);
@@ -414,6 +425,12 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     break;
                 } else if (newChar == '.') {
                     dyn_buffer_append(l->b_str, newChar);
+                    newChar = getc(l->inputFile);
+                    if (!isdigit(newChar)) {
+                        t = ifj_generate_token(table, T_UNKNOWN);
+                        return t;
+                    }
+                    ungetc(newChar, l->inputFile);
                     state = LS_DOUBLE_NUMBER_HEX;
                     break;
                 } else if (newChar == 'p' || newChar == 'P') {
@@ -521,7 +538,7 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                 }
                 break;
             case LS_WORD:
-                if (isalnum(newChar) || newChar == '_') {
+                if (isalnum(newChar) || newChar == '_' || newChar == '$') {
                     dyn_buffer_append(l->b_str, newChar);
                     break;
                 } else if (newChar == '.') {
