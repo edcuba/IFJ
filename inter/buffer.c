@@ -43,9 +43,8 @@ dyn_buffer *dyn_buffer_append(dyn_buffer *b, char character) {
 }
 
 char *dyn_buffer_get_content(dyn_buffer *b) {
-    if (b->top == -1 || b->buffer[b->top] != '\0') {
-        dyn_buffer_append(b, '\0');
-    }
+    dyn_buffer_append(b, '\0');
+    b->top--;
     return b->buffer;
 }
 

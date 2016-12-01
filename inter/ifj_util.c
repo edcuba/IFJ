@@ -397,11 +397,12 @@ token *ifj_read_int ()
 	char *endptr = NULL;
 	errno = 0;
 	long in = strtol(dyn_buffer_get_content(buffer), &endptr, 10);
-	dyn_buffer_free(buffer);
 
 	if (*endptr != '\0') {
 		return NULL;
 	}
+
+    dyn_buffer_free(buffer);
 
 	if (errno != 0 || in > INT_MAX) {
 		return NULL;
@@ -438,11 +439,12 @@ token *ifj_read_double ()
     char *endptr = NULL;
 	errno = 0;
     double in = strtod(dyn_buffer_get_content(buffer), &endptr);
-    dyn_buffer_free(buffer);
 
     if (*endptr != '\0') {
         return NULL;
     }
+
+    dyn_buffer_free(buffer);
 
     if (errno != 0) {
         return NULL;
