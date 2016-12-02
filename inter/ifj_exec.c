@@ -460,7 +460,11 @@ int exec_run ( ifjInter *self )
 						if (dupOp1->dataType == T_DOUBLE)
 						{
 							// int a = 3.14(double)
-							*((int *) dupOp3->data) = (int) *((double *) dupOp1->data);
+							ifj_stack_drop(contextStack);
+							ifj_stack_drop(stack);
+							fprintf(stderr, "%s\n", "Invalid implicit declaration in SET");
+							self->returnCode = 4;
+							return 4;
 						}
 						else
 						{
