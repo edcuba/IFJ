@@ -353,6 +353,8 @@ int get_type_with_void(ifjInter *self, token **item)
 
     SET_RETURN(2);
     print_unexpected(self, active);
+    if(active->type == T_IDENTIFIER)
+        ifj_token_free(active);
     return 0;
 }
 
@@ -376,6 +378,8 @@ int get_type_without_void(ifjInter *self, token **item)
 
     SET_RETURN(2);
     print_unexpected(self, active);
+    if(active->type == T_IDENTIFIER)
+        ifj_token_free(active);
     return 0;
 }
 
@@ -407,16 +411,16 @@ int function_declar(ifjInter *self, token *item)
             else
             {
                 SET_RETURN(2);
-                print_unexpected(self, active);
                 return 0;
             }
 
         case T_RPAREN:
             return 1;
     }
-
     SET_RETURN(2);
     print_unexpected(self, active);
+    if(active->type == T_IDENTIFIER)
+        ifj_token_free(active);
     return 0;
 }
 
@@ -445,7 +449,6 @@ int next_function_param(ifjInter *self, token *item)
         else
         {
             SET_RETURN(2);
-            print_unexpected(self, active);
             return 0;
         }
     }
@@ -453,6 +456,8 @@ int next_function_param(ifjInter *self, token *item)
     {
         SET_RETURN(2);
         print_unexpected(self, active);
+        if(active->type == T_IDENTIFIER)
+            ifj_token_free(active);
         return 0;
     }
 
