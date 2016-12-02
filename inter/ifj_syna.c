@@ -18,7 +18,6 @@
 * @return 1 when successful
 */
 
-/*TODO JANY funcia run je bezparametricka staticka   */
 /*TODO JANY ak je void funkcia tak  nesmie obsahovat return XXX not sure*/
 /*TODO JANNY Každá funkce vrací hodnotu danou vyhodnocením výrazu v příkazu return . V pří-
 padě chybějící návratové hodnoty kvůli neprovedení příkazu return dojde k chybě 8.*/
@@ -27,7 +26,6 @@ běhová chyba 8. */
 /*TODO JANY Pokus o vytvoření uživa-
 telské třídy ifj16 je chyba 3*/
 
-/* TODO JANY Pokus o přiřazení návratové hodnoty z void -funkce vede na chybu 8. */
 /*TODO JANNY Pokud je vyhodnocený výraz pravdivý,
 vykoná se složený_příkaz 1 , jinak se vykoná složený_příkaz 2 . Pokud výsledná hod-
 nota výrazu není pravdivostní (tj. pravda či nepravda), nastává chyba 4. */
@@ -591,7 +589,7 @@ int function_inside1(ifjInter *self, token *item)
             ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
             instruction *go = self->code->last;
 
-            if (!statement_inside1(self, item))
+            if (!statement_inside(self, item))
             {
                 return 0;
             }
@@ -620,7 +618,7 @@ int function_inside1(ifjInter *self, token *item)
             ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
             instruction *ifend = self->code->last;
 
-            return statement_inside1(self, item) &&
+            return statement_inside(self, item) &&
                    if_else1(self, item, ifend) &&
                    function_inside1(self, item);
         }
@@ -760,7 +758,7 @@ int if_else1(ifjInter *self, token *item, instruction *ifend)
         temp->jump = self->code->last;
         ifend->op3 = temp;
 
-        if (!statement_inside1(self, item))
+        if (!statement_inside(self, item))
         {
             return 0;
         }
@@ -796,7 +794,6 @@ int is_LBLOCK(ifjInter *self)
         print_unexpected(self, active);
         return 0;
     }
-
     return 1;
 }
 
@@ -822,8 +819,8 @@ int simple_statement(ifjInter *self, token *item)
     }
     switch (active->type)
     {
-        case T_RBLOCK: // end of statement
-          return 1;
+        case T_RBLOCK:
+          return 2; // end of statement
 
         case T_WHILE:
         {
@@ -839,7 +836,7 @@ int simple_statement(ifjInter *self, token *item)
             ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
             instruction *go = self->code->last;
 
-            if (!statement_inside1(self, item))
+            if (!statement_inside(self, item))
             {
                 return 0;
             }
@@ -871,7 +868,7 @@ int simple_statement(ifjInter *self, token *item)
             ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
             instruction *ifend = self->code->last;
 
-            return statement_inside1(self, item) &&
+            return statement_inside(self, item) &&
                    if_else1(self, item, ifend);
         }
 
@@ -911,7 +908,27 @@ int simple_statement(ifjInter *self, token *item)
 }
 
 /**
- * Inside statement (while, if, for ...)
+ * Inside statement (while, if, for ...) - expects "{" or single command
+ * - no variable declaration here!
+ * - Expects multiple simple statements
+ * @param self global structure
+ * @param item identifier for current context
+ * @return 1 if successful
+ **/
+int statement_inside(ifjInter *self, token *item)
+{
+    token *active = lexa_next_token(self->lexa_module, item->childTable);
+    if(active->type == T_LBLOCK) // {... statement ...}
+    {
+        return statement_inside1(self, item);
+    }
+    // SIMPLE statement + pushBack
+    self->pushBack = active;
+    return simple_statement(self, item);
+}
+
+/**
+ * Inside multi-command block (while, if, for ...) after "{"
  * - no variable declaration here!
  * - Expects multiple simple statements
  * @param self global structure
@@ -920,16 +937,14 @@ int simple_statement(ifjInter *self, token *item)
  **/
 int statement_inside1(ifjInter *self, token *item)
 {
-    //TODO two items in function - two pushback - create separete method...
-    token *active = lexa_next_token(self->lexa_module, item->childTable);
-    if(active->type == T_LBLOCK) // {... statement ...}
+    switch (simple_statement(self, item))
     {
-        return simple_statement(self, item) &&
-               statement_inside1(self, item);
-    }
-    // SIMPLE statement + pushBack
-    self->pushBack = active;
-    return simple_statement(self, item);
+        case 1: //block continues
+            return statement_inside1(self, item);
+        case 2: //end of statement
+            return 1;
+    };
+    return 0;
 }
 
 /**
