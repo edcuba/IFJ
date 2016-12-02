@@ -53,7 +53,7 @@ int condition(ifjInter *self, symbolTable *table)
         ifj_stack_push(syna->type_stack, active);
     }
 
-    ifj_stack_push(syna->stack, syna->lblock);
+    ifj_stack_push(syna->stack, syna->ternary);
     top_stack = ifj_stack_top(syna->stack);
 
     do
@@ -221,90 +221,29 @@ int condition(ifjInter *self, symbolTable *table)
                     break;
 
                 case T_IDENTIFIER:
-                    if (ifj_stack_empty(syna->help_stack))
+                    if (E_simple_reduct(self, 1, syna, &top_stack, top_on_help_stack, active) == 0)
                     {
-
-                        top_stack = ifj_stack_top(syna->stack);
-                        ifj_stack_push(syna->stack, syna->E);
-
-                        //TODO ROBO  v premennej top_on_help_stack je id instrukcia PUSH
-                        ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
-
-                        if(self->debugMode)
-                        {
-                            fprintf(stderr, "E --> id\n");
-                        }
-                    }
-                    else
-                    {
-                        print_unexpected(self, active);
-                        SET_RETURN(2);
                         return 0;
                     }
                     break;
 
                 case T_STRING_C:
-                    if (ifj_stack_empty(syna->help_stack))
+                    if (E_simple_reduct(self, 3, syna, &top_stack, top_on_help_stack, active) == 0)
                     {
-                        top_stack = ifj_stack_top(syna->stack);
-                        ifj_stack_push(syna->stack, syna->E);
-
-                        //TODO ROBO  v premennej top_on_help_stack je string_c instrukcia PUSH
-                        ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
-
-                        if(self->debugMode)
-                        {
-                            fprintf(stderr, "E --> string\n");
-                        }
-                    }
-                    else
-                    {
-                        print_unexpected(self, active);
-                        SET_RETURN(2);
                         return 0;
                     }
                     break;
 
                 case T_INTEGER_C:
-                    if (ifj_stack_empty(syna->help_stack))
+                    if (E_simple_reduct(self, 2, syna, &top_stack, top_on_help_stack, active) == 0)
                     {
-                        top_stack = ifj_stack_top(syna->stack);
-                        ifj_stack_push(syna->stack, syna->E);
-
-                        //TODO ROBO  v premennej top_on_help_stack je integer_c instrukcia PUSH
-                        ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
-
-                        if(self->debugMode)
-                        {
-                            fprintf(stderr, "E --> integer\n");
-                        }
-                    }
-                    else
-                    {
-                        print_unexpected(self, active);
-                        SET_RETURN(2);
                         return 0;
                     }
                     break;
 
                 case T_DOUBLE_C:
-                    if (ifj_stack_empty(syna->help_stack))
+                    if (E_simple_reduct(self, 4, syna, &top_stack, top_on_help_stack, active) == 0)
                     {
-                        top_stack = ifj_stack_top(syna->stack);
-                        ifj_stack_push(syna->stack, syna->E);
-
-                        //TODO ROBO  v premennej top_on_help_stack je double_c instrukcia PUSH
-                        ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
-
-                        if(self->debugMode)
-                        {
-                            fprintf(stderr, "E --> double\n");
-                        }
-                    }
-                    else
-                    {
-                        print_unexpected(self, active);
-                        SET_RETURN(2);
                         return 0;
                     }
                     break;
@@ -316,405 +255,42 @@ int condition(ifjInter *self, symbolTable *table)
                     switch (top_on_help_stack->type)
                     {
                         case T_ADD:
-                            top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                            if (top_on_help_stack == syna->E)
+                            if (E_reduct(self, I_ADD, 1, 1, syna, active, top_on_help_stack, &top_stack, NULL) == 0)
                             {
-                                if(ifj_stack_empty(syna->help_stack))
-                                {
-                                    top_stack = ifj_stack_top(syna->stack);
-                                    ifj_stack_push(syna->stack, syna->E);
-
-                                    if(type_control_plus(self) == 4)
-                                    {
-                                        print_unexpected(self, active);
-                                        SET_RETURN(4);
-                                        return 0;
-                                    }
-
-                                    //TODO ROBO instrukcia ADD
-                                    ifj_insert_last(self->code, I_ADD, NULL, NULL, NULL);
-
-                                    if(self->debugMode)
-                                    {
-                                        fprintf(stderr, "E --> E + E\n");
-                                    }
-                                }
-                                else
-                                {
-                                    print_unexpected(self, active);
-                                    SET_RETURN(2);
-                                    return 0;
-                                }
-                            }
-                            else
-                            {
-                                print_unexpected(self, active);
-                                SET_RETURN(2);
                                 return 0;
                             }
                             break;
 
                         case T_SUBTRACT:
-                            top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                            if (top_on_help_stack == syna->E)
+                            if (E_reduct(self, I_SUB, 2, 0, syna, active, top_on_help_stack, &top_stack, NULL) == 0)
                             {
-                                if(ifj_stack_empty(syna->help_stack))
-                                {
-                                    top_stack = ifj_stack_top(syna->stack);
-                                    ifj_stack_push(syna->stack, syna->E);
-
-                                    if(type_control(self) == 4)
-                                    {
-                                        print_unexpected(self, active);
-                                        SET_RETURN(4);
-                                        return 0;
-                                    }
-
-                                    //TODO ROBO instrukcia SUB
-                                    ifj_insert_last(self->code, I_SUB, NULL, NULL, NULL);
-
-                                    if(self->debugMode)
-                                    {
-                                        fprintf(stderr, "E --> E - E\n");
-                                    }
-                                }
-                                else
-                                {
-                                    print_unexpected(self, active);
-                                    SET_RETURN(2);
-                                    return 0;
-                                }
-                            }
-                            else
-                            {
-                                print_unexpected(self, active);
-                                SET_RETURN(2);
                                 return 0;
                             }
                             break;
 
                         case T_DIVIDE:
-                            top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                            if (top_on_help_stack == syna->E)
+                            if (E_reduct(self, I_DIV, 4, 0, syna, active, top_on_help_stack, &top_stack, NULL) == 0)
                             {
-                                if(ifj_stack_empty(syna->help_stack))
-                                {
-                                    top_stack = ifj_stack_top(syna->stack);
-                                    ifj_stack_push(syna->stack, syna->E);
-
-                                    if(type_control(self) == 4)
-                                    {
-                                        print_unexpected(self, active);
-                                        SET_RETURN(4);
-                                        return 0;
-                                    }
-
-                                    //TODO ROBO instrukcia DIV
-                                    ifj_insert_last(self->code, I_DIV, NULL, NULL, NULL);
-
-                                    if(self->debugMode)
-                                    {
-                                        fprintf(stderr, "E --> E / E\n");
-
-                                    }
-                                }
-                                else
-                                {
-                                    print_unexpected(self, active);
-                                    SET_RETURN(2);
-                                    return 0;
-                                }
-                            }
-                            else
-                            {
-                                print_unexpected(self, active);
-                                SET_RETURN(2);
                                 return 0;
                             }
                             break;
 
                         case T_MULTIPLY:
-                            top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                            if (top_on_help_stack == syna->E)
+                            if (E_reduct(self, I_MUL, 3, 0, syna, active, top_on_help_stack, &top_stack, NULL) == 0)
                             {
-                                if(ifj_stack_empty(syna->help_stack))
-                                {
-                                    top_stack = ifj_stack_top(syna->stack);
-                                    ifj_stack_push(syna->stack, syna->E);
-
-                                    if(type_control(self) == 4)
-                                    {
-                                        print_unexpected(self, active);
-                                        SET_RETURN(4);
-                                        return 0;
-                                    }
-
-                                    //TODO ROBO instrukcia MUL
-                                    ifj_insert_last(self->code, I_MUL, NULL, NULL, NULL);
-
-                                    if(self->debugMode)
-                                    {
-                                        fprintf(stderr, "E --> E * E\n");
-
-                                    }
-                                }
-                                else
-                                {
-                                    print_unexpected(self, active);
-                                    SET_RETURN(2);
-                                    return 0;
-                                }
-                            }
-                            else
-                            {
-                                print_unexpected(self, active);
-                                SET_RETURN(2);
                                 return 0;
                             }
                             break;
 
                         case T_GREATER:
-                            count++;
-                            top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                            if (top_on_help_stack == syna->E)
-                            {
-                                if (ifj_stack_empty(syna->help_stack))
-                                {
-                                    top_stack = ifj_stack_top(syna->stack);
-                                    ifj_stack_push(syna->stack, syna->E);
-
-                                    if(type_control(self) == 4)
-                                    {
-                                        print_unexpected(self, active);
-                                        SET_RETURN(4);
-                                        return 0;
-                                    }
-
-                                    //TODO ROBO instrukcia condition parameter >
-                                    ifj_insert_last(self->code, I_CONDITION, NULL, NULL, instructHelp);
-
-                                    if(self->debugMode)
-                                    {
-                                        fprintf(stderr, "E --> E > E\n");
-
-                                    }
-                                }
-                                else
-                                {
-                                    print_unexpected(self, active);
-                                    SET_RETURN(2);
-                                    return 0;
-                                }
-                            }
-                            else
-                            {
-                                print_unexpected(self, active);
-                                SET_RETURN(2);
-                                return 0;
-                            }
-                            break;
-
                         case T_LESS:
-                            count++;
-                            top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                            if (top_on_help_stack == syna->E)
-                            {
-                                if (ifj_stack_empty(syna->help_stack))
-                                {
-                                    top_stack = ifj_stack_top(syna->stack);
-                                    ifj_stack_push(syna->stack, syna->E);
-
-                                    if(type_control(self) == 4)
-                                    {
-                                        print_unexpected(self, active);
-                                        SET_RETURN(4);
-                                        return 0;
-                                    }
-
-                                    //TODO ROBO instrukcia condition parameter <
-                                    ifj_insert_last(self->code, I_CONDITION, NULL, NULL, instructHelp);
-
-                                    if(self->debugMode)
-                                    {
-                                        fprintf(stderr, "E --> E < E\n");
-                                    }
-                                }
-                                else
-                                {
-                                    print_unexpected(self, active);
-                                    SET_RETURN(2);
-                                    return 0;
-                                }
-                            }
-                            else
-                            {
-                                print_unexpected(self, active);
-                                SET_RETURN(2);
-                                return 0;
-                            }
-                            break;
-
                         case T_EQUAL:
-                            count++;
-                            top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                            if (top_on_help_stack == syna->E)
-                            {
-                                if (ifj_stack_empty(syna->help_stack))
-                                {
-                                    top_stack = ifj_stack_top(syna->stack);
-
-
-                                    ifj_stack_push(syna->stack, syna->E);
-
-                                    if(type_control(self) == 4)
-                                    {
-                                        print_unexpected(self, active);
-                                        SET_RETURN(4);
-                                        return 0;
-                                    }
-
-                                    //TODO ROBO instrukcia condition parameter ==
-                                    ifj_insert_last(self->code, I_CONDITION, NULL, NULL, instructHelp);
-
-                                    if(self->debugMode)
-                                    {
-                                        fprintf(stderr, "E --> E == E\n");
-                                    }
-                                }
-                                else
-                                {
-                                    print_unexpected(self, active);
-                                    SET_RETURN(2);
-                                    return 0;
-                                }
-
-                            }
-                            else
-                            {
-                                print_unexpected(self, active);
-                                SET_RETURN(2);
-                                return 0;
-                            }
-                            break;
-
                         case T_GREATER_EQUAL:
-                            count++;
-                            top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                            if (top_on_help_stack == syna->E)
-                            {
-                                if (ifj_stack_empty(syna->help_stack))
-                                {
-                                    top_stack = ifj_stack_top(syna->stack);
-                                    ifj_stack_push(syna->stack, syna->E);
-
-                                    if(type_control(self) == 4)
-                                    {
-                                        print_unexpected(self, active);
-                                        SET_RETURN(4);
-                                        return 0;
-                                    }
-
-                                    //TODO ROBO instrukcia condition parameter >=
-                                    ifj_insert_last(self->code, I_CONDITION, NULL, NULL, instructHelp);
-
-                                    if(self->debugMode)
-                                    {
-                                        fprintf(stderr, "E --> E >= E\n");
-                                    }
-                                }
-                                else
-                                {
-                                    print_unexpected(self, active);
-                                    SET_RETURN(2);
-                                    return 0;
-                                }
-
-                            }
-                            else
-                            {
-                                print_unexpected(self, active);
-                                SET_RETURN(2);
-                                return 0;
-                            }
-                            break;
-
                         case T_LESS_EQUAL:
-                            count++;
-                            top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                            if (top_on_help_stack == syna->E)
-                            {
-                                if (ifj_stack_empty(syna->help_stack))
-                                {
-                                    top_stack = ifj_stack_top(syna->stack);
-                                    ifj_stack_push(syna->stack, syna->E);
-
-                                    if(type_control(self) == 4)
-                                    {
-                                        print_unexpected(self, active);
-                                        SET_RETURN(4);
-                                        return 0;
-                                    }
-
-                                    //TODO ROBO instrukcia condition parameter <=
-                                    ifj_insert_last(self->code, I_CONDITION, NULL, NULL, instructHelp);
-
-                                    if(self->debugMode)
-                                    {
-                                        fprintf(stderr, "E --> E <= E\n");
-                                    }
-                                }
-                                else
-                                {
-                                    print_unexpected(self, active);
-                                    SET_RETURN(2);
-                                    return 0;
-                                }
-                            }
-                            else
-                            {
-                                print_unexpected(self, active);
-                                SET_RETURN(2);
-                                return 0;
-                            }
-                            break;
-
                         case T_NOT_EQUAL:
                             count++;
-                            top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                            if (top_on_help_stack == syna->E)
+                            if (E_reduct(self, I_CONDITION, 5, 0, syna, active, top_on_help_stack, &top_stack, instructHelp) == 0)
                             {
-                                if (ifj_stack_empty(syna->help_stack))
-                                {
-                                    top_stack = ifj_stack_top(syna->stack);
-                                    ifj_stack_push(syna->stack, syna->E);
-
-                                    if(type_control(self) == 4)
-                                    {
-                                        print_unexpected(self, active);
-                                        SET_RETURN(4);
-                                        return 0;
-                                    }
-
-                                    //TODO ROBO instrukcia condition parameter !=
-                                    ifj_insert_last(self->code, I_CONDITION, NULL, NULL, instructHelp);
-
-                                    if(self->debugMode)
-                                    {
-                                        fprintf(stderr, "E --> E != E\n");
-                                    }
-                                }
-                                else
-                                {
-                                    print_unexpected(self, active);
-                                    SET_RETURN(2);
-                                    return 0;
-                                }
-
-                            }
-                            else
-                            {
-                                print_unexpected(self, active);
-                                SET_RETURN(2);
                                 return 0;
                             }
                             break;
@@ -953,91 +529,29 @@ int expresion(ifjInter *self, symbolTable *table, token *expected)
                         break;
 
                     case T_IDENTIFIER:
-
-                        if (ifj_stack_empty(syna->help_stack))
+                        if (E_simple_reduct(self, 1, syna, &top_stack, top_on_help_stack, active) == 0)
                         {
-                            top_stack = ifj_stack_top(syna->stack);
-                            ifj_stack_push(syna->stack, syna->E);
-
-                            //TODO ROBO  v premennej top_on_help_stack je id instrukcia PUSH
-                            ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
-
-                            if(self->debugMode)
-                            {
-                                fprintf(stderr, "E --> id\n");
-                            }
-                        }
-                        else
-                        {
-                            print_unexpected(self, active);
-                            SET_RETURN(2);
                             return 0;
                         }
                         break;
 
                     case T_STRING_C:
-                        if (ifj_stack_empty(syna->help_stack))
+                        if (E_simple_reduct(self, 3, syna, &top_stack, top_on_help_stack, active) ==0)
                         {
-                            top_stack = ifj_stack_top(syna->stack);
-                            ifj_stack_push(syna->stack, syna->E);
-
-                            //TODO ROBO  v premennej top_on_help_stack je string_c instrukcia PUSH
-                            ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
-
-                            if(self->debugMode)
-                            {
-                                fprintf(stderr, "E --> string\n");
-                            }
-                        }
-                        else
-                        {
-                            print_unexpected(self, active);
-                            SET_RETURN(2);
                             return 0;
                         }
                         break;
 
                     case T_INTEGER_C:
-                        if (ifj_stack_empty(syna->help_stack))
+                        if (E_simple_reduct(self, 2, syna, &top_stack, top_on_help_stack, active) == 0)
                         {
-                            top_stack = ifj_stack_top(syna->stack);
-                            ifj_stack_push(syna->stack, syna->E);
-
-                            //TODO ROBO  v premennej top_on_help_stack je integer_c instrukcia PUSH
-                            ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
-
-                            if(self->debugMode)
-                            {
-                                fprintf(stderr, "E --> integer\n");
-                            }
-                        }
-                        else
-                        {
-                            print_unexpected(self, active);
-                            SET_RETURN(2);
                             return 0;
                         }
                         break;
 
                     case T_DOUBLE_C:
-                    ifj_stack_pop(syna->help_stack);
-                        if (ifj_stack_empty(syna->help_stack))
+                        if (E_simple_reduct(self, 4, syna, &top_stack, top_on_help_stack, active) == 0)
                         {
-                            top_stack = ifj_stack_top(syna->stack);
-                            ifj_stack_push(syna->stack, syna->E);
-
-                            //TODO ROBO  v premennej top_on_help_stack je double_c instrukcia PUSH
-                            ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
-
-                            if(self->debugMode)
-                            {
-                                fprintf(stderr, "E --> double\n");
-                            }
-                        }
-                        else
-                        {
-                            print_unexpected(self, active);
-                            SET_RETURN(2);
                             return 0;
                         }
                         break;
@@ -1047,158 +561,31 @@ int expresion(ifjInter *self, symbolTable *table, token *expected)
                         switch (top_on_help_stack->type)
                         {
                             case T_ADD:
-                                top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                                if (top_on_help_stack == syna->E)
+                                if (E_reduct(self, I_ADD, 1, 1, syna, active, top_on_help_stack, &top_stack, NULL) == 0)
                                 {
-                                    if(ifj_stack_empty(syna->help_stack))
-                                    {
-                                        top_stack = ifj_stack_top(syna->stack);
-                                        ifj_stack_push(syna->stack, syna->E);
-
-                                        if(type_control_plus(self) == 4)
-                                        {
-                                            print_unexpected(self, active);
-                                            SET_RETURN(4);
-                                            return 0;
-                                        }
-
-                                        //TODO ROBO instrukcia ADD
-                                        ifj_insert_last(self->code, I_ADD, NULL, NULL, NULL);
-
-                                        if(self->debugMode)
-                                        {
-                                            fprintf(stderr, "E --> E + E\n");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        print_unexpected(self, active);
-                                        SET_RETURN(2);
-                                        return 0;
-                                    }
-                                }
-                                else
-                                {
-                                    print_unexpected(self, active);
-                                    SET_RETURN(2);
                                     return 0;
                                 }
+
                                 break;
 
                             case T_SUBTRACT:
-                                top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                                if (top_on_help_stack == syna->E)
+                                if (E_reduct(self, I_SUB, 2, 0, syna, active, top_on_help_stack, &top_stack, NULL) == 0)
                                 {
-                                    if(ifj_stack_empty(syna->help_stack))
-                                    {
-                                        top_stack = ifj_stack_top(syna->stack);
-                                        ifj_stack_push(syna->stack, syna->E);
-
-                                        if(type_control(self) == 4)
-                                        {
-                                            print_unexpected(self, active);
-                                            SET_RETURN(4);
-                                            return 0;
-                                        }
-
-                                        //TODO ROBO instrukcia SUB
-                                        ifj_insert_last(self->code, I_SUB, NULL, NULL, NULL);
-
-                                        if(self->debugMode)
-                                        {
-                                            fprintf(stderr, "E --> E - E\n");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        print_unexpected(self, active);
-                                        SET_RETURN(2);
-                                        return 0;
-                                    }
-                                }
-                                else
-                                {
-                                    print_unexpected(self, active);
-                                    SET_RETURN(2);
                                     return 0;
                                 }
                                 break;
 
                             case T_DIVIDE:
-                                top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                                if (top_on_help_stack == syna->E)
+                                if (E_reduct(self, I_DIV, 4, 0, syna, active, top_on_help_stack, &top_stack, NULL) == 0)
                                 {
-                                    if(ifj_stack_empty(syna->help_stack))
-                                    {
-                                        top_stack = ifj_stack_top(syna->stack);
-                                        ifj_stack_push(syna->stack, syna->E);
-
-                                        if(type_control(self) == 4)
-                                        {
-                                            print_unexpected(self, active);
-                                            SET_RETURN(4);
-                                            return 0;
-                                        }
-
-                                        //TODO ROBO instrukcia DIV
-                                        ifj_insert_last(self->code, I_DIV, NULL, NULL, NULL);
-
-                                        if(self->debugMode)
-                                        {
-                                            fprintf(stderr, "E --> E / E\n");
-
-                                        }
-                                    }
-                                    else
-                                    {
-                                        print_unexpected(self, active);
-                                        SET_RETURN(2);
-                                        return 0;
-                                    }
-                                }
-                                else
-                                {
-                                    print_unexpected(self, active);
-                                    SET_RETURN(2);
                                     return 0;
                                 }
                                 break;
 
                             case T_MULTIPLY:
-                                top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                                if (top_on_help_stack == syna->E)
+
+                                if (E_reduct(self, I_MUL, 3, 0, syna, active, top_on_help_stack, &top_stack, NULL) == 0)
                                 {
-                                    if(ifj_stack_empty(syna->help_stack))
-                                    {
-                                        top_stack = ifj_stack_top(syna->stack);
-                                        ifj_stack_push(syna->stack, syna->E);
-
-                                        if(type_control(self) == 4)
-                                        {
-                                            print_unexpected(self, active);
-                                            SET_RETURN(4);
-                                            return 0;
-                                        }
-
-                                        //TODO ROBO instrukcia MUL
-                                        ifj_insert_last(self->code, I_MUL, NULL, NULL, NULL);
-
-                                        if(self->debugMode)
-                                        {
-                                            fprintf(stderr, "E --> E * E\n");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        print_unexpected(self, active);
-                                        SET_RETURN(2);
-                                        return 0;
-                                    }
-                                }
-                                else
-                                {
-                                    print_unexpected(self, active);
-                                    SET_RETURN(2);
                                     return 0;
                                 }
                                 break;
@@ -1266,10 +653,6 @@ inline int condition_check_active(ifjInter *self, token *active, int *b)
         case T_IDENTIFIER:
             *b = 6;
             return 2;
-
-        case T_LBLOCK:
-            *b = 7;
-            return 1;
 
         case T_STRING_C:
             *b = 8;
@@ -1346,7 +729,7 @@ inline int condition_check_top_stack(ifjInter *self, token *top_stack, int *a)
             *a = 6;
             return 1;
 
-        case T_LBLOCK:
+        case T_TERNARY:
             *a = 7;
             return 1;
 
@@ -1546,4 +929,124 @@ int type_control_plus(ifjInter *self)
     }
 
     return 0;
+}
+
+
+int E_reduct(ifjInter *self, int insert, int debug_constant,int plus_operation, ifjSyna *syna, token * active,  token * top_on_help_stack, token **top_stack, token * instructHelp)
+{
+    top_on_help_stack = ifj_stack_pop(syna->help_stack);
+    if (top_on_help_stack == syna->E)
+    {
+        if(ifj_stack_empty(syna->help_stack))
+        {
+            *top_stack = ifj_stack_top(syna->stack);
+            //printf("%c aaaaaaaaaaaaa\n",&top_stack->)type);
+
+            ifj_stack_push(syna->stack, syna->E);
+            if (plus_operation)
+            {
+                if(type_control_plus(self) == 4)
+                {
+                    print_unexpected(self,active);
+                    SET_RETURN(4);
+                    return 0;
+                }
+            }
+            else
+            {
+                if(type_control(self) == 4)
+                {
+                    print_unexpected(self, active);
+                    SET_RETURN(4);
+                    return 0;
+                }
+            }
+            if (insert == I_CONDITION)
+            {
+                ifj_insert_last(self->code, I_CONDITION, NULL, NULL, instructHelp);
+            }
+            else
+            {
+                ifj_insert_last(self->code, insert, NULL, NULL, NULL);
+            }
+
+            if(self->debugMode)
+            {
+                switch (debug_constant)
+                {
+                    case 1:
+                        fprintf(stderr, "E --> E + E\n");
+                        break;
+
+                    case 2:
+                        fprintf(stderr, "E --> E - E\n");
+                        break;
+
+                    case 3:
+                        fprintf(stderr, "E --> E * E\n");
+                        break;
+
+                    case 4:
+                        fprintf(stderr, "E --> E / E\n");
+                        break;
+
+                    case 5:
+                        fprintf(stderr, "E --> E rel_operator E");
+
+                }
+            }
+        }
+        else
+        {
+            print_unexpected(self, active);
+            SET_RETURN(2);
+            return 0;
+        }
+    }
+    else
+    {
+        print_unexpected(self, active);
+        SET_RETURN(2);
+        return 0;
+    }
+    return 1;
+
+}
+
+int E_simple_reduct(ifjInter *self, int debug_constant, ifjSyna *syna, token **top_stack, token * top_on_help_stack, token * active)
+{
+    if (ifj_stack_empty(syna->help_stack))
+    {
+        *top_stack = ifj_stack_top(syna->stack);
+        ifj_stack_push(syna->stack, syna->E);
+
+        ifj_insert_last(self->code, I_PUSH, top_on_help_stack, NULL, NULL);
+
+        if(self->debugMode)
+        {
+            switch (debug_constant)
+            {
+                case 1:
+                    fprintf(stderr, "E --> id\n");
+                    break;
+                case 2:
+                    fprintf(stderr, "E --> int\n");
+                    break;
+                case 3:
+                    fprintf(stderr, "E --> string\n");
+                    break;
+                case 4:
+                    fprintf(stderr, "E --> double\n");
+                    break;
+
+            }
+        }
+    }
+    else
+    {
+        print_unexpected(self, active);
+        SET_RETURN(2);
+        return 0;
+    }
+    return 1;
 }

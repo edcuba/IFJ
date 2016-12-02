@@ -11,23 +11,23 @@
 
 int predictCondition[17][17] =
 {
-    {T_G, T_G, T_L, T_L, T_L, T_G, T_L, T_G, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
-    {T_G, T_G, T_L, T_L, T_L, T_G, T_L, T_G, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
-    {T_G, T_G, T_G, T_G, T_L, T_G, T_L, T_G, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
-    {T_G, T_G, T_G, T_G, T_L, T_G, T_L, T_G, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
+    {T_G, T_G, T_L, T_L, T_L, T_G, T_L, T_E, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
+    {T_G, T_G, T_L, T_L, T_L, T_G, T_L, T_E, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
+    {T_G, T_G, T_G, T_G, T_L, T_G, T_L, T_E, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
+    {T_G, T_G, T_G, T_G, T_L, T_G, T_L, T_E, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
     {T_L, T_L, T_L, T_L, T_L, T_Q, T_L, T_E, T_L, T_L, T_L, T_L, T_L, T_L, T_L, T_L, T_L},
-    {T_G, T_G, T_G, T_G, T_E, T_G, T_E, T_G, T_E, T_E, T_E, T_G, T_G, T_G, T_G, T_G, T_G},
-    {T_G, T_G, T_G, T_G, T_E, T_G, T_E, T_G, T_E, T_E, T_E, T_G, T_G, T_G, T_G, T_G, T_G},
+    {T_G, T_G, T_G, T_G, T_E, T_G, T_E, T_E, T_E, T_E, T_E, T_G, T_G, T_G, T_G, T_G, T_G},
+    {T_G, T_G, T_G, T_G, T_E, T_G, T_E, T_E, T_E, T_E, T_E, T_G, T_G, T_G, T_G, T_G, T_G},
     {T_L, T_L, T_L, T_L, T_L, T_R, T_L, T_E, T_L, T_L, T_L, T_L, T_L, T_L, T_L, T_L, T_L},
-    {T_G, T_G, T_G, T_G, T_E, T_G, T_E, T_G, T_E, T_E, T_E, T_G, T_G, T_G, T_G, T_G, T_G},
-    {T_G, T_G, T_G, T_G, T_E, T_G, T_E, T_G, T_E, T_E, T_E, T_G, T_G, T_G, T_G, T_G, T_G},
-    {T_G, T_G, T_G, T_G, T_E, T_G, T_E, T_G, T_E, T_E, T_E, T_G, T_G, T_G, T_G, T_G, T_G},
-    {T_L, T_L, T_L, T_L, T_L, T_G, T_L, T_G, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
-    {T_L, T_L, T_L, T_L, T_L, T_G, T_L, T_G, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
-    {T_L, T_L, T_L, T_L, T_L, T_G, T_L, T_G, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
-    {T_L, T_L, T_L, T_L, T_L, T_G, T_L, T_G, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
-    {T_L, T_L, T_L, T_L, T_L, T_G, T_L, T_G, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
-    {T_L, T_L, T_L, T_L, T_L, T_G, T_L, T_G, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G}
+    {T_G, T_G, T_G, T_G, T_E, T_G, T_E, T_E, T_E, T_E, T_E, T_G, T_G, T_G, T_G, T_G, T_G},
+    {T_G, T_G, T_G, T_G, T_E, T_G, T_E, T_E, T_E, T_E, T_E, T_G, T_G, T_G, T_G, T_G, T_G},
+    {T_G, T_G, T_G, T_G, T_E, T_G, T_E, T_E, T_E, T_E, T_E, T_G, T_G, T_G, T_G, T_G, T_G},
+    {T_L, T_L, T_L, T_L, T_L, T_G, T_L, T_E, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
+    {T_L, T_L, T_L, T_L, T_L, T_G, T_L, T_E, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
+    {T_L, T_L, T_L, T_L, T_L, T_G, T_L, T_E, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
+    {T_L, T_L, T_L, T_L, T_L, T_G, T_L, T_E, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
+    {T_L, T_L, T_L, T_L, T_L, T_G, T_L, T_E, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G},
+    {T_L, T_L, T_L, T_L, T_L, T_G, T_L, T_E, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G}
 };
 
 int predictExpresion [11][11] = {
