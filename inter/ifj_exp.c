@@ -331,6 +331,7 @@ int expression(ifjInter *self, symbolTable *table, token *expected)
     int b;
     int a; // first symbol on stack is automatically $ --> 7;
     int rc;
+    int end_condition = 1;
 
     token * top_stack;
     token * top_on_help_stack;
@@ -444,6 +445,19 @@ int expression(ifjInter *self, symbolTable *table, token *expected)
              * to je ID funkcie a predat ho rekurzivnemu sestupu
              * + nezabudnut pridat "("
             */
+            case T_TERNARY:
+                if (ifj_stack_top(syna->stack)->type == E_TYPE)
+                {
+                    end_condition = 0;
+                }
+                else
+                {
+                    print_unexpected(self, active);
+                    SET_RETURN(2);
+                    return 0;
+                }
+                break;
+
             case  T_COMMA:
                 active = ifj_stack_top(syna->stack);
                 if(active->dataType == T_VOID)
@@ -602,7 +616,7 @@ int expression(ifjInter *self, symbolTable *table, token *expected)
             }
         }
 
-    } while((active->type != T_SEMICOLON) || (top_stack->type != T_SEMICOLON));
+    } while(((active->type != T_SEMICOLON) || (top_stack->type != T_SEMICOLON)) && end_condition);
 
     if(self->debugMode)
     {
