@@ -615,6 +615,7 @@ int function_inside1(ifjInter *self, token *item)
             token *context = ifj_generate_temp(T_VOID, NULL);
             context->value = ifj_generate_hashname_for(self->innerBlocks);
             context->childTable = ial_symbol_table_new(1);
+            context->childTable->parent = item->childTable;
             ial_symbol_table_add_item(item->childTable, context, NULL);
 
             ifj_insert_last(self->code, I_FOR_START, context, NULL, NULL);
@@ -687,6 +688,7 @@ int function_inside1(ifjInter *self, token *item)
 
             //end of for
             ifj_insert_last(self->code, I_FOR_END, NULL, NULL, NULL);
+            return function_inside1(self, item);
         }
 
     /*case T_DO:
@@ -947,7 +949,88 @@ int simple_statement(ifjInter *self, token *item)
             return 1;
         }
 
-      /*case T_FOR:
+      case T_FOR:
+      {
+          //initialization
+          token *context = ifj_generate_temp(T_VOID, NULL);
+          context->value = ifj_generate_hashname_for(self->innerBlocks);
+          context->childTable = ial_symbol_table_new(1);
+          context->childTable->parent = item->childTable;
+          ial_symbol_table_add_item(item->childTable, context, NULL);
+
+          ifj_insert_last(self->code, I_FOR_START, context, NULL, NULL);
+
+          if(!is_LPAREN(self) ||
+             !get_type_without_void(self, &active) ||
+             !is_ID(self, context->childTable, &active, 0) ||
+             !is_ASSIGN(self) ||
+             !expression(self, context->childTable, active))
+          {
+              return 0;
+          }
+          ifj_insert_last(self->code, I_SET, NULL, NULL, active);
+          ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+          instruction *begLabel = self->code->last;
+
+          //loop
+          if(!condition(self, context->childTable))
+          {
+              return 0;
+          }
+          //jump to end
+          ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
+          instruction *ifnot = self->code->last;
+
+          //jump to code
+          ifj_insert_last(self->code, I_GOTO, NULL, NULL, NULL);
+          instruction *ifyes = self->code->last;
+
+          //create variable update label
+          ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+          instruction *updateLabel = self->code->last;
+
+          //update variable
+          if(!is_ID(self, context->childTable, &active, 0) ||
+             !is_ASSIGN(self) ||
+             !expression(self, context->childTable, active))
+          {
+              return 0;
+          }
+          ifj_insert_last(self->code, I_SET, NULL, NULL, active);
+
+          //jump to start
+          token *tmp1 = ifj_generate_temp(T_VOID, NULL);
+          tmp1->jump = begLabel;
+          ifj_insert_last(self->code, I_GOTO, NULL, NULL, tmp1);
+
+          //code start label
+          ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+          token *tmp2 = ifj_generate_temp(T_VOID, NULL);
+          tmp2->jump = self->code->last;
+          ifyes->op3 = tmp2;
+
+          //inner code
+          if(!statement_inside(self, context))
+          {
+              return 0;
+          }
+
+          //goto update variable
+          token *tmp3 = ifj_generate_temp(T_VOID, NULL);
+          tmp3->jump = updateLabel;
+          ifj_insert_last(self->code, I_GOTO, NULL, NULL, tmp3);
+
+          //end label
+          ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+          token *tmp4 = ifj_generate_temp(T_VOID, NULL);
+          tmp4->jump = self->code->last;
+          ifnot->op3 = tmp4;
+
+          //end of for
+          ifj_insert_last(self->code, I_FOR_END, NULL, NULL, NULL);
+          return statement_inside(self, item);
+      }
+      /*
         case T_DO:
         case T_BREAK:
             return is_semicolon(self);
