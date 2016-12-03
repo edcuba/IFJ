@@ -50,7 +50,7 @@ int condition(ifjInter *self, symbolTable *table)
         ifj_stack_push(syna->type_stack, active);
     }
 
-    ifj_stack_push(syna->stack, syna->ternary);
+    ifj_stack_push(syna->stack, syna->semicolon);
     top_stack = ifj_stack_top(syna->stack);
 
     do
@@ -302,7 +302,7 @@ int condition(ifjInter *self, symbolTable *table)
             }
             break;
         }
-    } while(end_condition);
+    } while(end_condition && !(active->type == T_SEMICOLON && top_stack->type == T_SEMICOLON));
 
     if(self->debugMode)
     {
@@ -625,67 +625,44 @@ inline int condition_check_active(ifjInter *self, token *active, int *b)
     switch (active->type)
     {
         case T_ADD:
+        case T_SUBTRACT:
             *b = 0;
             return 1;
 
-        case T_SUBTRACT:
+        case T_MULTIPLY:
+        case T_DIVIDE:
             *b = 1;
             return 1;
 
-        case T_MULTIPLY:
+        case T_LPAREN:
             *b = 2;
             return 1;
 
-        case T_DIVIDE:
+        case T_RPAREN:
             *b = 3;
             return 1;
 
-        case T_LPAREN:
-            *b = 4;
-            return 1;
-
-        case T_RPAREN:
-            *b = 5;
+        case T_SEMICOLON:
+            *b= 7;
             return 1;
 
         case T_IDENTIFIER:
-            *b = 6;
-            return 2;
-
         case T_STRING_C:
-            *b = 8;
-            return 1;
-
         case T_INTEGER_C:
-            *b = 9;
-            return 1;
-
         case T_DOUBLE_C:
-            *b = 10;
-            return 1;
-
-        case T_GREATER:
-            *b = 11;
-            return 1;
-
-        case T_LESS:
-            *b = 12;
+            *b = 4;
             return 1;
 
         case T_EQUAL:
-            *b = 13;
-            return 1;
-
-        case T_GREATER_EQUAL:
-            *b = 14;
-            return 1;
-
-        case T_LESS_EQUAL:
-            *b = 15;
-            return 1;
-
         case T_NOT_EQUAL:
-            *b = 16;
+            *b = 5;
+            return 1;
+
+        case T_GREATER:
+        case T_LESS:
+        case T_GREATER_EQUAL:
+        case T_LESS_EQUAL:
+            *b = 6;
             return 1;
     }
 
@@ -700,72 +677,47 @@ inline int condition_check_top_stack(ifjInter *self, token *top_stack, int *a)
     switch (top_stack->type)
     {
         case T_ADD:
+        case T_SUBTRACT:
             *a = 0;
             return 1;
 
-        case T_SUBTRACT:
+        case T_MULTIPLY:
+        case T_DIVIDE:
             *a = 1;
             return 1;
 
-        case T_MULTIPLY:
+        case T_LPAREN:
             *a = 2;
             return 1;
 
-        case T_DIVIDE:
+        case T_RPAREN:
             *a = 3;
             return 1;
 
-        case T_LPAREN:
-            *a = 4;
-            return 1;
-
-        case T_RPAREN:
-            *a = 5;
-            return 1;
-
-        case T_IDENTIFIER:
-            *a = 6;
-            return 1;
-
-        case T_TERNARY:
+        case T_SEMICOLON:
             *a = 7;
             return 1;
 
+        case T_IDENTIFIER:
         case T_STRING_C:
-            *a = 8;
-            return 1;
-
         case T_INTEGER_C:
-            *a = 9;
-            return 1;
-
         case T_DOUBLE_C:
-            *a = 10;
-            return 1;
-
-        case T_GREATER:
-            *a = 11;
-            return 1;
-
-        case T_LESS:
-            *a = 12;
+            *a = 4;
             return 1;
 
         case T_EQUAL:
-            *a = 13;
-            return 1;
-
-        case T_GREATER_EQUAL:
-            *a = 14;
-            return 1;
-
-        case T_LESS_EQUAL:
-            *a = 15;
-            return 1;
-
         case T_NOT_EQUAL:
-            *a = 16;
+            *a = 5;
             return 1;
+
+        case T_GREATER:
+        case T_LESS:
+        case T_GREATER_EQUAL:
+        case T_LESS_EQUAL:
+            *a = 6;
+            return 1;
+
+
     }
 
     *a = -1;
@@ -779,47 +731,32 @@ inline int expression_check_active(ifjInter *self, token *active, int *b)
     switch (active->type)
     {
         case T_ADD:
+        case T_SUBTRACT:
             *b = 0;
             return 1;
 
-        case T_SUBTRACT:
+        case T_MULTIPLY:
+        case T_DIVIDE:
             *b = 1;
             return 1;
 
-        case T_MULTIPLY:
+        case T_LPAREN:
             *b = 2;
             return 1;
 
-        case T_DIVIDE:
+        case T_RPAREN:
             *b = 3;
             return 1;
 
-        case T_LPAREN:
-            *b = 4;
-            return 1;
-
-        case T_RPAREN:
+        case T_SEMICOLON:
             *b = 5;
             return 1;
 
         case T_IDENTIFIER:
-            *b = 6;
-            return 2;
-
-        case T_SEMICOLON:
-            *b = 7;
-            return 1;
-
         case T_STRING_C:
-            *b = 8;
-            return 1;
-
         case T_INTEGER_C:
-            *b = 9;
-            return 1;
-
         case T_DOUBLE_C:
-            *b = 10;
+            *b = 4;
             return 1;
     }
 
@@ -834,48 +771,35 @@ inline int expression_check_top_stack(ifjInter *self, token *top_stack, int *a)
     switch (top_stack->type)
     {
         case T_ADD:
+        case T_SUBTRACT:
             *a = 0;
             return 1;
 
-        case T_SUBTRACT:
+        case T_MULTIPLY:
+        case T_DIVIDE:
             *a = 1;
             return 1;
 
-        case T_MULTIPLY:
+        case T_LPAREN:
             *a = 2;
             return 1;
 
-        case T_DIVIDE:
+        case T_RPAREN:
             *a = 3;
             return 1;
 
-        case T_LPAREN:
-            *a = 4;
-            return 1;
-
-        case T_RPAREN:
+        case T_SEMICOLON:
             *a = 5;
             return 1;
 
         case T_IDENTIFIER:
-            *a = 6;
-            return 1;
-
-        case T_SEMICOLON:
-            *a = 7;
-            return 1;
-
         case T_STRING_C:
-            *a = 8;
-            return 1;
-
         case T_INTEGER_C:
-            *a = 9;
+        case T_DOUBLE_C:
+            *a = 4;
             return 1;
 
-        case T_DOUBLE_C:
-            *a = 10;
-            return 1;
+
     }
 
     *a = -1;
