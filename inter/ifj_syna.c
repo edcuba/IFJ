@@ -315,7 +315,7 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
         }
         if(self->preLoad)
         {
-            return expresion(self, table, item) &&
+            return expression(self, table, item) &&
                    ifj_insert_last(self->code, I_SET, NULL, NULL, item) &&
                    class_inside1(self, table);
         }
@@ -609,8 +609,87 @@ int function_inside1(ifjInter *self, token *item)
             return function_inside1(self, item);
         }
 
-      /*  case T_FOR:
-          case T_DO:
+        case T_FOR:
+        {
+            //initialization
+            token *context = ifj_generate_temp(T_VOID, NULL);
+            context->value = ifj_generate_hashname_for(self->innerBlocks);
+            context->childTable = ial_symbol_table_new(1);
+            ial_symbol_table_add_item(item->childTable, context, NULL);
+
+            ifj_insert_last(self->code, I_FOR_START, context, NULL, NULL);
+
+            if(!is_LPAREN(self) ||
+               !get_type_without_void(self, &active) ||
+               !is_ID(self, context->childTable, &active, 0) ||
+               !is_ASSIGN(self) ||
+               !expression(self, context->childTable, active))
+            {
+                return 0;
+            }
+            ifj_insert_last(self->code, I_SET, NULL, NULL, active);
+            ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+            instruction *begLabel = self->code->last;
+
+            //loop
+            if(!condition(self, context->childTable))
+            {
+                return 0;
+            }
+            //jump to end
+            ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
+            instruction *ifnot = self->code->last;
+
+            //jump to code
+            ifj_insert_last(self->code, I_GOTO, NULL, NULL, NULL);
+            instruction *ifyes = self->code->last;
+
+            //create variable update label
+            ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+            instruction *updateLabel = self->code->last;
+
+            //update variable
+            if(!is_ID(self, context->childTable, &active, 0) ||
+               !is_ASSIGN(self) ||
+               !expression(self, context->childTable, active))
+            {
+                return 0;
+            }
+            ifj_insert_last(self->code, I_SET, NULL, NULL, active);
+
+            //jump to start
+            token *tmp1 = ifj_generate_temp(T_VOID, NULL);
+            tmp1->jump = begLabel;
+            ifj_insert_last(self->code, I_GOTO, NULL, NULL, tmp1);
+
+            //code start label
+            ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+            token *tmp2 = ifj_generate_temp(T_VOID, NULL);
+            tmp2->jump = self->code->last;
+            ifyes->op3 = tmp2;
+
+            //inner code
+            if(!statement_inside(self, context))
+            {
+                return 0;
+            }
+
+            //goto update variable
+            token *tmp3 = ifj_generate_temp(T_VOID, NULL);
+            tmp3->jump = updateLabel;
+            ifj_insert_last(self->code, I_GOTO, NULL, NULL, tmp3);
+
+            //end label
+            ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+            token *tmp4 = ifj_generate_temp(T_VOID, NULL);
+            tmp4->jump = self->code->last;
+            ifnot->op3 = tmp4;
+
+            //end of for
+            ifj_insert_last(self->code, I_FOR_END, NULL, NULL, NULL);
+        }
+
+    /*case T_DO:
       */
 
         case T_IF:
@@ -644,7 +723,7 @@ int function_inside1(ifjInter *self, token *item)
                 return ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
                        function_inside1(self, item);
             }
-            return expresion(self, item->childTable, item) &&
+            return expression(self, item->childTable, item) &&
                    ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
                    function_inside1(self, item);
 
@@ -686,6 +765,8 @@ int is_semicolon(ifjInter *self)
     {
         SET_RETURN(2);
         print_unexpected(self, active);
+        if(active->type == T_IDENTIFIER)
+            ifj_token_free(active);
         return 0;
     }
 
@@ -699,6 +780,8 @@ int is_while(ifjInter *self)
     {
         SET_RETURN(2);
         print_unexpected(self, active);
+        if(active->type == T_IDENTIFIER)
+            ifj_token_free(active);
         return 0;
     }
 
@@ -712,6 +795,8 @@ int is_LPAREN(ifjInter *self)
     {
         SET_RETURN(2);
         print_unexpected(self, active);
+        if(active->type == T_IDENTIFIER)
+            ifj_token_free(active);
         return 0;
     }
 
@@ -725,6 +810,8 @@ int is_RPAREN(ifjInter *self)
     {
         SET_RETURN(2);
         print_unexpected(self, active);
+        if(active->type == T_IDENTIFIER)
+            ifj_token_free(active);
         return 0;
     }
 
@@ -738,6 +825,8 @@ int is_ASSIGN(ifjInter *self)
     {
         SET_RETURN(2);
         print_unexpected(self, active);
+        if(active->type == T_IDENTIFIER)
+            ifj_token_free(active);
         return 0;
     }
 
@@ -797,6 +886,8 @@ int is_LBLOCK(ifjInter *self)
     {
         SET_RETURN(2);
         print_unexpected(self, active);
+        if(active->type == T_IDENTIFIER)
+            ifj_token_free(active);
         return 0;
     }
     return 1;
@@ -891,7 +982,7 @@ int simple_statement(ifjInter *self, token *item)
                 }
                 return ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL);
             }
-            return expresion(self, item->childTable, item) &&
+            return expression(self, item->childTable, item) &&
                    ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL);
 
         case T_IDENTIFIER:
@@ -953,7 +1044,7 @@ int statement_inside1(ifjInter *self, token *item)
 }
 
 /**
- * After identifier. Expects "(" - func or "=" for expresion
+ * After identifier. Expects "(" - func or "=" for expression
  * @param self global structure
  * @param table symbol table for current function_parameters
  * @param last token/identifier
@@ -991,7 +1082,7 @@ int fce(ifjInter *self, symbolTable *table, token *item)
     }
     else if (active->type == T_ASSIGN)
     {
-        return expresion(self, table, item) &&
+        return expression(self, table, item) &&
                ifj_insert_last(self->code, I_SET, NULL, NULL, item);
     }
     SET_RETURN(2);
@@ -1133,7 +1224,7 @@ int sth_next(ifjInter *self, symbolTable *table, token *item)
     token * active = lexa_next_token(self->lexa_module, table);
     if (active->type == T_ASSIGN)
     {
-        return expresion(self, table, item) &&
+        return expression(self, table, item) &&
                ifj_insert_last(self->code, I_SET, NULL, NULL, item);
     }
     else if (active->type == T_SEMICOLON)

@@ -30,7 +30,7 @@ int predictCondition[17][17] =
     {T_L, T_L, T_L, T_L, T_L, T_G, T_L, T_E, T_L, T_L, T_L, T_G, T_G, T_G, T_G, T_G, T_G}
 };
 
-int predictExpresion [11][11] = {
+int predictexpression [11][11] = {
     {T_G, T_G, T_L, T_L, T_L, T_G, T_L, T_G, T_L, T_L, T_L},
     {T_G, T_G, T_L, T_L, T_L, T_G, T_L, T_G, T_L, T_L, T_L},
     {T_G, T_G, T_G, T_G, T_L, T_G, T_L, T_G, T_L, T_L, T_L},

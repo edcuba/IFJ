@@ -296,7 +296,9 @@ void ifj_drop_list ( linear_list *list )
 			ifj_token_free(tempIntruction->op3);
 		}
 
-		if (tempIntruction->op1 && tempIntruction->op1->type == T_TMP)
+		if (tempIntruction->type != I_FOR_START &&
+			tempIntruction->op1 &&
+			tempIntruction->op1->type == T_TMP)
 		{
 			ifj_token_free(tempIntruction->op1);
 		}

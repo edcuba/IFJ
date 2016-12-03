@@ -71,7 +71,7 @@ struct _ifjSyna
     token_stack *type_stack;
     token_stack *stack;
     token_stack *help_stack;
-    int (*predictExpresion)[11][11];
+    int (*predictexpression)[11][11];
     int (*predictCondition)[17][17];
 };
 
@@ -112,6 +112,7 @@ struct _ifjInter
     int preLoad;
     int returnCode;
     instruction *bootstrap;
+    int innerBlocks;
 };
 
 ifjInter    *ifj_inter_new();

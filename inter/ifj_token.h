@@ -20,6 +20,7 @@ token * ifj_generate_token_double ( symbolTable *table, double value );
 token * ifj_generate_token_str ( symbolTable *table, char *value);
 
 token * ifj_generate_token_id (char *value);
+char * ifj_generate_hashname_for(int value);
 
 token *ifj_generate_reserved (symbolTable *table, char *value, int type, int method);
 

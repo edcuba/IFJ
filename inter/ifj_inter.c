@@ -130,7 +130,7 @@ ifjSyna *ifj_syna_new(ifjInter* inter)
     self->type_stack = ifj_stack_new();
     self->E = ifj_generate_token(inter->table, E_TYPE);
     self->predictCondition = &predictCondition;
-    self->predictExpresion = &predictExpresion;
+    self->predictexpression = &predictexpression;
     return self;
 }
 
@@ -170,6 +170,7 @@ ifjInter* ifj_inter_new()
     self->pushBack = NULL;
     self->preLoad = 1;
     self->bootstrap = NULL;
+    self->innerBlocks = 0;
     return self;
 }
 

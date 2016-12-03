@@ -484,7 +484,7 @@ int exec_run ( ifjInter *self )
 				// Context....
 				token *dupOp1 = instruc->op1;
 
-				//0 for variable 1 for statics > 100 for ifj16 methods 
+				//0 for variable 1 for statics > 100 for ifj16 methods
 				if (dupOp1->method == 1)
 				{
 					dupOp1 = duplicate_context(instruc->op1);
@@ -750,7 +750,7 @@ int exec_run ( ifjInter *self )
 						{
 							ifj_token_free(label);
 						}
-						
+
 						instruc->op1 = NULL;
 						print_not_initialized(self, dupOp1, stack, contextStack);
 						self->returnCode = 8;
@@ -872,6 +872,18 @@ int exec_run ( ifjInter *self )
 				return 0;
 			}
 
+			case I_FOR_START:
+			{
+				ifj_stack_push(contextStack, instruc->op1);
+				break;
+			}
+
+			case I_FOR_END:
+			{
+				ifj_stack_pop(contextStack);
+				break;
+			}
+
 			default:
 			{
 				fprintf(stderr, "%s %d\n", "Executor ERROR: Undefined instruction, value: ", instruc->type);
@@ -940,7 +952,7 @@ int checkCondition (	token *a,
 				}
 			}
 			break;
-	
+
 		case T_GREATER:
 			if (a->dataType == T_DOUBLE)
 			{
@@ -990,7 +1002,7 @@ int checkCondition (	token *a,
 				}
 			}
 			break;
-	
+
 		case T_GREATER_EQUAL:
 			if (a->dataType == T_DOUBLE)
 			{
@@ -1015,7 +1027,7 @@ int checkCondition (	token *a,
 				}
 			}
 			break;
-	
+
 		case T_EQUAL:
 			if (a->dataType == T_DOUBLE)
 			{

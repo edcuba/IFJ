@@ -304,6 +304,11 @@ token *duplicate_context(token *item)
                 clone->value = strdup((char *) source->value);
                 ial_symbol_table_add_item(newTable, clone, NULL);
             }
+            else if(source->type == T_TMP) //for block
+            {
+                token *duplFor = duplicate_context(source);
+                ial_symbol_table_add_item(newTable, duplFor, NULL);
+            }
 			source = source->next;
 		}
 	}

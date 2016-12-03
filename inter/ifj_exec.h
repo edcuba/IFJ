@@ -28,6 +28,9 @@
 #define I_END 5025
 #define I_RUN_END 5030
 
+#define I_FOR_START 5041
+#define I_FOR_END 5042
+
 int exec_run ( ifjInter *self );
 int checkCondition (	token *a,
 						token *b,

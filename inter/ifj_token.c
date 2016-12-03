@@ -35,6 +35,18 @@ char * ifj_generate_hashname_int(int *value)
 }
 
 /**
+ * Generate hashname for "for" block
+ * @param for reference count
+ * @return integer hashname
+ */
+char * ifj_generate_hashname_for(int value)
+{
+    char * hashname = (char *) malloc (sizeof(char)*16);
+    snprintf(hashname, 16, "//for%d", value);
+    return hashname;
+}
+
+/**
  * Generate hashname for double constant
  * @param pointer to double
  * @return double hashname

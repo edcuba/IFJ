@@ -33,7 +33,7 @@ int condition(ifjInter *self, symbolTable *table)
     }
 
     // If token is ID or constant add token into type_stack
-    // Type_stack is using for type control in expresion
+    // Type_stack is using for type control in expression
     // There are 3 places where is this construction used
     // (always when function lexa_next_token() is called)
     if (active->type == T_IDENTIFIER ||
@@ -320,11 +320,11 @@ int condition(ifjInter *self, symbolTable *table)
 //------------------------------------------------------------------------------------------------------------
 
 
-int expresion(ifjInter *self, symbolTable *table, token *expected)
+int expression(ifjInter *self, symbolTable *table, token *expected)
 {
     if(self->debugMode)
     {
-        fprintf(stderr, "som v expresion\n");
+        fprintf(stderr, "som v expression\n");
     }
     ifjSyna *syna = self->syna;
 
@@ -358,7 +358,7 @@ int expresion(ifjInter *self, symbolTable *table, token *expected)
 
     do
     {
-        switch (expresion_check_active(self, active, &b))
+        switch (expression_check_active(self, active, &b))
         {
             case 0:
                 return 0; // Nahradenie povodnej -1
@@ -374,12 +374,12 @@ int expresion(ifjInter *self, symbolTable *table, token *expected)
                 break;
         }
 
-        if (!expresion_check_top_stack(self, top_stack, &a))
+        if (!expression_check_top_stack(self, top_stack, &a))
         {
             return 0; // nahradenie povodnej -1
         }
 
-        switch ((*syna->predictExpresion)[a][b])
+        switch ((*syna->predictexpression)[a][b])
         {
             case T_EQUAL:
                 ifj_stack_push(syna->stack, active);
@@ -606,7 +606,7 @@ int expresion(ifjInter *self, symbolTable *table, token *expected)
 
     if(self->debugMode)
     {
-        fprintf(stderr, "vraciam sa z expresion\n");
+        fprintf(stderr, "vraciam sa z expression\n");
     }
 
     active = ifj_stack_top(syna->type_stack);
@@ -774,7 +774,7 @@ inline int condition_check_top_stack(ifjInter *self, token *top_stack, int *a)
     return 0;
 }
 
-inline int expresion_check_active(ifjInter *self, token *active, int *b)
+inline int expression_check_active(ifjInter *self, token *active, int *b)
 {
     switch (active->type)
     {
@@ -829,7 +829,7 @@ inline int expresion_check_active(ifjInter *self, token *active, int *b)
     return 0;
 }
 
-inline int expresion_check_top_stack(ifjInter *self, token *top_stack, int *a)
+inline int expression_check_top_stack(ifjInter *self, token *top_stack, int *a)
 {
     switch (top_stack->type)
     {
