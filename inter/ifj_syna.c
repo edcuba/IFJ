@@ -725,7 +725,6 @@ int function_inside1(ifjInter *self, token *item)
                 return 0;
             }
             ifj_insert_last_instruc(self->code, condLabel);
-
             if(!is_while(self) ||
                !is_LPAREN(self) ||
                !condition(self, item->childTable, 0) ||
@@ -1100,13 +1099,17 @@ int simple_statement(ifjInter *self, token *item, instruction *begJump, instruct
             instruction *begLabel = self->code->last;
 
             instruction *endLabel = ifj_instruction_new();
+            instruction *condLabel = ifj_instruction_new();
             endLabel->type = I_LABEL;
-            if (!statement_inside(self, item, begLabel, endLabel))
+            condLabel->type = I_LABEL;
+            if (!statement_inside(self, item, condLabel, endLabel))
             {
                 ifj_instruction_free(endLabel);
+                ifj_instruction_free(condLabel);
                 return 0;
             }
-
+            ifj_insert_last_instruc(self->code, condLabel);
+            
             if(!is_while(self) ||
                !is_LPAREN(self) ||
                !condition(self, item->childTable, 0) ||
