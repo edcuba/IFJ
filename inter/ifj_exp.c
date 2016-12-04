@@ -8,7 +8,8 @@
 
 #include "ifj_exp.h"
 
-int condition(ifjInter *self, symbolTable *table)
+//NOTE JANY endChar = 1 ak ; || endchar = 0 ak )
+int condition(ifjInter *self, symbolTable *table, int endChar)
 {
     ifjSyna *syna = self->syna;
 
@@ -319,8 +320,8 @@ int condition(ifjInter *self, symbolTable *table)
 
 //------------------------------------------------------------------------------------------------------------
 
-
-int expression(ifjInter *self, symbolTable *table, token *expected)
+//NOTE JANY endChar = 1 ak ; || endchar = 0 ak )
+int expression(ifjInter *self, symbolTable *table, token *expected, int endChar)
 {
     if(self->debugMode)
     {

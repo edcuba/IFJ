@@ -323,7 +323,7 @@ int class_inside2(ifjInter *self, symbolTable *table, token *item)
         }
         if(self->preLoad)
         {
-            return expression(self, table, item) &&
+            return expression(self, table, item, 1) &&
                    ifj_insert_last(self->code, I_SET, NULL, NULL, item) &&
                    class_inside1(self, table);
         }
@@ -593,7 +593,7 @@ int function_inside1(ifjInter *self, token *item)
             ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
             instruction *begLabel = self->code->last;
 
-            if (!is_LPAREN(self) || !condition(self, item->childTable))
+            if (!is_LPAREN(self) || !condition(self, item->childTable, 0))
             {
                 return 0;
             }
@@ -640,7 +640,7 @@ int function_inside1(ifjInter *self, token *item)
                !get_type_without_void(self, &active) ||
                !is_ID(self, context->childTable, &active, 0) ||
                !is_ASSIGN(self) ||
-               !expression(self, context->childTable, active))
+               !expression(self, context->childTable, active, 1))
             {
                 return 0;
             }
@@ -649,7 +649,7 @@ int function_inside1(ifjInter *self, token *item)
             instruction *begLabel = self->code->last;
 
             //loop
-            if(!condition(self, context->childTable))
+            if(!condition(self, context->childTable, 1))
             {
                 return 0;
             }
@@ -668,7 +668,7 @@ int function_inside1(ifjInter *self, token *item)
             //update variable
             if(!is_ID(self, context->childTable, &active, 0) ||
                !is_ASSIGN(self) ||
-               !expression(self, context->childTable, active))
+               !expression(self, context->childTable, active, 0))
             {
                 return 0;
             }
@@ -715,16 +715,20 @@ int function_inside1(ifjInter *self, token *item)
             ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
             instruction *begLabel = self->code->last;
             instruction *endLabel = ifj_instruction_new();
+            instruction *condLabel = ifj_instruction_new();
             endLabel->type = I_LABEL;
-            if (!statement_inside(self, item, begLabel, endLabel))
+            condLabel->type = I_LABEL;
+            if (!statement_inside(self, item, condLabel, endLabel))
             {
                 ifj_instruction_free(endLabel);
+                ifj_instruction_free(condLabel);
                 return 0;
             }
+            ifj_insert_last_instruc(self->code, condLabel);
 
             if(!is_while(self) ||
                !is_LPAREN(self) ||
-               !condition(self, item->childTable) ||
+               !condition(self, item->childTable, 0) ||
                !is_semicolon(self))
             {
                 return 0;
@@ -744,7 +748,7 @@ int function_inside1(ifjInter *self, token *item)
 
         case T_IF:
         {
-            if (!is_LPAREN(self) || !condition(self, item->childTable))
+            if (!is_LPAREN(self) || !condition(self, item->childTable, 0))
             {
                 return 0;
             }
@@ -773,7 +777,7 @@ int function_inside1(ifjInter *self, token *item)
                 return ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
                        function_inside1(self, item);
             }
-            return expression(self, item->childTable, item) &&
+            return expression(self, item->childTable, item, 1) &&
                    ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL) &&
                    function_inside1(self, item);
 
@@ -975,7 +979,7 @@ int simple_statement(ifjInter *self, token *item, instruction *begJump, instruct
             ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
             instruction *begLabel = self->code->last;
 
-            if (!is_LPAREN(self) || !condition(self, item->childTable))
+            if (!is_LPAREN(self) || !condition(self, item->childTable, 0))
             {
                 return 0;
             }
@@ -1020,7 +1024,7 @@ int simple_statement(ifjInter *self, token *item, instruction *begJump, instruct
              !get_type_without_void(self, &active) ||
              !is_ID(self, context->childTable, &active, 0) ||
              !is_ASSIGN(self) ||
-             !expression(self, context->childTable, active))
+             !expression(self, context->childTable, active, 1))
           {
               return 0;
           }
@@ -1029,7 +1033,7 @@ int simple_statement(ifjInter *self, token *item, instruction *begJump, instruct
           instruction *begLabel = self->code->last;
 
           //loop
-          if(!condition(self, context->childTable))
+          if(!condition(self, context->childTable, 1))
           {
               return 0;
           }
@@ -1048,7 +1052,7 @@ int simple_statement(ifjInter *self, token *item, instruction *begJump, instruct
           //update variable
           if(!is_ID(self, context->childTable, &active, 0) ||
              !is_ASSIGN(self) ||
-             !expression(self, context->childTable, active))
+             !expression(self, context->childTable, active, 0))
           {
               return 0;
           }
@@ -1105,7 +1109,7 @@ int simple_statement(ifjInter *self, token *item, instruction *begJump, instruct
 
             if(!is_while(self) ||
                !is_LPAREN(self) ||
-               !condition(self, item->childTable) ||
+               !condition(self, item->childTable, 0) ||
                !is_semicolon(self))
             {
                 return 0;
@@ -1148,7 +1152,7 @@ int simple_statement(ifjInter *self, token *item, instruction *begJump, instruct
         }
         case T_IF:
         {
-            if (!is_LPAREN(self) || !condition(self, item->childTable))
+            if (!is_LPAREN(self) || !condition(self, item->childTable, 0))
             {
                 return 0;
             }
@@ -1174,7 +1178,7 @@ int simple_statement(ifjInter *self, token *item, instruction *begJump, instruct
                 }
                 return ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL);
             }
-            return expression(self, item->childTable, item) &&
+            return expression(self, item->childTable, item, 1) &&
                    ifj_insert_last(self->code, I_RETURN, NULL, NULL, NULL);
 
         case T_IDENTIFIER:
@@ -1278,7 +1282,7 @@ int fce(ifjInter *self, symbolTable *table, token *item)
     }
     else if (active->type == T_ASSIGN)
     {
-        return expression(self, table, item) &&
+        return expression(self, table, item, 1) &&
                ifj_insert_last(self->code, I_SET, NULL, NULL, item);
     }
     SET_RETURN(2);
@@ -1420,7 +1424,7 @@ int sth_next(ifjInter *self, symbolTable *table, token *item)
     token * active = lexa_next_token(self->lexa_module, table);
     if (active->type == T_ASSIGN)
     {
-        return expression(self, table, item) &&
+        return expression(self, table, item, 1) &&
                ifj_insert_last(self->code, I_SET, NULL, NULL, item);
     }
     else if (active->type == T_SEMICOLON)
