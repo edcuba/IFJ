@@ -417,7 +417,7 @@ int exec_run ( ifjInter *self )
 				// but return value is not needed to set
 				if (dupOp3 == NULL)
 				{
-					ifj_stack_pop(stack);
+					freeTempTokens(instruc);
 					break;
 				}
 

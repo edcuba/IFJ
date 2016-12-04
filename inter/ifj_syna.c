@@ -753,7 +753,7 @@ int function_inside1(ifjInter *self, token *item)
             instruction *ifend = self->code->last;
 
             return statement_inside(self, item, NULL, NULL) &&
-                   if_else1(self, item, ifend) &&
+                   if_else1(self, item, ifend, NULL, NULL) &&
                    function_inside1(self, item);
         }
 
@@ -889,7 +889,7 @@ int is_ASSIGN(ifjInter *self)
  * @param item identifier for current context
  * @return 1 if else, 1 if pushBack
  **/
-int if_else1(ifjInter *self, token *item, instruction *ifend)
+int if_else1(ifjInter *self, token *item, instruction *ifend, instruction *begJump, instruction *endJump)
 {
     token * active = lexa_next_token(self->lexa_module, item->childTable);
     if (active->type == T_ELSE)
@@ -902,7 +902,7 @@ int if_else1(ifjInter *self, token *item, instruction *ifend)
         temp->jump = self->code->last;
         ifend->op3 = temp;
 
-        if (!statement_inside(self, item, NULL, NULL))
+        if (!statement_inside(self, item, begJump, endJump))
         {
             return 0;
         }
@@ -1157,7 +1157,7 @@ int simple_statement(ifjInter *self, token *item, instruction *begJump, instruct
             instruction *ifend = self->code->last;
 
             return statement_inside(self, item, begJump, endJump) &&
-                   if_else1(self, item, ifend);
+                   if_else1(self, item, ifend, begJump, endJump);
         }
 
         case T_RETURN:
