@@ -142,20 +142,9 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                         case '!':
                             state = LS_NEQ;
                             break;
-                        case '&':
-                            state = LS_AND;
-                            break;
-                        case '|':
-                            state = LS_OR;
-                            break;
                         case '+':
-                            state = LS_PLUS;
-                            break;
                         case '-':
-                            state = LS_MINUS;
-                            break;
                         case ';':
-                        case ':':
                         case '(':
                         case ')':
                         case '{':
@@ -164,7 +153,6 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                         case ']':
                         case '*':
                         case ',':
-                        case '?':
                             t = ifj_generate_token(table, newChar);
                             return t;
                         default:
@@ -322,26 +310,6 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                     t = ifj_generate_token(table, T_LESS);
                     return t;
                 }
-            case LS_AND:
-                if (newChar == '&') {
-                    t = ifj_generate_token(table, T_AND);
-                    return t;
-                } else {
-                    ungetc(newChar, l->inputFile);
-                    l->inter->returnCode = 1;
-                    t = ifj_generate_token(table, T_UNKNOWN);
-                    return t;
-                }
-            case LS_OR:
-                if (newChar == '|') {
-                    t = ifj_generate_token(table, T_OR);
-                    return t;
-                } else {
-                    ungetc(newChar, l->inputFile);
-                    l->inter->returnCode = 1;
-                    t = ifj_generate_token(table, T_UNKNOWN);
-                    return t;
-                }
             case LS_EQUAL:
                 if (newChar == '=') {
                     t = ifj_generate_token(table, T_EQUAL);
@@ -358,24 +326,6 @@ token *lexa_next_token(ifj_lexa *l, symbolTable *table) {
                 } else {
                     ungetc(newChar, l->inputFile);
                     t = ifj_generate_token(table, T_NOT);
-                    return t;
-                }
-            case LS_PLUS:
-                if (newChar == '+') {
-                    t = ifj_generate_token(table, T_INC);
-                    return t;
-                } else {
-                    ungetc(newChar, l->inputFile);
-                    t = ifj_generate_token(table, T_ADD);
-                    return t;
-                }
-            case LS_MINUS:
-                if (newChar == '-') {
-                    t = ifj_generate_token(table, T_DEC);
-                    return t;
-                } else {
-                    ungetc(newChar, l->inputFile);
-                    t = ifj_generate_token(table, T_SUBTRACT);
                     return t;
                 }
             case LS_NUMBER_ZERO:
