@@ -241,6 +241,12 @@ token * ifj_token_new   ()
     return item;
 }
 
+void ifj_instruction_free(instruction *item)
+{
+    free(item);
+}
+
+
 /**
  * Create new initialized instruction structure
  * @return instruction

@@ -75,4 +75,7 @@ token *ifj_substr (	int n,
 token *ifj_compare (const char *s1,
 					const char *s2 );
 
+int ifj_insert_last_instruc(linear_list *list,
+							instruction *instruc);
+
 #endif

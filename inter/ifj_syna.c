@@ -593,17 +593,22 @@ int function_inside1(ifjInter *self, token *item)
             ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
             instruction *go = self->code->last;
 
-            if (!statement_inside(self, item))
+            instruction *endLabel = ifj_instruction_new();
+            endLabel->type = I_LABEL;
+            if (!statement_inside(self, item, begLabel, endLabel))
             {
+                ifj_instruction_free(endLabel);
                 return 0;
             }
 
             token *beg = ifj_generate_temp(T_VOID, NULL);
             beg->jump = begLabel;
             ifj_insert_last(self->code, I_GOTO, NULL, NULL, beg);
-            ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+
+            ifj_insert_last_instruc(self->code, endLabel);
+
             beg = ifj_generate_temp(T_VOID, NULL);
-            beg->jump = self->code->last;
+            beg->jump = endLabel;
 
             go->op3 = beg;
 
@@ -614,7 +619,7 @@ int function_inside1(ifjInter *self, token *item)
         {
             //initialization
             token *context = ifj_generate_temp(T_VOID, NULL);
-             context->type = T_FOR_BLOCK;
+            context->type = T_FOR_BLOCK;
             context->value = ifj_generate_hashname_for(self->innerBlocks);
             self->innerBlocks += 1;
             context->childTable = ial_symbol_table_new(1);
@@ -673,8 +678,11 @@ int function_inside1(ifjInter *self, token *item)
             ifyes->op3 = tmp2;
 
             //inner code
-            if(!statement_inside(self, context))
+            instruction *endLabel = ifj_instruction_new();
+            endLabel->type = I_LABEL;
+            if(!statement_inside(self, context, begLabel, endLabel))
             {
+                ifj_instruction_free(endLabel);
                 return 0;
             }
 
@@ -684,9 +692,9 @@ int function_inside1(ifjInter *self, token *item)
             ifj_insert_last(self->code, I_GOTO, NULL, NULL, tmp3);
 
             //end label
-            ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+            ifj_insert_last_instruc(self->code, endLabel);
             token *tmp4 = ifj_generate_temp(T_VOID, NULL);
-            tmp4->jump = self->code->last;
+            tmp4->jump = endLabel;
             ifnot->op3 = tmp4;
 
             //end of for
@@ -698,9 +706,11 @@ int function_inside1(ifjInter *self, token *item)
         {
             ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
             instruction *begLabel = self->code->last;
-
-            if (!statement_inside(self, item))
+            instruction *endLabel = ifj_instruction_new();
+            endLabel->type = I_LABEL;
+            if (!statement_inside(self, item, begLabel, endLabel))
             {
+                ifj_instruction_free(endLabel);
                 return 0;
             }
 
@@ -717,9 +727,9 @@ int function_inside1(ifjInter *self, token *item)
             token *beg = ifj_generate_temp(T_VOID, NULL);
             beg->jump = begLabel;
             ifj_insert_last(self->code, I_GOTO, NULL, NULL, beg);
-            ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+            ifj_insert_last_instruc(self->code, endLabel);
             beg = ifj_generate_temp(T_VOID, NULL);
-            beg->jump = self->code->last;
+            beg->jump = endLabel;
             ifnot->op3 = beg;
             return function_inside1(self, item);
         }
@@ -734,7 +744,7 @@ int function_inside1(ifjInter *self, token *item)
             ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
             instruction *ifend = self->code->last;
 
-            return statement_inside(self, item) &&
+            return statement_inside(self, item, NULL, NULL) &&
                    if_else1(self, item, ifend) &&
                    function_inside1(self, item);
         }
@@ -884,7 +894,7 @@ int if_else1(ifjInter *self, token *item, instruction *ifend)
         temp->jump = self->code->last;
         ifend->op3 = temp;
 
-        if (!statement_inside(self, item))
+        if (!statement_inside(self, item, NULL, NULL))
         {
             return 0;
         }
@@ -931,9 +941,11 @@ int is_LBLOCK(ifjInter *self)
  * - Expects "}", "while", "for", "if", "break", "continue", "return", "id"
  * @param self global structure
  * @param item identifier for current context
+ * @param begJump statement to jump on in continue
+ * @param endJump label to jump on in break
  * @return 1 if successful
  **/
-int simple_statement(ifjInter *self, token *item)
+int simple_statement(ifjInter *self, token *item, instruction *begJump, instruction *endJump)
 {
     token * active = NULL;
     if(self->pushBack)
@@ -963,17 +975,20 @@ int simple_statement(ifjInter *self, token *item)
             ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
             instruction *go = self->code->last;
 
-            if (!statement_inside(self, item))
+            instruction *endLabel = ifj_instruction_new();
+            endLabel->type = I_LABEL;
+            if (!statement_inside(self, item, begLabel, endLabel))
             {
+                ifj_instruction_free(endLabel);
                 return 0;
             }
 
             token *beg = ifj_generate_temp(T_VOID, NULL);
             beg->jump = begLabel;
             ifj_insert_last(self->code, I_GOTO, NULL, NULL, beg);
-            ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+            ifj_insert_last_instruc(self->code, endLabel);
             beg = ifj_generate_temp(T_VOID, NULL);
-            beg->jump = self->code->last;
+            beg->jump = endLabel;
 
             go->op3 = beg;
 
@@ -1043,8 +1058,11 @@ int simple_statement(ifjInter *self, token *item)
           ifyes->op3 = tmp2;
 
           //inner code
-          if(!statement_inside(self, context))
+          instruction *endLabel = ifj_instruction_new();
+          endLabel->type = I_LABEL;
+          if(!statement_inside(self, context, begLabel, endLabel))
           {
+              ifj_instruction_free(endLabel);
               return 0;
           }
 
@@ -1054,9 +1072,9 @@ int simple_statement(ifjInter *self, token *item)
           ifj_insert_last(self->code, I_GOTO, NULL, NULL, tmp3);
 
           //end label
-          ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+          ifj_insert_last_instruc(self->code, endLabel);
           token *tmp4 = ifj_generate_temp(T_VOID, NULL);
-          tmp4->jump = self->code->last;
+          tmp4->jump = endLabel;
           ifnot->op3 = tmp4;
 
           //end of for
@@ -1069,8 +1087,11 @@ int simple_statement(ifjInter *self, token *item)
             ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
             instruction *begLabel = self->code->last;
 
-            if (!statement_inside(self, item))
+            instruction *endLabel = ifj_instruction_new();
+            endLabel->type = I_LABEL;
+            if (!statement_inside(self, item, begLabel, endLabel))
             {
+                ifj_instruction_free(endLabel);
                 return 0;
             }
 
@@ -1088,12 +1109,13 @@ int simple_statement(ifjInter *self, token *item)
             token *beg = ifj_generate_temp(T_VOID, NULL);
             beg->jump = begLabel;
             ifj_insert_last(self->code, I_GOTO, NULL, NULL, beg);
-            ifj_insert_last(self->code, I_LABEL, NULL, NULL, NULL);
+            ifj_insert_last_instruc(self->code, endLabel);
             beg = ifj_generate_temp(T_VOID, NULL);
-            beg->jump = self->code->last;
+            beg->jump = endLabel;
             ifnot->op3 = beg;
             return 1;
         }
+        //TODO
         /*case T_BREAK:
             return is_semicolon(self);
         case T_CONTINUE:
@@ -1109,7 +1131,7 @@ int simple_statement(ifjInter *self, token *item)
             ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
             instruction *ifend = self->code->last;
 
-            return statement_inside(self, item) &&
+            return statement_inside(self, item, NULL, NULL) &&
                    if_else1(self, item, ifend);
         }
 
@@ -1154,18 +1176,20 @@ int simple_statement(ifjInter *self, token *item)
  * - Expects multiple simple statements
  * @param self global structure
  * @param item identifier for current context
+ * @param begJump statement to jump on in continue
+ * @param endJump label to jump on in break
  * @return 1 if successful
  **/
-int statement_inside(ifjInter *self, token *item)
+int statement_inside(ifjInter *self, token *item, instruction *begJump, instruction *endJump)
 {
     token *active = lexa_next_token(self->lexa_module, item->childTable);
     if(active->type == T_LBLOCK) // {... statement ...}
     {
-        return statement_inside1(self, item);
+        return statement_inside1(self, item, begJump, endJump);
     }
     // SIMPLE statement + pushBack
     self->pushBack = active;
-    return simple_statement(self, item);
+    return simple_statement(self, item, begJump, endJump);
 }
 
 /**
@@ -1174,14 +1198,16 @@ int statement_inside(ifjInter *self, token *item)
  * - Expects multiple simple statements
  * @param self global structure
  * @param item identifier for current context
+ * @param begJump statement to jump on in continue
+ * @param endJump label to jump on in break
  * @return 1 if successful
  **/
-int statement_inside1(ifjInter *self, token *item)
+int statement_inside1(ifjInter *self, token *item, instruction *begJump, instruction *endJump)
 {
-    switch (simple_statement(self, item))
+    switch (simple_statement(self, item, begJump, endJump))
     {
         case 1: //block continues
-            return statement_inside1(self, item);
+            return statement_inside1(self, item, begJump, endJump);
         case 2: //end of statement
             return 1;
     };

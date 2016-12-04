@@ -34,9 +34,9 @@ int function_inside1(ifjInter *self, token *item);
 
 int if_else1(ifjInter *self, token *item, instruction *ifend);
 
-int statement_inside(ifjInter *self, token *item);
-int statement_inside1(ifjInter *self, token *item);
-int simple_statement(ifjInter *self, token *item);
+int statement_inside(ifjInter *self, token *item, instruction *begJump, instruction *endJump);
+int statement_inside1(ifjInter *self, token *item, instruction *begJump, instruction *endJump);
+int simple_statement(ifjInter *self, token *item, instruction *begJump, instruction *endJump);
 
 int sth_next(ifjInter *self, symbolTable *table, token *item);
 int fce(ifjInter *self, symbolTable *table, token *item);
