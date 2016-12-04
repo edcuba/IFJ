@@ -317,6 +317,24 @@ void print_unexpected(ifjInter *self, token *item)
         case T_ELSE:
             fprintf(stderr, "else\"\n");
             break;
+        case T_BREAK:
+            fprintf(stderr, "break\"\n");
+            break;
+        case T_CONTINUE:
+            fprintf(stderr, "continue\"\n");
+            break;
+        case T_IF:
+            fprintf(stderr, "if\"\n");
+            break;
+        case T_WHILE:
+            fprintf(stderr, "while\"\n");
+            break;
+        case T_FOR:
+            fprintf(stderr, "for\"\n");
+            break;
+        case T_FOR_BLOCK:
+            fprintf(stderr, "for\"\n");
+            break;
         default:
             if (item->type < 256)
                 fprintf(stderr,"%c\"\n", item->type);

@@ -688,7 +688,7 @@ int function_inside1(ifjInter *self, token *item)
             //inner code
             instruction *endLabel = ifj_instruction_new();
             endLabel->type = I_LABEL;
-            if(!statement_inside(self, context, begLabel, endLabel))
+            if(!statement_inside(self, context, updateLabel, endLabel))
             {
                 ifj_instruction_free(endLabel);
                 return 0;
@@ -765,7 +765,7 @@ int function_inside1(ifjInter *self, token *item)
                     self->returnCode = 4;
                     return 0;
                 }
-                if ( !strcmp((char *) item->value, "run") )
+                if (self->inMain && !strcmp((char *) item->value, "run") )
                 {
                     return ifj_insert_last(self->code, I_RUN_END, NULL, NULL, NULL) &&
                            function_inside1(self, item);
@@ -1068,7 +1068,7 @@ int simple_statement(ifjInter *self, token *item, instruction *begJump, instruct
           //inner code
           instruction *endLabel = ifj_instruction_new();
           endLabel->type = I_LABEL;
-          if(!statement_inside(self, context, begLabel, endLabel))
+          if(!statement_inside(self, context, updateLabel, endLabel))
           {
               ifj_instruction_free(endLabel);
               return 0;
@@ -1123,12 +1123,29 @@ int simple_statement(ifjInter *self, token *item, instruction *begJump, instruct
             ifnot->op3 = beg;
             return 1;
         }
-        //TODO
-        /*case T_BREAK:
-            return is_semicolon(self);
+        case T_BREAK:
+        {
+            if(endJump)
+            {
+                token *tmpEnd = ifj_generate_temp(T_VOID, NULL);
+                tmpEnd->jump = endJump;
+                ifj_insert_last(self->code, I_GOTO, NULL, NULL, tmpEnd);
+                return is_semicolon(self);
+            }
+            break; //unexpected
+        }
+
         case T_CONTINUE:
-            return is_semicolon(self);
-            */
+        {
+            if(begJump)
+            {
+                token *tmpBeg = ifj_generate_temp(T_VOID, NULL);
+                tmpBeg->jump = begJump;
+                ifj_insert_last(self->code, I_GOTO, NULL, NULL, tmpBeg);
+                return is_semicolon(self);
+            }
+            break; //unexpected
+        }
         case T_IF:
         {
             if (!is_LPAREN(self) || !condition(self, item->childTable))
@@ -1139,7 +1156,7 @@ int simple_statement(ifjInter *self, token *item, instruction *begJump, instruct
             ifj_insert_last(self->code, I_GOTO_CONDITION, NULL, NULL, NULL);
             instruction *ifend = self->code->last;
 
-            return statement_inside(self, item, NULL, NULL) &&
+            return statement_inside(self, item, begJump, endJump) &&
                    if_else1(self, item, ifend);
         }
 
@@ -1151,7 +1168,7 @@ int simple_statement(ifjInter *self, token *item, instruction *begJump, instruct
                     self->returnCode = 4;
                     return 0;
                 }
-                if ( !strcmp((char *) item->value, "run") )
+                if (self->inMain && !strcmp((char *) item->value, "run"))
                 {
                     return ifj_insert_last(self->code, I_RUN_END, NULL, NULL, NULL);
                 }
