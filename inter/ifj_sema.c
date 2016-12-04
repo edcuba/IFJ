@@ -192,7 +192,7 @@ void print_table(symbolTable *table, int level)
 		token *item = table->row[i];
 		while (item != NULL)
 		{
-            if(item->type == T_IDENTIFIER)
+            if(item->type == T_IDENTIFIER || item->type == T_FOR_BLOCK)
             {
                 for(int j = 0; j <= level; ++j)
                     fprintf(stderr,"\t");
@@ -304,10 +304,11 @@ token *duplicate_context(token *item)
                 clone->value = strdup((char *) source->value);
                 ial_symbol_table_add_item(newTable, clone, NULL);
             }
-            else if(source->type == T_TMP) //for block
+            else if(source->type == T_FOR_BLOCK) //for block
             {
                 token *duplFor = duplicate_context(source);
                 ial_symbol_table_add_item(newTable, duplFor, NULL);
+                duplFor->childTable->parent = newTable;
             }
 			source = source->next;
 		}
@@ -342,5 +343,6 @@ inline token *resolve_context(ifjInter *self, token *item, token *target)
     }
     //resolve but dont free item
     resolve_identifier(self, target->childTable, &item, -1);
+
     return item;
 }

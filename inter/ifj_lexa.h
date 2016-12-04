@@ -70,6 +70,7 @@
 #define T_UNKNOWN 502
 #define T_TMP 503
 #define T_EOL 504
+#define T_FOR_BLOCK 505
 
 enum lexa_state {
 

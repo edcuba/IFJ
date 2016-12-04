@@ -874,7 +874,9 @@ int exec_run ( ifjInter *self )
 
 			case I_FOR_START:
 			{
-				ifj_stack_push(contextStack, instruc->op1);
+				token *forContext = instruc->op1;
+				forContext->childTable->parent = ifj_stack_top(contextStack)->childTable;
+				ifj_stack_push(contextStack, forContext);
 				break;
 			}
 
