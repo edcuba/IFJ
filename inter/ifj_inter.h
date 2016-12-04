@@ -113,6 +113,7 @@ struct _ifjInter
     int returnCode;
     instruction *bootstrap;
     int innerBlocks;
+    int inMain;
 };
 
 ifjInter    *ifj_inter_new();

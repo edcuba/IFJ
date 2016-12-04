@@ -62,14 +62,22 @@ int next_class(ifjInter *self)
     }
     else if (active->type == T_CLASS && is_ID(self, self->table, &active, 1))
     {
+        if (!strcmp((char *) active->value, "Main"))
+        {
+            self->inMain = 1;
+        }
+        else
+        {
+            self->inMain = 0;
+        }
         if(self->preLoad)
         {
             active->childTable = ial_symbol_table_new(97);
             active->childTable->parent = self->table;
         }
         if(active->childTable)
-        return class_inside(self, active->childTable) &&
-               next_class(self);
+            return class_inside(self, active->childTable) &&
+                   next_class(self);
     }
     SET_RETURN(2);
     print_unexpected(self, active);
@@ -572,7 +580,7 @@ int function_inside1(ifjInter *self, token *item)
         case T_RBLOCK:
             if(item->dataType == T_VOID)
             {
-                if ( !strcmp((char *) item->value, "run") )
+                if(self->inMain && !strcmp((char *) item->value, "run"))
                 {
                     return ifj_insert_last(self->code, I_RUN_END, NULL, NULL, NULL);
                 }

@@ -171,6 +171,7 @@ ifjInter* ifj_inter_new()
     self->preLoad = 1;
     self->bootstrap = NULL;
     self->innerBlocks = 0;
+    self->inMain = 0;
     return self;
 }
 
