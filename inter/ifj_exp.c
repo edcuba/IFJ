@@ -18,6 +18,7 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
     int rc;
     int count = 0;
     int end_condition = 1;
+    int end_char_1;
 
     token * instructHelp;
     token * top_stack;
@@ -303,7 +304,14 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
             }
             break;
         }
-    } while(end_condition && !(active->type == T_SEMICOLON && top_stack->type == T_SEMICOLON));
+    } while(end_condition && !(end_char_1 = (active->type == T_SEMICOLON && top_stack->type == T_SEMICOLON)));
+
+    if ((end_condition == 0 && endChar == 1) || (end_char_1 == 1 && endChar == 0))
+    {
+        print_unexpected(self, active);
+        SET_RETURN(2);
+        return 0;
+    }
 
     if(self->debugMode)
     {
@@ -333,6 +341,7 @@ int expression(ifjInter *self, symbolTable *table, token *expected, int endChar)
     int a; // first symbol on stack is automatically $ --> 7;
     int rc;
     int end_condition = 1;
+    int end_char_1;
 
     token * top_stack;
     token * top_on_help_stack;
@@ -617,7 +626,16 @@ int expression(ifjInter *self, symbolTable *table, token *expected, int endChar)
             }
         }
 
-    } while(((active->type != T_SEMICOLON) || (top_stack->type != T_SEMICOLON)) && end_condition);
+    } while(end_condition && !(end_char_1 = (active->type == T_SEMICOLON && top_stack->type == T_SEMICOLON)));
+
+    if ((end_condition == 0 && endChar == 1) || (end_char_1 == 1 && endChar == 0))
+    {
+        print_unexpected(self, active);
+        SET_RETURN(2);
+        return 0;
+    }
+
+
 
     if(self->debugMode)
     {
