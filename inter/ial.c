@@ -195,61 +195,32 @@ static int ifj_find_help ( const char *s1, const char *search )
 
 	int inputLength = strlen(s1);
 	int searchLength = strlen(search);
+	int kmpArray[searchLength];
 
-	if ( searchLength > inputLength ) {
-		return -1;
-	}
-
-	int kmpArray[ searchLength ];
-
-	int i = 0;
 	int j = kmpArray[0] = -1;
-	while ( i < searchLength )
+
+	for (int i = 1; i < searchLength; ++i)
 	{
-		while ( j > -1 && search[i] != search[j] )
-		{
+		while (j > -1 && search[i] != search[j + 1])
 			j = kmpArray[j];
-		}
 
-		i++;
-		j++;
+		if (search[i] == search[j + 1])
+			++j;
 
-		if ( search[i] == search[j] )
-		{
-			kmpArray[i] = kmpArray[j];
-		}
-		else
-		{
-			kmpArray[i] = j;
-		}
+		kmpArray[i] = j;
 	}
 
-	i = 0;
-	j = 0;
-
-	while ( i < inputLength )
+	j = -1;
+	for (int i = 0; i < inputLength; ++i)
 	{
-		if ( search[i] == s1[j] )
-		{
-			if ( i == searchLength - 1 )
-			{
-				return( j - searchLength + 1 );
-			}
-			else
-			{
-				i++;
-				j++;
-			}
-		}
-		else if ( kmpArray[i] == -1 )
-		{
-			i = 0;
-			j++;
-		}
-		else
-		{
-			i = kmpArray[i];
-		}
+		while (j > -1 && s1[i] != search[j + 1])
+			j = kmpArray[j];
+
+		if (s1[i] == search[j + 1])
+			++j;
+
+		if (j == searchLength - 1)
+			return i-j;
 	}
 	return -1;
 }
