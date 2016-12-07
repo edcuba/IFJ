@@ -350,6 +350,21 @@ int expression(ifjInter *self, symbolTable *table, token *expected, int endChar)
     ifj_stack_clear(syna->help_stack);
     ifj_stack_clear(syna->type_stack);
 
+    if(active->type == T_SEMICOLON)
+    {
+        print_unexpected(self, active);
+        if(expected->childTable) //non-void function and we are in return
+        {
+            SET_RETURN(4);
+            return 0;
+        }
+        else //we are in some statement
+        {
+            SET_RETURN(2);
+            return 0;
+        }
+    }
+
     if (active->type == T_IDENTIFIER ||
         active->type == T_STRING_C ||
         active->type == T_INTEGER_C ||

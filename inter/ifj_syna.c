@@ -60,8 +60,12 @@ int next_class(ifjInter *self)
     {
         return 1;
     }
-    else if (active->type == T_CLASS && is_ID(self, self->table, &active, 1))
+    else if (active->type == T_CLASS)
     {
+        if(!is_ID(self, self->table, &active, 1))
+        {
+            return 0;
+        }
         if (!strcmp((char *) active->value, "Main"))
         {
             self->inMain = 1;
@@ -175,7 +179,7 @@ int is_ID(ifjInter *self, symbolTable *table, token **item, int stat)
         }
     }
 
-    SET_RETURN(4);
+    SET_RETURN(2);
     print_unexpected(self, active);
     return 0;
 }
@@ -1109,7 +1113,7 @@ int simple_statement(ifjInter *self, token *item, instruction *begJump, instruct
                 return 0;
             }
             ifj_insert_last_instruc(self->code, condLabel);
-            
+
             if(!is_while(self) ||
                !is_LPAREN(self) ||
                !condition(self, item->childTable, 0) ||

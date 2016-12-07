@@ -335,6 +335,18 @@ void print_unexpected(ifjInter *self, token *item)
         case T_FOR_BLOCK:
             fprintf(stderr, "for\"\n");
             break;
+        case T_CLASS:
+            fprintf(stderr, "class\"\n");
+            break;
+        case T_INTEGER:
+            fprintf(stderr, "int\"\n");
+            break;
+        case T_DOUBLE:
+            fprintf(stderr, "double\"\n");
+            break;
+        case T_STRING:
+            fprintf(stderr, "String\"\n");
+            break;
         default:
             if (item->type < 256)
                 fprintf(stderr,"%c\"\n", item->type);
