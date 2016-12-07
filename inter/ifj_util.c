@@ -425,11 +425,12 @@ token *ifj_read_int ()
 	errno = 0;
 	long in = strtol(dyn_buffer_get_content(buffer), &endptr, 10);
 
+    char end = *endptr;
+    dyn_buffer_free(buffer);
+
 	if (*endptr != '\0') {
 		return NULL;
 	}
-
-    dyn_buffer_free(buffer);
 
 	if (errno != 0 || in > INT_MAX) {
 		return NULL;
@@ -453,6 +454,7 @@ token *ifj_read_double ()
 		if (isdigit(ch) || ch == '.' || ch == 'e' || ch == 'E') {
 			dyn_buffer_append(buffer, ch);
 		} else {
+            dyn_buffer_free(buffer);
 			return NULL;
 		}
 
@@ -467,11 +469,12 @@ token *ifj_read_double ()
 	errno = 0;
     double in = strtod(dyn_buffer_get_content(buffer), &endptr);
 
-    if (*endptr != '\0') {
+    char end = *endptr;
+    dyn_buffer_free(buffer);
+
+    if (end != '\0') {
         return NULL;
     }
-
-    dyn_buffer_free(buffer);
 
     if (errno != 0) {
         return NULL;
