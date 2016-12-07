@@ -428,7 +428,7 @@ token *ifj_read_int ()
     char end = *endptr;
     dyn_buffer_free(buffer);
 
-	if (*endptr != '\0') {
+	if (end != '\0') {
 		return NULL;
 	}
 
