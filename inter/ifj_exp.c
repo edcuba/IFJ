@@ -168,14 +168,25 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
                 break;
 
             case T_GREATER:
-                do // fullfiling the help_stack
+                ///FIXME JANY OPRAVIT
+                do //filling the help_stack
                 {
-                    ifj_stack_push(syna->help_stack, ifj_stack_pop(syna->stack));
-                } while(ifj_stack_top(syna->stack)->type != syna->t_less->type);
-
+                    if(!ifj_stack_empty(syna->stack))
+                    {
+                        ifj_stack_push(syna->help_stack, ifj_stack_pop(syna->stack));
+                    }
+                    else
+                    {
+                        SET_RETURN(2);
+                        return 0;
+                    }
+                }
+                while(!ifj_stack_empty(syna->stack) &&
+                      ifj_stack_top(syna->stack)->type != syna->t_less->type);
+                ///
+                
                 ifj_stack_pop(syna->stack); // POP  T_LESS form stack
                 top_on_help_stack = ifj_stack_pop(syna->help_stack);
-
                 switch (top_on_help_stack->type)
                 {
                     case T_LPAREN:
@@ -289,7 +300,17 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
                         case T_LESS_EQUAL:
                         case T_NOT_EQUAL:
                             count++;
-                            if (E_reduct(self, I_CONDITION, 5, 0, syna, active, top_on_help_stack, &top_stack, instructHelp) == 0)
+                            if (E_reduct(
+                                    self,
+                                    I_CONDITION,
+                                    5,
+                                    0,
+                                    syna,
+                                    active,
+                                    top_on_help_stack,
+                                    &top_stack,
+                                    instructHelp
+                                ) == 0)
                             {
                                 return 0;
                             }
@@ -902,7 +923,15 @@ int type_control_plus(ifjInter *self)
 }
 
 
-int E_reduct(ifjInter *self, int insert, int debug_constant,int plus_operation, ifjSyna *syna, token * active,  token * top_on_help_stack, token **top_stack, token * instructHelp)
+int E_reduct(ifjInter *self,
+             int insert,
+             int debug_constant,
+             int plus_operation,
+             ifjSyna *syna,
+             token * active,
+             token * top_on_help_stack,
+             token **top_stack,
+             token * instructHelp)
 {
     top_on_help_stack = ifj_stack_pop(syna->help_stack);
     if (top_on_help_stack == syna->E)
@@ -910,7 +939,6 @@ int E_reduct(ifjInter *self, int insert, int debug_constant,int plus_operation, 
         if(ifj_stack_empty(syna->help_stack))
         {
             *top_stack = ifj_stack_top(syna->stack);
-            //printf("%c aaaaaaaaaaaaa\n",&top_stack->)type);
 
             ifj_stack_push(syna->stack, syna->E);
             if (plus_operation)
@@ -983,7 +1011,12 @@ int E_reduct(ifjInter *self, int insert, int debug_constant,int plus_operation, 
 
 }
 
-int E_simple_reduct(ifjInter *self, int debug_constant, ifjSyna *syna, token **top_stack, token * top_on_help_stack, token * active)
+int E_simple_reduct(ifjInter *self,
+                    int debug_constant,
+                    ifjSyna *syna,
+                    token **top_stack,
+                    token *top_on_help_stack,
+                    token *active)
 {
     if (ifj_stack_empty(syna->help_stack))
     {
@@ -1008,7 +1041,6 @@ int E_simple_reduct(ifjInter *self, int debug_constant, ifjSyna *syna, token **t
                 case 4:
                     fprintf(stderr, "E --> double\n");
                     break;
-
             }
         }
     }

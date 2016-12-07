@@ -28,8 +28,22 @@ int type_control_plus(ifjInter *self);
 
 
 
-int E_reduct(ifjInter *self, int insert, int debug_constant, int plus_operation, ifjSyna *syna, token * active,  token * top_on_help_stack, token **top_stack, token * instructHelp);
-int E_simple_reduct(ifjInter *self, int debug_constant, ifjSyna *syna, token **top_stack, token * top_on_help_stack, token * active);
+int E_reduct(ifjInter *self,
+             int insert,
+             int debug_constant,
+             int plus_operation,
+             ifjSyna *syna,
+             token * active,
+             token * top_on_help_stack,
+             token **top_stack,
+             token * instructHelp);
+
+int E_simple_reduct(ifjInter *self,
+                    int debug_constant,
+                    ifjSyna *syna,
+                    token **top_stack,
+                    token * top_on_help_stack,
+                    token * active);
 
 
 #endif
