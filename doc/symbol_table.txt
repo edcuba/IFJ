@@ -1,0 +1,11 @@
+Tabuľka symbolov s rozptýlenými položkami
+
+Tabuľku symbolov sme podľa zadania implementovali ako tabuľku s rozptýlenými položkami. Na rozptýlenie položiek využívame rozptylovú funkciu využívanú v SDBM[1](Simple DataBase Module) a Berkley DB. Do tabuľky symbolov ukladáme dátovú štruktúru tokenu. V samotnej štruktúre tabuľky držíme informáciu o jej veľkosti (ktorá je v prípade duplikovania tabuľky dynamická), počte platných identifikátorov a jej otcovskej tabuľke.
+
+Na začiatku behu syntaktickej analýzy si vytvoríme hlavnú tabuľku, do ktorej sa ukladajú tokeny reprezentujúce triedy. V tokene reprezentujúcom blok(trieda alebo funkcia) je uložený odkaz na tabuľku potomkov. Tokeny do tabuľky symbolov ukladáme podľa hashu ich identifikátoru. V prípade, že token identifikátor nemá(napríklad konštanta) sa meno generuje na základe jeho hodnoty a typu.
+
+V tokene si vedieme informáciu o jeho identifikátore(ak nejaký má), type, dátovom type a dátach. V prípade že token reprezentuje funkciu, drží si zoznam argumentov pre funkciu, ktoré predstavujú tokeny uložené v jeho tabuľke potomkov. Pri hľadaní identifikátora začíname hľadať v aktuálnom kontexte bloku a postupujeme smerom nahor pomocou odkazu na otcovskú tabuľku, čím riešime problém zatienenia premenných.
+
+Pri volaní funkcie v exekútore sa tabuľka potomkov identifikátora funkcie duplikuje. Veľkosť novej tabuľky je heuristicky určená podľa počtu aktívnych identifikátorov v tabuľke. Po návrate z funkcie je duplikovaná tabuľka uvoľnená.
+
+[1] Zdroj: http://www.cse.yorku.ca/~oz/hash.html 
