@@ -176,13 +176,13 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
                     }
                     else
                     {
+                        print_unexpected(self, active);
                         SET_RETURN(2);
                         return 0;
                     }
                 }
                 while(!ifj_stack_empty(syna->stack) &&
                       ifj_stack_top(syna->stack)->type != syna->t_less->type);
-
                 ifj_stack_pop(syna->stack); // POP  T_LESS form stack
                 top_on_help_stack = ifj_stack_pop(syna->help_stack);
                 switch (top_on_help_stack->type)
@@ -192,6 +192,12 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
                          * after T_LPAREN check
                          * if stack is empty else return 0 */
                         top_on_help_stack = ifj_stack_pop(syna->help_stack);
+                        if(!top_on_help_stack)
+                        {
+                            print_unexpected(self, active);
+                            SET_RETURN(2);
+                            return 0;
+                        }
                         if (top_on_help_stack->type == E_TYPE) // E hash number
                         {
                             top_on_help_stack = ifj_stack_pop(syna->help_stack);
@@ -320,11 +326,6 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
                             return 0;
                             break;
                     }
-                    default:
-                    print_unexpected(self, active);
-                    SET_RETURN(2);
-                    return 0;
-
             }
             break;
         }
@@ -538,7 +539,6 @@ int expression(ifjInter *self, symbolTable *table, token *expected, int endChar)
                 return 0;
 
             case T_GREATER:
-                printf("ahoj\n" );
 
                 do // will fulling help_stack which one will using next
                 {
@@ -605,7 +605,6 @@ int expression(ifjInter *self, symbolTable *table, token *expected, int endChar)
                         break;
 
                     case T_INTEGER_C:
-                    printf("ahoj\n" );
                         if (E_simple_reduct(self, 2, syna, &top_stack, top_on_help_stack, active) == 0)
                         {
                             return 0;
