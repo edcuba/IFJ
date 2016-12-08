@@ -82,7 +82,7 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
         switch ((*syna->predictCondition)[a][b])
         {
             case T_TERNARY:
-                if (ifj_stack_top(syna->stack)->type == E_TYPE)
+                if (ifj_stack_top(syna->stack) && ifj_stack_top(syna->stack)->type == E_TYPE)
                 {
                     end_condition = 0;
                 }
@@ -120,7 +120,7 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
                 break;
 
             case  T_LESS:
-                if (ifj_stack_top(syna->stack)->type == E_TYPE)
+                if (ifj_stack_top(syna->stack) && ifj_stack_top(syna->stack)->type == E_TYPE)
                 {
                     top_stack = active; // new top of stack
                     ifj_stack_pop(syna->stack);
@@ -181,10 +181,16 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
                         return 0;
                     }
                 }
-                while(!ifj_stack_empty(syna->stack) &&
+                while(ifj_stack_top(syna->stack) &&
                       ifj_stack_top(syna->stack)->type != syna->t_less->type);
                 ifj_stack_pop(syna->stack); // POP  T_LESS form stack
                 top_on_help_stack = ifj_stack_pop(syna->help_stack);
+                if(!top_on_help_stack)
+                {
+                    print_unexpected(self, active);
+                    SET_RETURN(2);
+                    return 0;
+                }
                 switch (top_on_help_stack->type)
                 {
                     case T_LPAREN:
@@ -192,13 +198,7 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
                          * after T_LPAREN check
                          * if stack is empty else return 0 */
                         top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                        if(!top_on_help_stack)
-                        {
-                            print_unexpected(self, active);
-                            SET_RETURN(2);
-                            return 0;
-                        }
-                        if (top_on_help_stack->type == E_TYPE) // E hash number
+                        if (top_on_help_stack && top_on_help_stack->type == E_TYPE) // E hash number
                         {
                             top_on_help_stack = ifj_stack_pop(syna->help_stack);
                             if (top_on_help_stack->type == T_RPAREN)
@@ -266,6 +266,13 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
                 case E_TYPE: //E value
                     top_on_help_stack = ifj_stack_pop(syna->help_stack);
                     instructHelp = top_on_help_stack;
+
+                    if(!top_on_help_stack)
+                    {
+                        print_unexpected(self, active);
+                        SET_RETURN(2);
+                        return 0;
+                    }
 
                     switch (top_on_help_stack->type)
                     {
@@ -456,7 +463,7 @@ int expression(ifjInter *self, symbolTable *table, token *expected, int endChar)
                 break;
 
             case  T_LESS:
-                if (ifj_stack_top(syna->stack)->type == E_TYPE)
+                if (ifj_stack_top(syna->stack) && ifj_stack_top(syna->stack)->type == E_TYPE)
                 {
                     ifj_stack_pop(syna->stack);
                     ifj_stack_push(syna->stack, syna->t_less); // add T_LESS token on top stack
@@ -496,7 +503,7 @@ int expression(ifjInter *self, symbolTable *table, token *expected, int endChar)
              * + nezabudnut pridat "("
             */
             case T_TERNARY:
-                if (ifj_stack_top(syna->stack)->type == E_TYPE)
+                if(ifj_stack_top(syna->stack) && ifj_stack_top(syna->stack)->type == E_TYPE)
                 {
                     end_condition = 0;
                 }
@@ -524,7 +531,7 @@ int expression(ifjInter *self, symbolTable *table, token *expected, int endChar)
                 }
                 ifj_stack_pop(syna->stack);
                 ifj_stack_pop(syna->stack);
-                if (ifj_stack_top(syna->stack)->type  !=  T_SEMICOLON)
+                if (ifj_stack_top(syna->stack) && ifj_stack_top(syna->stack)->type != T_SEMICOLON)
                 {
                     print_unexpected(self, active);
                     SET_RETURN(2);
@@ -542,20 +549,35 @@ int expression(ifjInter *self, symbolTable *table, token *expected, int endChar)
 
                 do // will fulling help_stack which one will using next
                 {
-                    ifj_stack_push(syna->help_stack, ifj_stack_pop(syna->stack));
-                } while(ifj_stack_top(syna->stack)->type != syna->t_less->type);
+                    if(!ifj_stack_empty(syna->stack))
+                    {
+                        ifj_stack_push(syna->help_stack, ifj_stack_pop(syna->stack));
+                    }
+                    else
+                    {
+                        print_unexpected(self, active);
+                        SET_RETURN(2);
+                        return 0;
+                    }
+                } while(ifj_stack_top(syna->stack) &&
+                        ifj_stack_top(syna->stack)->type != syna->t_less->type);
 
                 ifj_stack_pop(syna->stack); // POP  T_LESS form stack
                 top_on_help_stack = ifj_stack_pop(syna->help_stack);
-
+                if(!top_on_help_stack)
+                {
+                    print_unexpected(self, active);
+                    SET_RETURN(2);
+                    return 0;
+                }
                 switch (top_on_help_stack->type)
                 {
                     case T_LPAREN:
                         top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                        if (top_on_help_stack->type == E_TYPE) // E hash number
+                        if (top_on_help_stack && top_on_help_stack->type == E_TYPE) // E hash number
                         {
                             top_on_help_stack = ifj_stack_pop(syna->help_stack);
-                            if (top_on_help_stack->type == T_RPAREN)
+                            if (top_on_help_stack && top_on_help_stack->type == T_RPAREN)
                             {
                                 if (ifj_stack_empty(syna->help_stack))
                                 {
@@ -620,6 +642,12 @@ int expression(ifjInter *self, symbolTable *table, token *expected, int endChar)
 
                     case E_TYPE: //E value
                         top_on_help_stack = ifj_stack_pop(syna->help_stack);
+                        if(!top_on_help_stack)
+                        {
+                            print_unexpected(self, active);
+                            SET_RETURN(2);
+                            return 0;
+                        }
                         switch (top_on_help_stack->type)
                         {
                             case T_ADD:
@@ -893,6 +921,12 @@ int type_control(ifjInter *self)
     token * first_type_stack_token = ifj_stack_pop(syna->type_stack);
     token * second_type_stack_token = ifj_stack_pop(syna->type_stack);
 
+    if(!first_type_stack_token || !second_type_stack_token)
+    {
+        SET_RETURN(4);
+        return 4;
+    }
+
     if ((first_type_stack_token->dataType == T_STRING) || (second_type_stack_token->dataType == T_STRING))
     {
         print_mistyped(self, first_type_stack_token, second_type_stack_token);
@@ -911,6 +945,12 @@ int type_control_plus(ifjInter *self)
     ifjSyna *syna = self->syna;
     token * first_type_stack_token = ifj_stack_pop(syna->type_stack);
     token * second_type_stack_token = ifj_stack_pop(syna->type_stack);
+
+    if(!first_type_stack_token || !second_type_stack_token)
+    {
+        SET_RETURN(4);
+        return 4;
+    }
 
     if (first_type_stack_token->dataType == T_STRING && second_type_stack_token->dataType == T_STRING)
     {
