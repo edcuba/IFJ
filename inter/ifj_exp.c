@@ -168,7 +168,6 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
                 break;
 
             case T_GREATER:
-                ///FIXME JANY OPRAVIT
                 do //filling the help_stack
                 {
                     if(!ifj_stack_empty(syna->stack))
@@ -183,8 +182,7 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
                 }
                 while(!ifj_stack_empty(syna->stack) &&
                       ifj_stack_top(syna->stack)->type != syna->t_less->type);
-                ///
-                
+
                 ifj_stack_pop(syna->stack); // POP  T_LESS form stack
                 top_on_help_stack = ifj_stack_pop(syna->help_stack);
                 switch (top_on_help_stack->type)
@@ -322,6 +320,11 @@ int condition(ifjInter *self, symbolTable *table, int endChar)
                             return 0;
                             break;
                     }
+                    default:
+                    print_unexpected(self, active);
+                    SET_RETURN(2);
+                    return 0;
+
             }
             break;
         }
@@ -535,6 +538,7 @@ int expression(ifjInter *self, symbolTable *table, token *expected, int endChar)
                 return 0;
 
             case T_GREATER:
+                printf("ahoj\n" );
 
                 do // will fulling help_stack which one will using next
                 {
@@ -601,6 +605,7 @@ int expression(ifjInter *self, symbolTable *table, token *expected, int endChar)
                         break;
 
                     case T_INTEGER_C:
+                    printf("ahoj\n" );
                         if (E_simple_reduct(self, 2, syna, &top_stack, top_on_help_stack, active) == 0)
                         {
                             return 0;
@@ -716,6 +721,9 @@ inline int condition_check_active(ifjInter *self, token *active, int *b)
             return 1;
 
         case T_IDENTIFIER:
+            *b = 4;
+            return 2;
+
         case T_STRING_C:
         case T_INTEGER_C:
         case T_DOUBLE_C:
@@ -822,6 +830,9 @@ inline int expression_check_active(ifjInter *self, token *active, int *b)
             return 1;
 
         case T_IDENTIFIER:
+            *b = 4;
+            return 2;
+
         case T_STRING_C:
         case T_INTEGER_C:
         case T_DOUBLE_C:
