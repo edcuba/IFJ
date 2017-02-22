@@ -1,3 +1,4 @@
+# JAVA like interpreter
 # IFJ - Tým 104, varianta a/4/II
  - Wiki: https://github.com/edynox/IFJ/wiki
  - Poznámky ku projektu: https://github.com/edynox/IFJ/wiki/Guide
