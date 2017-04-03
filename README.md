@@ -1,3 +1,5 @@
+[![wercker status](https://app.wercker.com/status/50d533ea85017f1d296dd7dc59508927/s/master "wercker status")](https://app.wercker.com/project/byKey/50d533ea85017f1d296dd7dc59508927)
+
 # JAVA like interpreter
 Functional tests: https://github.com/H00N24/ifj_tester
 
